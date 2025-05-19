@@ -1,26 +1,322 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: oklch(0.98 0.03 90.32);
+  --foreground: oklch(0.32 0.06 221.53);
+  --card: oklch(0.94 0.04 93.35);
+  --card-foreground: oklch(0.32 0.06 221.53);
+  --popover: oklch(0.94 0.04 93.35);
+  --popover-foreground: oklch(0.32 0.06 221.53);
+  --primary: oklch(0.63 0.25 0.48);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.71 0.12 185.87);
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(0.7 0.02 196.65);
+  --muted-foreground: oklch(0.32 0.06 221.53);
+  --accent: oklch(0.61 0.2 36.79);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.63 0.25 29.13);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.66 0.03 205.75);
+  --input: oklch(0.66 0.03 205.75);
+  --ring: oklch(0.63 0.25 0.48);
+  --chart-1: oklch(0.64 0.18 249.37);
+  --chart-2: oklch(0.71 0.12 185.87);
+  --chart-3: oklch(0.63 0.25 0.48);
+  --chart-4: oklch(0.61 0.2 36.79);
+  --chart-5: oklch(0.63 0.25 29.13);
+  --sidebar: oklch(0.98 0.03 90.32);
+  --sidebar-foreground: oklch(0.32 0.06 221.53);
+  --sidebar-primary: oklch(0.63 0.25 0.48);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.71 0.12 185.87);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(0.66 0.03 205.75);
+  --sidebar-ring: oklch(0.63 0.25 0.48);
+  --font-sans: Outfit, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: Space Mono, monospace;
+  --radius: 0.25rem;
+  --shadow-2xs: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.07);
+  --shadow-xs: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.07);
+  --shadow-sm: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.15),
+    2px 1px 2px -1px hsl(196.47 100% 10% / 0.15);
+  --shadow: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.15),
+    2px 1px 2px -1px hsl(196.47 100% 10% / 0.15);
+  --shadow-md: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.15),
+    2px 2px 4px -1px hsl(196.47 100% 10% / 0.15);
+  --shadow-lg: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.15),
+    2px 4px 6px -1px hsl(196.47 100% 10% / 0.15);
+  --shadow-xl: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.15),
+    2px 8px 10px -1px hsl(196.47 100% 10% / 0.15);
+  --shadow-2xl: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.38);
+  --ck-font-family: "SF Pro Rounded";
+  --ck-border-radius: 8px;
+  --ck-connectbutton-font-size: 17px;
+  --ck-connectbutton-color: #000000;
+  --ck-connectbutton-background: #ffffff;
+  --ck-connectbutton-box-shadow: -4px 4px 0px #000000, inset 0 0 0 2px #000000;
+  --ck-connectbutton-border-radius: 8px;
+  --ck-connectbutton-hover-background: #f3ede8;
+  --ck-connectbutton-active-box-shadow: 0 0 0 0 #000000, inset 0 0 0 2px #000000;
+  --ck-connectbutton-balance-color: #000000;
+  --ck-connectbutton-balance-background: #f3ede8;
+  --ck-connectbutton-balance-box-shadow: -4px 4px 0px #000000,
+    inset 0 0 0 2px #000000;
+  --ck-connectbutton-balance-hover-background: #eee5dd;
+  --ck-connectbutton-balance-connectbutton-box-shadow: -4px 8px 0px -4px #000000,
+    inset 0 0 0 2px #000000;
+  --ck-connectbutton-balance-connectbutton-border-radius: 0px 8px 8px 0;
+  --ck-primary-button-color: #373737;
+  --ck-primary-button-background: #ffffff;
+  --ck-primary-button-box-shadow: inset 0 0 0 2px #000000, -4px 4px 0 0 #000000;
+  --ck-primary-button-border-radius: 8px;
+  --ck-primary-button-hover-background: #f3ede8;
+  --ck-primary-button-hover-box-shadow: inset 0 0 0 2px #000000,
+    -0px 0px 0 0 #000000;
+  --ck-secondary-button-border-radius: 8px;
+  --ck-secondary-button-color: #373737;
+  --ck-secondary-button-background: #ffffff;
+  --ck-secondary-button-box-shadow: -4px 4px 0 0 #000000,
+    inset 0 0 0 2px #000000;
+  --ck-secondary-button-hover-background: #f3ede8;
+  --ck-secondary-button-hover-box-shadow: 0 0 0 0 #000000,
+    inset 0 0 0 2px #000000;
+  --ck-focus-color: #3b99fc;
+  --ck-overlay-background: rgba(133, 120, 122, 0.8);
+  --ck-body-color: #373737;
+  --ck-body-color-muted: rgba(0, 0, 0, 0.5);
+  --ck-body-color-muted-hover: #000000;
+  --ck-body-background: #ebe1d8;
+  --ck-body-background-transparent: rgba(255, 255, 255, 0);
+  --ck-body-background-secondary: rgba(0, 0, 0, 0.1);
+  --ck-body-background-secondary-hover-background: #4d4d4d;
+  --ck-body-background-secondary-hover-outline: #373737;
+  --ck-body-background-tertiary: #ffffff;
+  --ck-tertiary-border-radius: 8px;
+  --ck-tertiary-box-shadow: -4px 4px 0 0 #000000, inset 0 0 0 2px #000000;
+  --ck-body-action-color: #373737;
+  --ck-body-divider: #373737;
+  --ck-body-color-danger: #ff4e4e;
+  --ck-body-disclaimer-background: #e3d6c9;
+  --ck-body-disclaimer-box-shadow: -4px 4px 0 0 #000000, inset 2px 0 0 0 #000000,
+    inset -2px 0 0 0 #000000, inset 0 -2px 0 0 #000000;
+  --ck-body-disclaimer-font-weight: 500;
+  --ck-body-disclaimer-color: #888079;
+  --ck-body-disclaimer-link-color: #5b5650;
+  --ck-body-disclaimer-link-hover-color: #000000;
+  --ck-modal-box-shadow: -10px 10px 0px #000000, inset 0 0 0 2px #000000;
+  --ck-copytoclipboard-stroke: #555555;
+  --ck-tooltip-border-radius: 8px;
+  --ck-tooltip-color: #373737;
+  --ck-tooltip-background: #ffffff;
+  --ck-tooltip-background-secondary: #ebe1d8;
+  --ck-tooltip-shadow: -6px 6px 0 0 #000000, 0 0 0 2px #000000;
+  --ck-spinner-color: #1a88f8;
+  --ck-dropdown-button-color: #000;
+  --ck-dropdown-button-box-shadow: -2px 2px 0 2px #000000, 0 0 0 2px #000000;
+  --ck-dropdown-button-background: #ffffff;
+  --ck-dropdown-button-hover-background: #f3ede8;
+  --ck-dropdown-button-hover-box-shadow: -2px 2px 0 0 #000000, 0 0 0 2px #000000;
+  --ck-dropdown-pending-color: rgba(0, 0, 0, 0.5);
+  --ck-dropdown-active-color: #ffffff;
+  --ck-dropdown-active-static-color: rgba(0, 0, 0, 0.5);
+  --ck-dropdown-active-background: #3b99fc;
+  --ck-dropdown-active-box-shadow: inset 0 0 0 2px #000000;
+  --ck-dropdown-active-border-radius: 8px;
+  --ck-dropdown-color: rgba(0, 0, 0, 0.5);
+  --ck-dropdown-background: #ffffff;
+  --ck-dropdown-box-shadow: -4px 4px 0 0 #000000, inset 0 0 0 2px #000000;
+  --ck-dropdown-border-radius: 8px;
+  --ck-alert-color: rgba(0, 0, 0, 0.5);
+  --ck-alert-background: #f5f5f5;
+  --ck-alert-border-radius: 8px;
+  --ck-qr-border-radius: 8px;
+  --ck-qr-dot-color: #000000;
+  --ck-qr-border-color: #000000;
+  --ck-qr-background: #ffffff;
+  --ck-recent-badge-border-radius: 32px;
+  --ck-recent-badge-box-shadow: inset 0 0 0 2px currentColor;
+  --ck-graphic-primary-color: #000000;
+  --ck-graphic-primary-background: #ffffff;
+  --ck-graphic-compass-background: #ffffff;
+  --ck-siwe-border: #8e8985;
+}
+
+.dark {
+  --background: oklch(0.27 0.05 219.82);
+  --foreground: oklch(0.7 0.02 196.65);
+  --card: oklch(0.32 0.06 221.53);
+  --card-foreground: oklch(0.7 0.02 196.65);
+  --popover: oklch(0.32 0.06 221.53);
+  --popover-foreground: oklch(0.7 0.02 196.65);
+  --primary: oklch(0.63 0.25 0.48);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.71 0.12 185.87);
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(0.53 0.04 219.77);
+  --muted-foreground: oklch(0.7 0.02 196.65);
+  --accent: oklch(0.61 0.2 36.79);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.63 0.25 29.13);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.53 0.04 219.77);
+  --input: oklch(0.53 0.04 219.77);
+  --ring: oklch(0.63 0.25 0.48);
+  --chart-1: oklch(0.64 0.18 249.37);
+  --chart-2: oklch(0.71 0.12 185.87);
+  --chart-3: oklch(0.63 0.25 0.48);
+  --chart-4: oklch(0.61 0.2 36.79);
+  --chart-5: oklch(0.63 0.25 29.13);
+  --sidebar: oklch(0.27 0.05 219.82);
+  --sidebar-foreground: oklch(0.7 0.02 196.65);
+  --sidebar-primary: oklch(0.63 0.25 0.48);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.71 0.12 185.87);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(0.53 0.04 219.77);
+  --sidebar-ring: oklch(0.63 0.25 0.48);
+  --font-sans: Outfit, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: Space Mono, monospace;
+  --radius: 0.25rem;
+  --shadow-2xs: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.07);
+  --shadow-xs: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.07);
+  --shadow-sm: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.15),
+    2px 1px 2px -1px hsl(196.47 100% 10% / 0.15);
+  --shadow: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.15),
+    2px 1px 2px -1px hsl(196.47 100% 10% / 0.15);
+  --shadow-md: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.15),
+    2px 2px 4px -1px hsl(196.47 100% 10% / 0.15);
+  --shadow-lg: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.15),
+    2px 4px 6px -1px hsl(196.47 100% 10% / 0.15);
+  --shadow-xl: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.15),
+    2px 8px 10px -1px hsl(196.47 100% 10% / 0.15);
+  --shadow-2xl: 2px 2px 4px 0px hsl(196.47 100% 10% / 0.38);
+  --ck-connectbutton-color: #ffffff;
+  --ck-connectbutton-background: #373737;
+  --ck-connectbutton-box-shadow: -4px 4px 0px #ffffff, inset 0 0 0 2px #ffffff;
+  --ck-connectbutton-hover-background: #4d4d4d;
+  --ck-connectbutton-active-box-shadow: 0 0 0 0 #ffffff, inset 0 0 0 2px #ffffff;
+  --ck-connectbutton-balance-color: #ffffff;
+  --ck-connectbutton-balance-background: #4d4d4d;
+  --ck-connectbutton-balance-box-shadow: -4px 4px 0px #ffffff,
+    inset 0 0 0 2px #ffffff;
+  --ck-connectbutton-balance-hover-background: #5c5c5c;
+  --ck-primary-button-color: #ffffff;
+  --ck-primary-button-background: #373737;
+  --ck-primary-button-box-shadow: inset 0 0 0 2px #ffffff, -4px 4px 0 0 #ffffff;
+  --ck-primary-button-hover-background: #4d4d4d;
+  --ck-primary-button-hover-box-shadow: inset 0 0 0 2px #ffffff,
+    -0px 0px 0 0 #ffffff;
+  --ck-secondary-button-color: #ffffff;
+  --ck-secondary-button-background: #373737;
+  --ck-secondary-button-box-shadow: -4px 4px 0 0 #ffffff,
+    inset 0 0 0 2px #ffffff;
+  --ck-secondary-button-hover-background: #4d4d4d;
+  --ck-secondary-button-hover-box-shadow: 0 0 0 0 #ffffff,
+    inset 0 0 0 2px #ffffff;
+  --ck-body-color: #ffffff;
+  --ck-body-color-muted: rgba(255, 255, 255, 0.5);
+  --ck-body-color-muted-hover: #ffffff;
+  --ck-body-background: #2b2b2b;
+  --ck-body-background-transparent: rgba(0, 0, 0, 0);
+  --ck-body-background-secondary: rgba(255, 255, 255, 0.1);
+  --ck-body-background-secondary-hover-background: #3d3d3d;
+  --ck-body-background-secondary-hover-outline: #ffffff;
+  --ck-body-background-tertiary: #373737;
+  --ck-tertiary-box-shadow: -4px 4px 0 0 #ffffff, inset 0 0 0 2px #ffffff;
+  --ck-body-action-color: #ffffff;
+  --ck-body-divider: #ffffff;
+  --ck-body-color-danger: #ff4e4e;
+  --ck-body-disclaimer-background: #2b2b2b;
+  --ck-body-disclaimer-box-shadow: -4px 4px 0 0 #ffffff, inset 2px 0 0 0 #ffffff,
+    inset -2px 0 0 0 #ffffff, inset 0 -2px 0 0 #ffffff;
+  --ck-modal-box-shadow: -10px 10px 0px #ffffff, inset 0 0 0 2px #ffffff;
+  --ck-tooltip-color: #ffffff;
+  --ck-tooltip-background: #373737;
+  --ck-tooltip-background-secondary: #2b2b2b;
+  --ck-tooltip-shadow: -6px 6px 0 0 #ffffff, 0 0 0 2px #ffffff;
+  --ck-dropdown-button-color: #fff;
+  --ck-dropdown-button-box-shadow: -2px 2px 0 2px #ffffff, 0 0 0 2px #ffffff;
+  --ck-dropdown-button-background: #373737;
+  --ck-dropdown-button-hover-background: #4d4d4d;
+  --ck-dropdown-button-hover-box-shadow: -2px 2px 0 0 #ffffff, 0 0 0 2px #ffffff;
+  --ck-dropdown-color: rgba(255, 255, 255, 0.5);
+  --ck-dropdown-background: #373737;
+  --ck-dropdown-box-shadow: -4px 4px 0 0 #ffffff, inset 0 0 0 2px #ffffff;
+  --ck-alert-color: rgba(255, 255, 255, 0.5);
+  --ck-alert-background: #2b2b2b;
+  --ck-qr-dot-color: #ffffff;
+  --ck-qr-border-color: #ffffff;
+  --ck-qr-background: #373737;
+  --ck-graphic-primary-color: #ffffff;
+  --ck-graphic-primary-background: #373737;
+  --ck-graphic-compass-background: #373737;
+  --ck-siwe-border: #ffffff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+  }
 }
