@@ -130,6 +130,7 @@ const UnifiedBalance = () => {
                               <Image
                                 src={chain.chain.logo}
                                 alt={chain.chain.name}
+                                sizes="100%"
                                 fill
                                 className="rounded-full"
                               />

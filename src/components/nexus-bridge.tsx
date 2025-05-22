@@ -7,61 +7,69 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  mainnet,
-  base,
-  arbitrum,
-  optimism,
-  polygon,
-  avalanche,
-  linea,
-} from "viem/chains";
+
 import Image from "next/image";
 import { SUPPORTED_CHAINS } from "@avail/nexus-sdk";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useNexus } from "@/provider/NexusProvider";
 import { TokenBalance } from "./unified-balance";
-import { Label } from "./ui/label";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import IntentModal from "./intent-modal";
+import AllowanceModal from "./allowance-modal";
+import {
+  AVAILABLE_TOKENS,
+  chainData,
+  chainIcons,
+  INITIAL_CHAIN,
+} from "@/lib/constants";
 
-const INITIAL_CHAIN = SUPPORTED_CHAINS.ETHEREUM.toString();
+// Define types for the steps
+interface SdkStep {
+  type: string;
+  typeID: string;
+  data?: Record<string, any>;
+}
 
-const chainIcons: Record<number, string> = {
-  [SUPPORTED_CHAINS.ETHEREUM]:
-    "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
-  [SUPPORTED_CHAINS.BASE]:
-    "https://raw.githubusercontent.com/base/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg",
-  [SUPPORTED_CHAINS.ARBITRUM]:
-    "https://assets.coingecko.com/coins/images/16547/small/photo_2023-03-29_21.47.00.jpeg",
-  [SUPPORTED_CHAINS.OPTIMISM]:
-    "https://assets.coingecko.com/coins/images/25244/small/Optimism.png",
-  [SUPPORTED_CHAINS.POLYGON]:
-    "https://assets.coingecko.com/coins/images/4713/small/polygon.png",
-  [SUPPORTED_CHAINS.AVALANCHE]:
-    "https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png",
-  [SUPPORTED_CHAINS.LINEA]:
-    "https://assets.coingecko.com/asset_platforms/images/135/small/linea.jpeg?1706606705",
-  [SUPPORTED_CHAINS.SCROLL]:
-    "https://assets.coingecko.com/coins/images/50571/standard/scroll.jpg?1728376125",
-} as const;
+interface ComponentStep extends SdkStep {
+  done: boolean;
+}
 
-const chainData = {
-  [SUPPORTED_CHAINS.ETHEREUM]: mainnet,
-  [SUPPORTED_CHAINS.BASE]: base,
-  [SUPPORTED_CHAINS.ARBITRUM]: arbitrum,
-  [SUPPORTED_CHAINS.OPTIMISM]: optimism,
-  [SUPPORTED_CHAINS.POLYGON]: polygon,
-  [SUPPORTED_CHAINS.AVALANCHE]: avalanche,
-  [SUPPORTED_CHAINS.LINEA]: linea,
-  [SUPPORTED_CHAINS.SCROLL]: {
-    id: SUPPORTED_CHAINS.SCROLL,
-    name: "Scroll",
-    network: "scroll",
-    nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  },
-} as const;
+interface StepCompletionEventData {
+  typeID: string;
+  [key: string]: any;
+}
+
+interface TransactionData {
+  explorerURL: string;
+  intentHash: number;
+  timestamp: number;
+  status: "pending" | "completed";
+  token?: string;
+  amount?: string;
+}
+
+interface IntentSubmittedData {
+  explorerURL: string;
+  intentHash: number;
+}
+
+type SupportedChainId =
+  (typeof SUPPORTED_CHAINS)[keyof typeof SUPPORTED_CHAINS];
+type SupportedToken = "ETH" | "USDC" | "USDT";
+
+interface BridgeState {
+  availableBalance: TokenBalance[];
+  selectedChain: SupportedChainId;
+  selectedToken: string;
+  bridgeAmount: string;
+  isLoading: boolean;
+  isBridging: boolean;
+  error: string | null;
+  steps: ComponentStep[];
+  currentTransactionData: TransactionData | null;
+}
 
 const TokenImage = ({ src, alt }: { src: string; alt: string }) => (
   <Image
@@ -74,57 +82,30 @@ const TokenImage = ({ src, alt }: { src: string; alt: string }) => (
 );
 
 const NexusBridge = () => {
-  const [state, setState] = useState({
-    availableBalance: [] as TokenBalance[],
+  const [state, setState] = useState<BridgeState>({
+    availableBalance: [],
     selectedChain: INITIAL_CHAIN,
     selectedToken: "",
     bridgeAmount: "",
     isLoading: false,
     isBridging: false,
-    error: null as string | null,
+    error: null,
+    steps: [],
+    currentTransactionData: null,
   });
 
-  const { nexusSdk } = useNexus();
+  const {
+    nexusSdk,
+    intentModal,
+    allowanceModal,
+    setIntentModal,
+    setAllowanceModal,
+  } = useNexus();
 
-  // Memoized computations
-  const availableTokensOnChain = useMemo(() => {
-    if (!state.availableBalance.length) return [];
-
-    return state.availableBalance
-      .filter((token) =>
-        token.breakdown.some(
-          (breakdown) =>
-            breakdown.chain.id === parseInt(state.selectedChain) &&
-            parseFloat(breakdown.balance) > 0
-        )
-      )
-      .map((token) => ({
-        symbol: token.symbol,
-        icon: token.icon,
-        balance:
-          token.breakdown.find(
-            (b) => b.chain.id === parseInt(state.selectedChain)
-          )?.balance ?? "0",
-      }));
-  }, [state.availableBalance, state.selectedChain]);
-
-  const selectedTokenBalance = useMemo(() => {
-    if (!state.selectedToken) return 0;
-
-    const token = state.availableBalance.find(
-      (t) => t.symbol === state.selectedToken
-    );
-    const chainBalance = token?.breakdown.find(
-      (b) => b.chain.id === parseInt(state.selectedChain)
-    );
-    return chainBalance ? parseFloat(chainBalance.balance) : 0;
-  }, [state.availableBalance, state.selectedChain, state.selectedToken]);
-
-  // Handlers
   const handleChainSelect = useCallback((chainId: string) => {
     setState((prev) => ({
       ...prev,
-      selectedChain: chainId,
+      selectedChain: parseInt(chainId) as SupportedChainId,
       selectedToken: "",
     }));
   }, []);
@@ -156,6 +137,7 @@ const NexusBridge = () => {
         isLoading: false,
       }));
     } catch (error) {
+      console.error("Error fetching balances", error);
       setState((prev) => ({
         ...prev,
         error: "Failed to fetch balances",
@@ -170,17 +152,40 @@ const NexusBridge = () => {
 
     try {
       setState((prev) => ({ ...prev, isBridging: true, error: null }));
-      await nexusSdk?.bridge({
-        chainId: parseInt(state.selectedChain),
-        token: state.selectedToken,
+      const result = await nexusSdk?.bridge({
+        chainId: state.selectedChain,
+        token: state.selectedToken as SupportedToken,
         amount: state.bridgeAmount,
       });
-      toast.success("Bridge transaction initiated");
+      console.log("result", result);
       setState((prev) => ({ ...prev, bridgeAmount: "" }));
     } catch (error: any) {
-      const errorMessage = error?.message || "Bridge transaction failed";
+      console.log("error in bridge", error);
+
+      // Handle specific error cases
+      let errorMessage = "Bridge transaction failed";
+
+      if (error?.message?.includes("User rejected")) {
+        errorMessage = "Transaction was rejected by user";
+      } else if (
+        error?.message?.includes("User rejection during setting allowance")
+      ) {
+        errorMessage = "Token approval was rejected";
+      } else if (error?.message?.includes("insufficient funds")) {
+        errorMessage = "Insufficient funds for transaction";
+      } else if (error?.message?.includes("gas")) {
+        errorMessage = "Insufficient funds for gas fees";
+      } else if (error?.message) {
+        // If we have an error message but it's not one of our known cases,
+        // clean it up by removing any technical details after the first colon
+        errorMessage = error.message.split(":")[0];
+      }
+
       setState((prev) => ({ ...prev, error: errorMessage }));
-      toast.error(errorMessage);
+      toast.error(errorMessage, {
+        description: "Please try again",
+        duration: 4000,
+      });
     } finally {
       setState((prev) => ({ ...prev, isBridging: false }));
     }
@@ -190,13 +195,149 @@ const NexusBridge = () => {
     if (!state.availableBalance.length && !state.isLoading) {
       fetchAvailableBalance();
     }
-  }, [state.availableBalance.length, state.isLoading, fetchAvailableBalance]);
+
+    const handleExpectedSteps = (expectedStepsData: SdkStep[]) => {
+      console.log("expectedStepsData", expectedStepsData);
+      setState((prevState) => ({
+        ...prevState,
+        steps: expectedStepsData.map((s) => ({ ...s, done: false })),
+      }));
+    };
+
+    const handleStepComplete = (completedStepData: StepCompletionEventData) => {
+      console.log("completedStepData", completedStepData);
+      setState((prevState) => {
+        // Check if this step was already marked as done
+        const stepAlreadyDone = prevState.steps.find(
+          (s) => s.typeID === completedStepData.typeID && s.done
+        );
+        if (stepAlreadyDone) return prevState; // Skip if already processed
+
+        const updatedSteps = prevState.steps.map((s) =>
+          s.typeID === completedStepData.typeID ? { ...s, done: true } : s
+        );
+
+        // Find the completed step
+        const stepJustCompleted = updatedSteps.find(
+          (s) => s.typeID === completedStepData.typeID
+        );
+
+        if (stepJustCompleted?.done) {
+          // Handle final step (INTENT_FULFILLED)
+          if (completedStepData.typeID === "IF") {
+            // Update transaction status in local storage
+            const existingTransactions = JSON.parse(
+              localStorage.getItem("bridgeTransactions") ?? "[]"
+            );
+            const updatedTransactions = existingTransactions.map(
+              (tx: TransactionData) => {
+                if (
+                  tx.intentHash === state.currentTransactionData?.intentHash
+                ) {
+                  return { ...tx, status: "completed" };
+                }
+                return tx;
+              }
+            );
+            localStorage.setItem(
+              "bridgeTransactions",
+              JSON.stringify(updatedTransactions)
+            );
+
+            // Show final toast with explorer link
+            toast.success(
+              <div className="flex items-center gap-2">
+                <span>Bridge transaction completed successfully!</span>
+                {state.currentTransactionData && (
+                  <Button
+                    variant="connectkit"
+                    size="sm"
+                    onClick={() =>
+                      window.open(
+                        state.currentTransactionData?.explorerURL,
+                        "_blank"
+                      )
+                    }
+                    className="w-full"
+                  >
+                    View in Explorer
+                  </Button>
+                )}
+              </div>,
+              {
+                duration: 5000, // 5 seconds
+              }
+            );
+            fetchAvailableBalance();
+          } else {
+            const stepName = stepJustCompleted.type
+              .split("_")
+              .map(
+                (word) =>
+                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+              )
+              .join(" ");
+
+            if (
+              completedStepData.typeID === "IS" &&
+              "data" in completedStepData
+            ) {
+              const intentData = completedStepData.data as IntentSubmittedData;
+              const transactionData: TransactionData = {
+                explorerURL: intentData.explorerURL,
+                intentHash: intentData.intentHash,
+                timestamp: Date.now(),
+                status: "pending",
+                token: prevState.selectedToken,
+                amount: prevState.bridgeAmount,
+              };
+
+              // Store in local storage
+              const existingTransactions = JSON.parse(
+                localStorage.getItem("bridgeTransactions") ?? "[]"
+              );
+              localStorage.setItem(
+                "bridgeTransactions",
+                JSON.stringify([...existingTransactions, transactionData])
+              );
+
+              // Update current transaction in state
+              setState((prev) => ({
+                ...prev,
+                currentTransactionData: transactionData,
+              }));
+            }
+
+            toast.success(`${stepName}!`);
+          }
+        }
+
+        return { ...prevState, steps: updatedSteps };
+      });
+    };
+
+    // Add event listeners
+    nexusSdk?.nexusAdapter?.caEvents.on("expected_steps", handleExpectedSteps);
+    nexusSdk?.nexusAdapter?.caEvents.on("step_complete", handleStepComplete);
+
+    // Cleanup on unmount or when dependencies change
+    return () => {
+      nexusSdk?.nexusAdapter?.caEvents.off(
+        "expected_steps",
+        handleExpectedSteps
+      );
+      nexusSdk?.nexusAdapter?.caEvents.off("step_complete", handleStepComplete);
+    };
+  }, [nexusSdk, fetchAvailableBalance]);
 
   const isValidBridgeAmount = useMemo(() => {
     if (!state.bridgeAmount) return false;
     const amount = parseFloat(state.bridgeAmount);
-    return amount > 0 && amount <= selectedTokenBalance;
-  }, [state.bridgeAmount, selectedTokenBalance]);
+    const totalTokenBalance = state.availableBalance.find(
+      (t) => t.symbol === state.selectedToken
+    )?.balance;
+    return amount > 0 && amount <= parseFloat(totalTokenBalance ?? "0");
+  }, [state.bridgeAmount, state.availableBalance, state.selectedToken]);
 
   const formatBalance = (balance: number) => balance.toFixed(6);
 
@@ -211,24 +352,26 @@ const NexusBridge = () => {
   return (
     <div className="flex flex-col w-full gap-y-4 py-4">
       <div className="w-full max-w-sm space-y-4">
-        {/* Chain Select */}
-        <Select value={state.selectedChain} onValueChange={handleChainSelect}>
+        <Select
+          value={state.selectedChain.toString()}
+          onValueChange={handleChainSelect}
+        >
           <SelectTrigger className="w-full !shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)] border-none">
             <SelectValue>
               {state.selectedChain && (
                 <div className="flex items-center gap-2">
                   <TokenImage
-                    src={chainIcons[parseInt(state.selectedChain)]}
-                    alt={chainData[parseInt(state.selectedChain)]?.name || ""}
+                    src={chainIcons[state.selectedChain]}
+                    alt={chainData[state.selectedChain]?.name ?? ""}
                   />
-                  {chainData[parseInt(state.selectedChain)]?.name}
+                  {chainData[state.selectedChain]?.name}
                 </div>
               )}
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-accent-foreground rounded-[var(--ck-connectbutton-border-radius)]">
             {Object.entries(SUPPORTED_CHAINS).map(([name, chainId]) => {
-              const chain = chainData[chainId];
+              const chain = chainData[chainId as SupportedChainId];
               if (!chain) return null;
               return (
                 <SelectItem
@@ -237,7 +380,10 @@ const NexusBridge = () => {
                   className="flex items-center gap-2 hover:bg-background/50"
                 >
                   <div className="flex items-center gap-2">
-                    <TokenImage src={chainIcons[chainId]} alt={chain.name} />
+                    <TokenImage
+                      src={chainIcons[chainId as SupportedChainId]}
+                      alt={chain.name}
+                    />
                     {chain.name}
                   </div>
                 </SelectItem>
@@ -246,22 +392,17 @@ const NexusBridge = () => {
           </SelectContent>
         </Select>
 
-        {/* Token Select */}
-        <Select
-          value={state.selectedToken}
-          onValueChange={handleTokenSelect}
-          disabled={availableTokensOnChain.length === 0}
-        >
+        <Select value={state.selectedToken} onValueChange={handleTokenSelect}>
           <SelectTrigger className="w-full !shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)] border-none">
             <SelectValue placeholder="Select a token">
-              {state.selectedToken &&
-                availableTokensOnChain?.find(
+              {state.selectedChain &&
+                AVAILABLE_TOKENS?.find(
                   (t) => t.symbol === state.selectedToken
                 ) && (
                   <div className="flex items-center gap-2">
                     <TokenImage
                       src={
-                        availableTokensOnChain.find(
+                        AVAILABLE_TOKENS?.find(
                           (t) => t.symbol === state.selectedToken
                         )?.icon ?? ""
                       }
@@ -273,7 +414,7 @@ const NexusBridge = () => {
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-accent-foreground rounded-[var(--ck-connectbutton-border-radius)]">
-            {availableTokensOnChain?.map((token) => (
+            {AVAILABLE_TOKENS?.map((token) => (
               <SelectItem
                 key={token.symbol}
                 value={token.symbol}
@@ -283,9 +424,6 @@ const NexusBridge = () => {
                   <TokenImage src={token.icon ?? ""} alt={token.symbol} />
                   <div className="flex flex-col">
                     <span>{token.symbol}</span>
-                    <span className="text-xs text-muted-foreground">
-                      Balance: {formatBalance(parseFloat(token.balance))}
-                    </span>
                   </div>
                 </div>
               </SelectItem>
@@ -294,7 +432,6 @@ const NexusBridge = () => {
         </Select>
       </div>
 
-      {/* Amount Input */}
       <div className="w-full max-w-sm flex items-center gap-x-2 shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)]">
         <Input
           type="text"
@@ -304,14 +441,8 @@ const NexusBridge = () => {
           onChange={handleAmountChange}
           disabled={!state.selectedToken || state.isBridging}
         />
-        {state.selectedToken && (
-          <Label className="min-w-fit pr-2">
-            {`Balance: ${formatBalance(selectedTokenBalance)}`}
-          </Label>
-        )}
       </div>
 
-      {/* Bridge Button */}
       <Button
         variant="connectkit"
         className="w-full font-semibold"
@@ -324,6 +455,20 @@ const NexusBridge = () => {
           "Bridge"
         )}
       </Button>
+
+      {intentModal && (
+        <IntentModal
+          intentModal={intentModal}
+          setIntentModal={setIntentModal}
+        />
+      )}
+
+      {allowanceModal && (
+        <AllowanceModal
+          allowanceModal={allowanceModal}
+          setAllowanceModal={setAllowanceModal}
+        />
+      )}
     </div>
   );
 };
