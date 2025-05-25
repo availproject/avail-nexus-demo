@@ -9,34 +9,15 @@ import {
 } from "@/components/ui/accordion";
 import Image from "next/image";
 import { Separator } from "./ui/separator";
-import { Loader2 } from "lucide-react";
-
-export interface TokenBalance {
-  symbol: string;
-  balance: string;
-  balanceInFiat: number;
-  decimals: number;
-  icon: string | undefined;
-  breakdown: ChainBalance[];
-  abstracted: boolean;
-}
-
-interface ChainBalance {
-  chain: {
-    id: number;
-    name: string;
-    logo: string;
-  };
-  network: string;
-  contractAddress: string;
-  balance: string;
-  balanceInFiat: number;
-  isNative?: boolean;
-}
+import { DollarSign, Loader2 } from "lucide-react";
+import { Label } from "./ui/label";
+import { UnifiedBalanceResponse } from "@avail/nexus-sdk";
 
 const UnifiedBalance = () => {
   const { nexusSdk, isInitialized } = useNexus();
-  const [balance, setBalance] = useState<TokenBalance[] | undefined>(undefined);
+  const [balance, setBalance] = useState<UnifiedBalanceResponse[] | undefined>(
+    undefined
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,10 +28,13 @@ const UnifiedBalance = () => {
       setIsLoading(true);
       setError(null);
       const unifiedBalance = await nexusSdk.getUnifiedBalances();
-      setBalance(unifiedBalance as TokenBalance[]);
-    } catch (error: any) {
+      console.log(unifiedBalance);
+      setBalance(unifiedBalance);
+    } catch (error: unknown) {
       console.error("Unable to fetch balance", error);
-      setError(error?.message ?? "Failed to fetch balance");
+      setError(
+        error instanceof Error ? error.message : "Failed to fetch balance"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +66,19 @@ const UnifiedBalance = () => {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto py-4">
+    <div className="w-full max-w-2xl mx-auto py-4 flex flex-col gap-y-2 items-center">
+      <div className="flex items-ceter justify-start w-full">
+        <Label className="font-semibold text-muted-foreground">
+          Total Balance:
+        </Label>
+
+        <Label className="text-lg font-bold gap-x-0">
+          <DollarSign className="w-4 h-4 font-bold" strokeWidth={3} />
+          {balance
+            ?.reduce((acc, fiat) => acc + fiat.balanceInFiat, 0)
+            .toFixed(2)}
+        </Label>
+      </div>
       <Accordion type="single" collapsible className="w-full space-y-4">
         {balance
           ?.filter((token) => parseFloat(token.balance) > 0)

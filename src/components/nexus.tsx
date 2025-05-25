@@ -9,8 +9,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import UnifiedBalance from "./unified-balance";
 import NexusContentWrapper from "./nexus-content-wrapper";
-import NexusBridge from "./nexus-bridge";
 import NexusTransfer from "./nexus-transfer";
+import NexusBridge from "./bridge/nexus-bridge";
 
 const Nexus = () => {
   return (
@@ -25,9 +25,24 @@ const Nexus = () => {
         <NexusContentWrapper>
           <Tabs defaultValue="unified-balance">
             <TabsList className="grid w-full grid-cols-3 shadow-[var(--ck-primary-button-box-shadow)]">
-              <TabsTrigger value="unified-balance">Unified Balance</TabsTrigger>
-              <TabsTrigger value="bridge">Bridge</TabsTrigger>
-              <TabsTrigger value="transfer">Transfer</TabsTrigger>
+              <TabsTrigger
+                value="unified-balance"
+                className="data-[state=active]:border-secondary/50 "
+              >
+                Unified Balance
+              </TabsTrigger>
+              <TabsTrigger
+                value="bridge"
+                className="data-[state=active]:border-secondary/50 "
+              >
+                Bridge
+              </TabsTrigger>
+              <TabsTrigger
+                value="transfer"
+                className=" data-[state=active]:border-secondary/50 "
+              >
+                Transfer
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="unified-balance">
               <UnifiedBalance />

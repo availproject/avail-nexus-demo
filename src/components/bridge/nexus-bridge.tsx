@@ -1,0 +1,148 @@
+"use client";
+
+import { useBridgeTransaction } from "@/hooks/bridge/useBridgeTransaction";
+import { useTransactionHistory } from "@/hooks/bridge/useTransactionHistory";
+import { useTransactionProgress } from "@/hooks/bridge/useTransactionProgress";
+import { useNexus } from "@/provider/NexusProvider";
+import { bridgeSelectors, useBridgeStore } from "@/store/bridgeStore";
+import { Loader2 } from "lucide-react";
+import { useCallback, useEffect } from "react";
+import { toast } from "sonner";
+import { ScrollArea } from "../ui/scroll-area";
+import { TransactionHistory } from "./transaction-history";
+import { Separator } from "../ui/separator";
+import { BridgeForm } from "./bridge-form";
+import { TransactionProgress } from "./transaction-progress";
+import AllowanceChecker from "../allowance-checker";
+import IntentModal from "../intent-modal";
+import AllowanceModal from "../allowance-modal";
+
+const NexusBridge: React.FC = () => {
+  const {
+    nexusSdk,
+    intentModal,
+    allowanceModal,
+    setIntentModal,
+    setAllowanceModal,
+  } = useNexus();
+
+  const isLoading = useBridgeStore(bridgeSelectors.isLoading);
+  const availableBalance = useBridgeStore(bridgeSelectors.availableBalance);
+  const showAllowanceModal = useBridgeStore(bridgeSelectors.showAllowanceModal);
+  const selectedToken = useBridgeStore(bridgeSelectors.selectedToken);
+  const bridgeAmount = useBridgeStore(bridgeSelectors.bridgeAmount);
+  const selectedChain = useBridgeStore(bridgeSelectors.selectedChain);
+  const transactionSteps = useBridgeStore(bridgeSelectors.progressSteps);
+
+  const setLoading = useBridgeStore((state) => state.setLoading);
+  const setAvailableBalance = useBridgeStore(
+    (state) => state.setAvailableBalance
+  );
+
+  const { initializeHistory } = useTransactionHistory();
+  const { executeBridge, handleAllowanceReady, isBridging } =
+    useBridgeTransaction();
+  useTransactionProgress();
+
+  const fetchAvailableBalance = useCallback(async () => {
+    if (!nexusSdk) return;
+
+    try {
+      setLoading(true);
+      const balance = await nexusSdk.getUnifiedBalances();
+      setAvailableBalance(balance);
+    } catch (error) {
+      console.error("Error fetching balances:", error);
+      toast.error("Failed to fetch balances");
+    } finally {
+      setLoading(false);
+    }
+  }, [nexusSdk, setLoading, setAvailableBalance]);
+
+  /**
+   * Handle bridge form submission
+   */
+  const handleBridgeSubmit = useCallback(async () => {
+    const result = await executeBridge();
+
+    if (result.success) {
+      await fetchAvailableBalance();
+    }
+  }, [executeBridge, fetchAvailableBalance]);
+
+  /**
+   * Handle allowance checker completion
+   */
+  const handleAllowanceCheckerReady = useCallback(
+    async (hasAllowance: boolean) => {
+      await handleAllowanceReady(hasAllowance);
+
+      if (hasAllowance) {
+        await fetchAvailableBalance();
+      }
+    },
+    [handleAllowanceReady, fetchAvailableBalance]
+  );
+
+  useEffect(() => {
+    initializeHistory();
+    if (!availableBalance.length && !isLoading) {
+      fetchAvailableBalance();
+    }
+  }, [
+    initializeHistory,
+    availableBalance.length,
+    isLoading,
+    fetchAvailableBalance,
+  ]);
+
+  if (isLoading && !availableBalance.length) {
+    return (
+      <div className="flex items-center justify-center w-full h-48">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <ScrollArea className="h-[calc(60vh-100px)] no-scrollbar">
+      <div className="flex flex-col w-full gap-y-4 py-4">
+        <TransactionHistory />
+        <Separator />
+        <BridgeForm
+          availableBalance={availableBalance}
+          onSubmit={handleBridgeSubmit}
+          isSubmitting={isBridging}
+        />
+        {transactionSteps && transactionSteps.length > 0 && (
+          <TransactionProgress />
+        )}
+
+        {showAllowanceModal && selectedToken && bridgeAmount && (
+          <AllowanceChecker
+            token={selectedToken}
+            amount={parseFloat(bridgeAmount)}
+            chainId={selectedChain}
+            onAllowanceReady={handleAllowanceCheckerReady}
+          />
+        )}
+
+        {intentModal && (
+          <IntentModal
+            intentModal={intentModal}
+            setIntentModal={setIntentModal}
+          />
+        )}
+
+        {allowanceModal && (
+          <AllowanceModal
+            allowanceModal={allowanceModal}
+            setAllowanceModal={setAllowanceModal}
+          />
+        )}
+      </div>
+    </ScrollArea>
+  );
+};
+
+export default NexusBridge;

@@ -12,43 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
-
-interface Token {
-  contractAddress: string;
-  decimals: number;
-  symbol: string;
-  name: string;
-  logo: string;
-}
-
-interface AllowanceSource {
-  minAllowance: string;
-  currentAllowance: string;
-  chainID: number;
-  chainName: string;
-  chainLogo: string;
-  token: Token;
-  spender: string;
-}
-
-interface AllowanceModalData {
-  sources: AllowanceSource[];
-}
-
-interface AllowanceResult {
-  type: "min" | "max" | "custom";
-  value?: string;
-}
-
-interface AllowanceModalTrigger {
-  data: AllowanceModalData;
-  resolve: (value: Array<string>) => void;
-  reject: (reason: string) => void;
-}
-
+import { AllowanceHookSource, OnAllowanceHookData } from "@avail/nexus-sdk";
 interface AllowanceModalProps {
-  allowanceModal: AllowanceModalTrigger | null;
-  setAllowanceModal: Dispatch<SetStateAction<AllowanceModalTrigger | null>>;
+  allowanceModal: OnAllowanceHookData | null;
+  setAllowanceModal: Dispatch<SetStateAction<OnAllowanceHookData | null>>;
 }
 
 const AllowanceModal: React.FC<AllowanceModalProps> = ({
@@ -59,7 +26,7 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
 
   useEffect(() => {
     if (allowanceModal) {
-      setSelectedAllowances(allowanceModal.data.sources.map(() => "min"));
+      setSelectedAllowances(allowanceModal.sources.map(() => "min"));
     }
   }, [allowanceModal]);
 
@@ -67,8 +34,7 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
     return null;
   }
 
-  const { data, resolve, reject } = allowanceModal;
-  const { sources } = data;
+  const { sources, allow, deny } = allowanceModal;
 
   const handleRadioChange = (index: number, value: string) => {
     const newSelectedAllowances = [...selectedAllowances];
@@ -86,7 +52,6 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
       if (customAmountStr === "") {
         newSelectedAllowances[index] = "custom_input_pending";
       } else {
-        // Store the custom amount as is, without converting to BigInt
         newSelectedAllowances[index] = customAmountStr;
       }
     } catch (error) {
@@ -101,7 +66,7 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
     if (typeof currentValue === "string") {
       if (currentValue === "min" || currentValue === "max") return currentValue;
       if (!isNaN(Number(currentValue))) return "custom";
-      return currentValue; // For custom_input_pending and custom_input_error
+      return currentValue;
     }
     return "custom";
   };
@@ -145,12 +110,12 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
     });
 
     console.log("Final processed allowances in modal:", processedAllowances);
-    resolve(processedAllowances);
+    allow(processedAllowances);
     setAllowanceModal(null);
   };
 
   const handleDeny = () => {
-    reject("User denied allowances");
+    deny();
     setAllowanceModal(null);
   };
 
@@ -174,7 +139,7 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto">
-          {sources.map((source: AllowanceSource, index: number) => (
+          {sources?.map((source: AllowanceHookSource, index: number) => (
             <div
               key={source.token.symbol ?? index}
               className="p-3 border !rounded-[var(--ck-connectbutton-border-radius)]"

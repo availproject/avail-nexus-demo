@@ -10,7 +10,7 @@ const ConnectWallet = ({
 }) => {
   return (
     <ConnectKitButton.Custom>
-      {({ isConnected, show, hide, address, chain, truncatedAddress }) => (
+      {({ isConnected, show, address, truncatedAddress }) => (
         <div className="flex items-center gap-x-2">
           <Button variant="connectkit" onClick={show}>
             {isConnected && <Avatar size={20} address={address} />}

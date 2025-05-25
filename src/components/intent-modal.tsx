@@ -1,5 +1,4 @@
-import { IntentModalTrigger } from "@/provider/NexusProvider";
-import React from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,65 +10,61 @@ import {
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { MoveRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { OnIntentHookData } from "@avail/nexus-sdk";
 
 interface IntentModalProps {
-  intentModal: IntentModalTrigger | null;
-  setIntentModal: (modal: IntentModalTrigger | null) => void;
+  intentModal: OnIntentHookData;
+  setIntentModal: (modal: OnIntentHookData | null) => void;
 }
 
-// Helper component to display chain info
-const ChainDisplay = ({
-  name,
-  logoUrl,
-}: {
-  name: string;
-  logoUrl?: string;
-}) => (
-  <div className="flex items-center space-x-2">
-    {logoUrl && (
-      <Image
-        src={logoUrl}
-        alt={`${name} logo`}
-        width={20}
-        height={20}
-        className="rounded-full"
-      />
-    )}
-    <p className="font-medium">{name}</p>
-  </div>
-);
+interface IntentSource {
+  chainID: number;
+  chainLogo: string | undefined;
+  chainName: string;
+  amount: string;
+  contractAddress: `0x${string}`;
+}
 
 const IntentModal: React.FC<IntentModalProps> = ({
   intentModal,
   setIntentModal,
 }) => {
-  if (!intentModal) {
-    return null;
-  }
   console.log("intentModal", intentModal);
-  const { data, resolve, reject } = intentModal;
-  const { intent, refresh } = data;
+  const { intent, refresh, allow, deny } = intentModal;
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleAllow = () => {
-    resolve();
+    if (isRefreshing) return;
+    allow();
     setIntentModal(null);
   };
 
   const handleDeny = () => {
-    reject("User denied intent");
+    deny();
     setIntentModal(null);
   };
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
+    setIsRefreshing(true);
+    console.log("refreshing");
     refresh();
-  };
+    setIsRefreshing(false);
+  }, [refresh]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleRefresh();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [handleRefresh]);
 
   return (
     <Dialog
       open={!!intentModal}
       onOpenChange={(isOpen) => !isOpen && handleDeny()}
     >
-      <DialogContent className="w-md bg-accent-foreground border-none !shadow-[var(--ck-modal-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)]">
+      <DialogContent className="w-[22rem] bg-accent-foreground border-none !shadow-[var(--ck-modal-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)]">
         <DialogHeader>
           <DialogTitle>Confirm Transaction</DialogTitle>
           <DialogDescription>
@@ -80,16 +75,19 @@ const IntentModal: React.FC<IntentModalProps> = ({
           <div className="flex items-center justify-between w-full">
             {intent.sources && intent.sources.length > 0 && (
               <div className="p-3 bg-muted/20 rounded-full">
-                {intent.sources.map((source: any, index: number) => (
-                  <Image
-                    key={source?.chainLogo}
-                    src={source.chainLogo}
-                    alt={`${source.chainName} logo`}
-                    width={20}
-                    height={20}
-                    className="rounded-full"
-                  />
-                ))}
+                {intent.sources.map(
+                  (source: IntentSource) =>
+                    source.chainLogo && (
+                      <Image
+                        key={source.chainLogo}
+                        src={source.chainLogo}
+                        alt={`${source.chainName} logo`}
+                        width={20}
+                        height={20}
+                        className="rounded-full"
+                      />
+                    )
+                )}
               </div>
             )}
             <MoveRight className="size-8" />
@@ -110,7 +108,7 @@ const IntentModal: React.FC<IntentModalProps> = ({
             {intent.destination && (
               <div className="p-3 bg-muted/20 rounded-full">
                 <Image
-                  src={intent.destination.chainLogo}
+                  src={intent.destination.chainLogo ?? ""}
                   alt={`${intent.destination.chainName} logo`}
                   width={24}
                   height={24}
@@ -158,26 +156,23 @@ const IntentModal: React.FC<IntentModalProps> = ({
             </div>
           )}
         </div>
-        <DialogFooter className="gap-2 sm:justify-between pt-2">
-          <Button
-            variant="connectkit"
-            onClick={handleRefresh}
-            className="sm:mr-auto font-semibold"
-          >
-            Refresh Data
-          </Button>
-          <div className="flex w-full justify-between sm:justify-end sm:w-auto gap-2">
+        <DialogFooter className="w-full pt-2">
+          <div className="flex w-full justify-center items-center gap-x-4 px-4">
             <Button
               variant="connectkit"
               onClick={handleDeny}
-              className="bg-destructive/50 font-semibold w-1/2 sm:w-auto"
+              className="bg-destructive/50 font-semibold w-1/2"
             >
               Deny
             </Button>
             <Button
               variant="connectkit"
               onClick={handleAllow}
-              className="font-semibold w-1/2 sm:w-auto"
+              disabled={isRefreshing}
+              className={cn(
+                "font-semibold w-1/2",
+                isRefreshing && "bg-gray-500 cursor-not-allowed"
+              )}
             >
               Allow
             </Button>
