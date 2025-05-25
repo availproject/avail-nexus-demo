@@ -1,5 +1,5 @@
 import React from "react";
-import { TransactionStatus } from "@/types";
+import { TransactionStatus } from "@/types/transaction";
 import { CheckCircle, Clock, AlertCircle } from "lucide-react";
 
 /**
