@@ -1,4 +1,4 @@
-import { SUPPORTED_CHAINS } from "@avail/nexus-sdk";
+import { SUPPORTED_CHAINS } from "avail-nexus-sdk";
 import {
   mainnet,
   base,

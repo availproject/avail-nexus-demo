@@ -1,7 +1,7 @@
 "use client";
 import { Avatar, ConnectKitButton } from "connectkit";
 import React from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 const ConnectWallet = ({
   connectCopy = "Connect",

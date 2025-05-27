@@ -8,7 +8,7 @@ import {
 } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import UnifiedBalance from "./unified-balance";
-import NexusContentWrapper from "./nexus-content-wrapper";
+import NexusContentWrapper from "./blocks/nexus-content-wrapper";
 import NexusTransfer from "./nexus-transfer";
 import NexusBridge from "./bridge/nexus-bridge";
 

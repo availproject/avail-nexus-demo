@@ -60,8 +60,7 @@ const ERROR_PATTERNS = {
 const USER_FRIENDLY_MESSAGES = {
   [BridgeErrorType.USER_REJECTED]: "Transaction was cancelled by user",
   [BridgeErrorType.ALLOWANCE_REJECTED]: "Token approval was cancelled",
-  [BridgeErrorType.INSUFFICIENT_FUNDS]:
-    "Insufficient funds for this transaction",
+  [BridgeErrorType.INSUFFICIENT_FUNDS]: "Insufficient balance on source chain",
   [BridgeErrorType.INSUFFICIENT_GAS]: "Insufficient funds for gas fees",
   [BridgeErrorType.NETWORK_ERROR]:
     "Network error - please check your connection",
@@ -107,9 +106,11 @@ export const parseBridgeError = (error: unknown): BridgeError => {
     errorMessage = String((error as { message: unknown }).message);
   }
 
-  // Extract the main error message (before any colons)
+  // Check the entire error message for patterns first
+  const errorType = categorizeError(errorMessage);
+
+  // Extract a clean message for display (still useful for logging)
   const cleanMessage = errorMessage.split(":")[0].trim();
-  const errorType = categorizeError(cleanMessage);
 
   return {
     type: errorType,
@@ -120,25 +121,11 @@ export const parseBridgeError = (error: unknown): BridgeError => {
   };
 };
 
-/**
- * Format error for display to user
- */
 export const formatErrorForUser = (error: unknown): string => {
   const bridgeError = parseBridgeError(error);
   return bridgeError.userFriendlyMessage;
 };
 
-/**
- * Check if an error is retryable
- */
-export const isRetryableError = (error: unknown): boolean => {
-  const bridgeError = parseBridgeError(error);
-  return bridgeError.isRetryable;
-};
-
-/**
- * Log error with structured information
- */
 export const logBridgeError = (error: unknown, context?: string): void => {
   const bridgeError = parseBridgeError(error);
 

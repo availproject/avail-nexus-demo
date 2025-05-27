@@ -2,7 +2,7 @@ import {
   SUPPORTED_CHAINS,
   ProgressStep,
   UnifiedBalanceResponse,
-} from "@avail/nexus-sdk";
+} from "avail-nexus-sdk";
 import { TransactionData } from "./transaction";
 
 export type SupportedChainId =

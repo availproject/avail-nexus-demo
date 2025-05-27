@@ -1,16 +1,18 @@
 "use client";
 import React, { useState } from "react";
-import ChainSelect from "./chain-select";
-import TokenSelect from "./token-select";
-import AllowanceChecker from "@/components/allowance-checker";
 import { INITIAL_CHAIN } from "@/lib/constants";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNexus } from "@/provider/NexusProvider";
-import useAllowanceManager from "@/hooks/useAllowanceManager";
-import { SUPPORTED_CHAINS_IDS, SUPPORTED_TOKENS } from "@avail/nexus-sdk";
+import { SUPPORTED_CHAINS_IDS, SUPPORTED_TOKENS } from "avail-nexus-sdk";
+import ChainSelect from "./blocks/chain-select";
+import TokenSelect from "./blocks/token-select";
+import { useTransactionProgress } from "@/hooks/bridge/useTransactionProgress";
+import { useTransferTransaction } from "@/hooks/bridge/useTransferTransaction";
+import IntentModal from "./nexus-modals/intent-modal";
+import AllowanceModal from "./nexus-modals/allowance-modal";
 
 interface TransferState {
   selectedChain: SUPPORTED_CHAINS_IDS;
@@ -28,8 +30,25 @@ const NexusTransfer = () => {
     amount: "",
     isTransferring: false,
   });
-  const { nexusSdk } = useNexus();
-  const { ensureAllowance } = useAllowanceManager();
+  const {
+    nexusSdk,
+    intentModal,
+    allowanceModal,
+    setIntentModal,
+    setAllowanceModal,
+  } = useNexus();
+
+  const { executeTransfer } = useTransferTransaction();
+
+  useTransactionProgress({
+    transactionType: "transfer",
+    formData: {
+      selectedToken: state.selectedToken,
+      amount: state.amount,
+      selectedChain: state.selectedChain.toString(),
+      recipientAddress: state.recipientAddress,
+    },
+  });
 
   const handleChainSelect = (chainId: SUPPORTED_CHAINS_IDS) => {
     setState({ ...state, selectedChain: chainId });
@@ -59,70 +78,30 @@ const NexusTransfer = () => {
       toast.error("Please fill all the fields");
       return;
     }
+
     setState({ ...state, isTransferring: true });
+
     try {
-      // First, check if we have sufficient allowance for the transaction
-      const hasAllowance = await ensureAllowance({
-        tokens: [state.selectedToken],
-        amount: parseFloat(state.amount),
-        chainId: state.selectedChain,
-      });
-
-      // If allowance is insufficient, the SDK's onAllowanceHook will automatically trigger
-      // the allowance modal when we proceed with the transfer transaction
-      // The ensureAllowance function returns false if allowance is insufficient,
-      // but we still proceed as the SDK will handle the allowance flow
-
-      console.log(
-        "Allowance check result:",
-        hasAllowance
-          ? "Sufficient"
-          : "Insufficient - will trigger allowance modal"
-      );
-
-      const transferTxn = await nexusSdk?.transfer({
+      const result = await executeTransfer({
         token: state.selectedToken,
         amount: state.amount,
         chainId: state.selectedChain,
         recipient: state.recipientAddress,
       });
-      console.log("transferTxn", transferTxn);
 
-      // Clear form on successful transfer
-      setState({
-        ...state,
-        amount: "",
-        recipientAddress: undefined,
-        isTransferring: false,
-      });
+      if (result.success) {
+        // Clear form on successful transfer
+        setState({
+          ...state,
+          amount: "",
+          recipientAddress: undefined,
+          isTransferring: false,
+        });
 
-      toast.success("Transfer completed successfully!");
-    } catch (error: unknown) {
-      console.error(error);
-
-      // Handle specific error cases
-      let errorMessage = "Transfer failed";
-
-      if (error instanceof Error) {
-        if (error.message.includes("User rejected")) {
-          errorMessage = "Transaction was rejected by user";
-        } else if (
-          error.message.includes("User rejection during setting allowance")
-        ) {
-          errorMessage = "Token approval was rejected";
-        } else if (error.message.includes("insufficient funds")) {
-          errorMessage = "Insufficient funds for transaction";
-        } else if (error.message.includes("gas")) {
-          errorMessage = "Insufficient funds for gas fees";
-        } else {
-          errorMessage = error.message.split(":")[0];
-        }
+        toast.success("Transfer completed successfully!");
       }
-
-      toast.error(errorMessage, {
-        description: "Please try again",
-        duration: 4000,
-      });
+    } catch (error: unknown) {
+      console.error("Unexpected error in handleTransfer:", error);
     } finally {
       setState({ ...state, isTransferring: false });
     }
@@ -148,7 +127,11 @@ const NexusTransfer = () => {
           type="text"
           placeholder="Recipient address"
           className="border-none focus-visible:ring-0 focus-visible:ring-offset-0"
-          value={state.recipientAddress}
+          value={
+            state.recipientAddress
+              ? nexusSdk?.truncateAddress(state.recipientAddress, 4, 4)
+              : ""
+          }
           onChange={handleRecipientAddressChange}
           disabled={!state.selectedToken}
         />
@@ -164,19 +147,6 @@ const NexusTransfer = () => {
         />
       </div>
 
-      {/* Allowance Checker - Show when token and amount are selected */}
-      {state.selectedToken && state.amount && parseFloat(state.amount) > 0 && (
-        <div className="w-full max-w-sm">
-          <AllowanceChecker
-            token={state.selectedToken}
-            amount={parseFloat(state.amount)}
-            chainId={state.selectedChain}
-            showSetAllowance={true}
-            className="text-sm"
-          />
-        </div>
-      )}
-
       <Button
         variant="connectkit"
         className="w-full font-semibold"
@@ -189,6 +159,19 @@ const NexusTransfer = () => {
           "Continue"
         )}
       </Button>
+      {intentModal && (
+        <IntentModal
+          intentModal={intentModal}
+          setIntentModal={setIntentModal}
+        />
+      )}
+
+      {allowanceModal && (
+        <AllowanceModal
+          allowanceModal={allowanceModal}
+          setAllowanceModal={setAllowanceModal}
+        />
+      )}
     </div>
   );
 };

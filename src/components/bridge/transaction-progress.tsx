@@ -1,14 +1,11 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { useTransactionProgress } from "@/hooks/bridge/useTransactionProgress";
-import { formatStepName, getStatusColor } from "@/lib/bridge/formatters";
+import { formatStepName } from "@/lib/bridge/formatters";
+import { Progress } from "../ui/progress";
 
-/**
- * Transaction progress component showing step completion
- */
 export const TransactionProgress: React.FC = () => {
   const {
     progressSteps,
@@ -22,49 +19,27 @@ export const TransactionProgress: React.FC = () => {
     return null;
   }
 
+  const currentStep = progressSteps.find((step) => !step.done);
+
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-sm flex items-center justify-between">
-          <span>Transaction Progress</span>
-          <span className="text-xs text-muted-foreground">
-            {completedStepsCount}/{totalSteps}
-          </span>
-        </CardTitle>
-
-        {/* Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-primary h-2 rounded-full transition-all duration-300"
-            style={{ width: `${progressPercentage}%` }}
-          />
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-2">
-        {progressSteps.map((step, index) => (
-          <div key={step.typeID} className="flex items-center gap-2">
-            {step.done ? (
-              <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-            ) : (
-              <Clock className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            )}
-
-            <span
-              className={`text-sm ${getStatusColor(
-                step.done ? "completed" : "pending"
-              )}`}
-            >
-              {formatStepName(step.type)}
-            </span>
-
-            {/* Step indicator */}
-            <div className="ml-auto text-xs text-muted-foreground">
-              {index + 1}
+    <div className="flex flex-col items-center gap-y-2 w-full shadow-[var(--ck-primary-button-box-shadow)] !rounded-[var(--ck-primary-button-border-radius)] p-2">
+      <div className="flex flex-col items-start gap-y-2 w-full">
+        <span className="text-sm font-medium">Transaction Progress</span>
+        {currentStep && (
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-x-1 w-full">
+              <Clock className="w-3 h-3 text-blue-500" />
+              <span className="text-xs text-muted-foreground">
+                {formatStepName(currentStep.type)}
+              </span>
             </div>
+            <span className="text-xs text-muted-foreground">
+              {completedStepsCount}/{totalSteps}
+            </span>
           </div>
-        ))}
-      </CardContent>
-    </Card>
+        )}
+      </div>
+      <Progress value={progressPercentage} />
+    </div>
   );
 };

@@ -5,10 +5,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
+} from "../ui/select";
 import { chainData, chainIcons } from "@/lib/constants";
-import { SUPPORTED_CHAINS, SUPPORTED_CHAINS_IDS } from "@avail/nexus-sdk";
-import { Label } from "./ui/label";
+import { SUPPORTED_CHAINS, SUPPORTED_CHAINS_IDS } from "avail-nexus-sdk";
+import { Label } from "../ui/label";
 import Image from "next/image";
 
 const ChainSelect = ({

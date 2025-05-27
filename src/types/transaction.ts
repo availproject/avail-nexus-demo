@@ -1,12 +1,17 @@
+export type TransactionType = "bridge" | "transfer";
+
 export interface TransactionData {
   explorerURL: string;
   intentHash: number;
   timestamp: number;
   status: "pending" | "completed" | "failed";
+  type: TransactionType;
   token?: string;
   amount?: string;
   fromChain?: string;
   toChain?: string;
+  // Transfer-specific fields
+  recipientAddress?: string;
   gasEstimate?: string;
   actualGasUsed?: string;
 }

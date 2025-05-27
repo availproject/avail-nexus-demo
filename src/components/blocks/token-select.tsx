@@ -5,10 +5,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
+} from "../ui/select";
 import { AVAILABLE_TOKENS } from "@/lib/constants";
 import Image from "next/image";
-import { SUPPORTED_TOKENS } from "@avail/nexus-sdk";
+import { SUPPORTED_TOKENS } from "avail-nexus-sdk";
 
 const TokenSelect = ({
   selectedToken,

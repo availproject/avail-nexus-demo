@@ -1,3 +1,0 @@
-overrides:
-  nexus-sdk: link:../../../Library/pnpm/global/5/node_modules/@avail/nexus-sdk
-  '@avail/nexus-sdk': link:../../../Library/pnpm/global/5/node_modules/@avail/nexus-sdk

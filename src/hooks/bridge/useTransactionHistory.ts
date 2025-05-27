@@ -24,16 +24,10 @@ export const useTransactionHistory = () => {
   );
   const clearHistory = useBridgeStore((state) => state.clearHistory);
 
-  /**
-   * Initialize history from localStorage
-   */
   const initializeHistory = useCallback(() => {
     loadHistory();
   }, [loadHistory]);
 
-  /**
-   * Add a new transaction to history
-   */
   const addNewTransaction = useCallback(
     (transaction: TransactionData) => {
       addTransaction(transaction);
@@ -41,9 +35,6 @@ export const useTransactionHistory = () => {
     [addTransaction]
   );
 
-  /**
-   * Update an existing transaction
-   */
   const updateExistingTransaction = useCallback(
     (intentHash: number, updates: Partial<TransactionData>) => {
       updateTransaction(intentHash, updates);
@@ -51,9 +42,6 @@ export const useTransactionHistory = () => {
     [updateTransaction]
   );
 
-  /**
-   * Mark a transaction as completed
-   */
   const markTransactionCompleted = useCallback(
     (intentHash: number) => {
       updateTransaction(intentHash, { status: "completed" });
@@ -61,9 +49,6 @@ export const useTransactionHistory = () => {
     [updateTransaction]
   );
 
-  /**
-   * Mark a transaction as failed
-   */
   const markTransactionFailed = useCallback(
     (intentHash: number) => {
       updateTransaction(intentHash, { status: "failed" });
@@ -71,9 +56,6 @@ export const useTransactionHistory = () => {
     [updateTransaction]
   );
 
-  /**
-   * Get a specific transaction by intent hash
-   */
   const getTransaction = useCallback(
     (intentHash: number): TransactionHistoryItem | null => {
       return getTransactionByIntentHash(intentHash);
@@ -81,9 +63,6 @@ export const useTransactionHistory = () => {
     []
   );
 
-  /**
-   * Get transactions by status - memoized to prevent infinite loops
-   */
   const getTransactionsByStatus = useCallback(
     (status: "pending" | "completed" | "failed") => {
       return transactionHistory.filter((tx) => tx.status === status);
@@ -91,9 +70,6 @@ export const useTransactionHistory = () => {
     [transactionHistory]
   );
 
-  /**
-   * Memoized computed values to prevent infinite loops
-   */
   const computedValues = useMemo(() => {
     const pending = transactionHistory.filter((tx) => tx.status === "pending");
     const completed = transactionHistory.filter(
@@ -123,68 +99,41 @@ export const useTransactionHistory = () => {
     };
   }, [transactionHistory]);
 
-  /**
-   * Get pending transactions
-   */
   const getPendingTransactions = useCallback(() => {
     return computedValues.pending;
   }, [computedValues.pending]);
 
-  /**
-   * Get completed transactions
-   */
   const getCompletedTransactions = useCallback(() => {
     return computedValues.completed;
   }, [computedValues.completed]);
 
-  /**
-   * Get failed transactions
-   */
   const getFailedTransactions = useCallback(() => {
     return computedValues.failed;
   }, [computedValues.failed]);
 
-  /**
-   * Clear all transaction history
-   */
   const clearAllHistory = useCallback(() => {
     clearHistory();
-    clearTransactionHistory(); // Also clear from localStorage
+    clearTransactionHistory();
   }, [clearHistory]);
 
-  /**
-   * Toggle history panel visibility
-   */
   const toggleHistory = useCallback(() => {
     toggleHistoryVisibility();
   }, [toggleHistoryVisibility]);
 
-  /**
-   * Get transaction statistics
-   */
   const getStatistics = useCallback(() => {
     return computedValues.statistics;
   }, [computedValues.statistics]);
 
-  /**
-   * Check if there are any pending transactions
-   */
   const hasPendingTransactions = useCallback(() => {
     return computedValues.hasPendingTransactions;
   }, [computedValues.hasPendingTransactions]);
 
-  /**
-   * Get the most recent transaction
-   */
   const getMostRecentTransaction =
     useCallback((): TransactionHistoryItem | null => {
       if (transactionHistory.length === 0) return null;
       return transactionHistory[0];
     }, [transactionHistory]);
 
-  /**
-   * Search transactions by token or amount
-   */
   const searchTransactions = useCallback(
     (query: string) => {
       const lowerQuery = query.toLowerCase();

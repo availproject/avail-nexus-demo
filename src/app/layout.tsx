@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nexus",
-  description: "Nexus",
+  title: "Nexus SDK Demo",
+  description: "Nexus SDK Demo",
 };
 
 export default function RootLayout({

@@ -11,7 +11,7 @@ import {
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
   UnifiedBalanceResponse,
-} from "@avail/nexus-sdk";
+} from "avail-nexus-sdk";
 import { BridgeFormData, ComponentStep } from "@/types/bridge";
 import { TransactionData, TransactionHistoryItem } from "@/types/transaction";
 

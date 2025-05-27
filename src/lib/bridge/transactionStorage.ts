@@ -1,11 +1,8 @@
 import { TransactionData, TransactionHistoryItem } from "@/types/transaction";
 
 const STORAGE_KEY = "bridgeTransactions";
-const MAX_HISTORY_ITEMS = 100; // Prevent localStorage from growing too large
+const MAX_HISTORY_ITEMS = 100;
 
-/**
- * Safely parse JSON from localStorage with error handling
- */
 const safeParseJSON = <T>(value: string | null, fallback: T): T => {
   if (!value) return fallback;
 
@@ -17,35 +14,26 @@ const safeParseJSON = <T>(value: string | null, fallback: T): T => {
   }
 };
 
-/**
- * Generate a unique ID for transaction history items
- */
 const generateTransactionId = (transaction: TransactionData): string => {
   return `${transaction.intentHash}-${transaction.timestamp}`;
 };
 
-/**
- * Load transaction history from localStorage
- */
 export const loadTransactionHistory = (): TransactionHistoryItem[] => {
   const stored = localStorage.getItem(STORAGE_KEY);
   const history = safeParseJSON(stored, [] as TransactionHistoryItem[]);
 
-  // Ensure all items have IDs (for backward compatibility)
   return history.map((item) => ({
     ...item,
     id: item.id || generateTransactionId(item),
+    // Migrate old transactions to have a type field (default to "bridge")
+    type: item.type || "bridge",
   }));
 };
 
-/**
- * Save transaction history to localStorage
- */
 export const saveTransactionHistory = (
   history: TransactionHistoryItem[]
 ): void => {
   try {
-    // Limit history size to prevent localStorage bloat
     const limitedHistory = history.slice(0, MAX_HISTORY_ITEMS);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(limitedHistory));
   } catch (error) {
@@ -53,13 +41,22 @@ export const saveTransactionHistory = (
   }
 };
 
-/**
- * Add a new transaction to history
- */
 export const addTransactionToHistory = (
   transaction: TransactionData
 ): TransactionHistoryItem[] => {
   const currentHistory = loadTransactionHistory();
+
+  const existingTransaction = currentHistory.find(
+    (tx) => tx.intentHash === transaction.intentHash
+  );
+
+  if (existingTransaction) {
+    console.log(
+      `Transaction with intentHash ${transaction.intentHash} already exists, skipping duplicate`
+    );
+    return currentHistory;
+  }
+
   const newTransaction: TransactionHistoryItem = {
     ...transaction,
     id: generateTransactionId(transaction),
@@ -71,9 +68,6 @@ export const addTransactionToHistory = (
   return updatedHistory;
 };
 
-/**
- * Update an existing transaction in history
- */
 export const updateTransactionInHistory = (
   intentHash: number,
   updates: Partial<TransactionData>
@@ -87,9 +81,6 @@ export const updateTransactionInHistory = (
   return updatedHistory;
 };
 
-/**
- * Clear all transaction history
- */
 export const clearTransactionHistory = (): void => {
   try {
     localStorage.removeItem(STORAGE_KEY);
@@ -98,9 +89,6 @@ export const clearTransactionHistory = (): void => {
   }
 };
 
-/**
- * Get transaction by intent hash
- */
 export const getTransactionByIntentHash = (
   intentHash: number
 ): TransactionHistoryItem | null => {

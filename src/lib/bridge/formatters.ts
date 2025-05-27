@@ -93,7 +93,7 @@ export const getStatusColor = (status: TransactionStatus): string => {
     case "completed":
       return "text-green-600";
     case "pending":
-      return "text-yellow-600";
+      return "text-secondary/40";
     case "failed":
       return "text-red-600";
     default:

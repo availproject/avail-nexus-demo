@@ -13,6 +13,7 @@ import {
   getStatusBadgeVariant,
 } from "@/lib/bridge/formatters";
 import Link from "next/link";
+import { Separator } from "../ui/separator";
 
 /**
  * Transaction history component with toggle and transaction list
@@ -20,6 +21,10 @@ import Link from "next/link";
 export const TransactionHistory: React.FC = () => {
   const { recentTransactions, showHistory, totalCount, toggleHistory } =
     useTransactionHistory();
+
+  if (recentTransactions.length === 0) {
+    return null;
+  }
 
   return (
     <>
@@ -45,51 +50,46 @@ export const TransactionHistory: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 ">
-            {recentTransactions.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No transactions yet
-              </p>
-            ) : (
-              recentTransactions.map((tx) => (
-                <div
-                  key={tx.id}
-                  className="flex items-center justify-between p-2 rounded border font-medium"
-                >
-                  <div className="flex items-center gap-2">
-                    {getStatusIcon(tx.status)}
-                    <div>
-                      <p className="text-sm font-medium ">
-                        {tx.amount && tx.token
-                          ? formatDisplayAmount(tx.amount, tx.token)
-                          : "Unknown Amount"}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatTimestamp(tx.timestamp)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Badge variant={getStatusBadgeVariant(tx.status)}>
-                      {tx.status}
-                    </Badge>
-
-                    {tx.explorerURL && (
-                      <Link
-                        href={tx.explorerURL}
-                        target="_blank"
-                        className="hover:bg-transparent hover:text-secondary cursor-pointer"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </Link>
-                    )}
+            {recentTransactions.map((tx) => (
+              <div
+                key={tx.id}
+                className="flex items-center justify-between p-2 rounded border font-medium"
+              >
+                <div className="flex items-center gap-2">
+                  {getStatusIcon(tx.status)}
+                  <div>
+                    <p className="text-sm font-medium ">
+                      {tx.amount && tx.token
+                        ? formatDisplayAmount(tx.amount, tx.token)
+                        : "Unknown Amount"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatTimestamp(tx.timestamp)}
+                    </p>
                   </div>
                 </div>
-              ))
-            )}
+
+                <div className="flex items-center gap-2">
+                  <Badge variant={getStatusBadgeVariant(tx.status)}>
+                    {tx.status}
+                  </Badge>
+
+                  {tx.explorerURL && (
+                    <Link
+                      href={tx.explorerURL}
+                      target="_blank"
+                      className="hover:bg-transparent hover:text-secondary cursor-pointer"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))}
           </CardContent>
         </Card>
       )}
+      <Separator />
     </>
   );
 };

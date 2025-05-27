@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { MoveRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { OnIntentHookData } from "@avail/nexus-sdk";
+import { OnIntentHookData } from "avail-nexus-sdk";
 
 interface IntentModalProps {
   intentModal: OnIntentHookData;

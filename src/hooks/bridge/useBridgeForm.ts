@@ -5,7 +5,7 @@ import {
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
   UnifiedBalanceResponse,
-} from "@avail/nexus-sdk";
+} from "avail-nexus-sdk";
 import { validateAmountInput } from "@/lib/bridge/formatters";
 
 /**

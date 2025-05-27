@@ -11,7 +11,7 @@ import Image from "next/image";
 import { Separator } from "./ui/separator";
 import { DollarSign, Loader2 } from "lucide-react";
 import { Label } from "./ui/label";
-import { UnifiedBalanceResponse } from "@avail/nexus-sdk";
+import { UnifiedBalanceResponse } from "avail-nexus-sdk";
 
 const UnifiedBalance = () => {
   const { nexusSdk, isInitialized } = useNexus();

@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from "react";
-import { ProgressStep } from "@avail/nexus-sdk";
+import { CHAIN_METADATA, ProgressStep } from "avail-nexus-sdk";
 import { useBridgeStore, bridgeSelectors } from "@/store/bridgeStore";
 import { useNexus } from "@/provider/NexusProvider";
 
@@ -11,22 +11,47 @@ import {
   IntentSubmittedData,
   StepCompletionEventData,
   TransactionData,
+  TransactionType,
 } from "@/types/transaction";
 import { ComponentStep } from "@/types/bridge";
+
+interface TransactionProgressOptions {
+  transactionType?: TransactionType;
+  formData?: {
+    selectedToken?: string;
+    amount?: string;
+    selectedChain?: string;
+    recipientAddress?: string;
+  };
+}
 
 /**
  * Hook for managing transaction progress and SDK events
  */
-export const useTransactionProgress = () => {
+export const useTransactionProgress = (
+  options: TransactionProgressOptions = {}
+) => {
+  const { transactionType = "bridge", formData } = options;
+
   const { nexusSdk } = useNexus();
   const account = useAccount();
-  // Store selectors
+
+  // Store selectors - always call hooks unconditionally
   const progressSteps = useBridgeStore(bridgeSelectors.progressSteps);
   const hasActiveSteps = useBridgeStore(bridgeSelectors.hasActiveSteps);
   const completedStepsCount = useBridgeStore(
     bridgeSelectors.completedStepsCount
   );
   const currentTransaction = useBridgeStore(bridgeSelectors.currentTransaction);
+  const storeSelectedToken = useBridgeStore(bridgeSelectors.selectedToken);
+  const storeBridgeAmount = useBridgeStore(bridgeSelectors.bridgeAmount);
+  const storeSelectedChain = useBridgeStore(bridgeSelectors.selectedChain);
+
+  // Get form data - use provided formData or fallback to bridge store
+  const selectedToken = formData?.selectedToken ?? storeSelectedToken;
+  const bridgeAmount = formData?.amount ?? storeBridgeAmount;
+  const selectedChain = formData?.selectedChain ?? storeSelectedChain;
+  const recipientAddress = formData?.recipientAddress;
 
   // Store actions
   const setProgressSteps = useBridgeStore((state) => state.setProgressSteps);
@@ -64,8 +89,6 @@ export const useTransactionProgress = () => {
    */
   const handleStepComplete = useCallback(
     (completedStepData: StepCompletionEventData) => {
-      console.log("Step completed:", completedStepData);
-
       const { typeID } = completedStepData;
 
       // Find the completed step
@@ -102,10 +125,17 @@ export const useTransactionProgress = () => {
         intentHash: intentData.intentHash,
         timestamp: Date.now(),
         status: "pending",
-        token: undefined,
-        amount: undefined,
+        type: transactionType,
+        token: selectedToken,
+        amount: bridgeAmount,
         fromChain: account?.chain?.name,
-        toChain: undefined,
+        toChain:
+          transactionType === "bridge"
+            ? selectedChain &&
+              CHAIN_METADATA[selectedChain as keyof typeof CHAIN_METADATA]?.name
+            : account?.chain?.name, // For transfers, both chains are the same
+        recipientAddress:
+          transactionType === "transfer" ? recipientAddress : undefined,
       };
 
       // Add to transaction history
@@ -114,16 +144,19 @@ export const useTransactionProgress = () => {
       // Set as current transaction
       setCurrentTransaction(transactionData);
 
-      updateExistingTransaction(transactionData.intentHash, transactionData);
-
       // Show success toast
-      toast.success("Transaction submitted successfully!");
+      const actionType = transactionType === "bridge" ? "Bridge" : "Transfer";
+      toast.success(`${actionType} transaction submitted successfully!`);
     },
     [
       addNewTransaction,
       setCurrentTransaction,
-      updateExistingTransaction,
+      selectedToken,
+      bridgeAmount,
+      selectedChain,
+      recipientAddress,
       account?.chain?.name,
+      transactionType,
     ]
   );
 
@@ -138,14 +171,15 @@ export const useTransactionProgress = () => {
       status: "completed",
     });
 
-    // Show completion toast with explorer link
-    toast.success("Bridge transaction completed successfully!", {
-      duration: 5000,
-      action: {
-        label: "View in Explorer",
-        onClick: () => window.open(currentTransaction.explorerURL, "_blank"),
-      },
-    });
+    if (currentTransaction.type === "bridge") {
+      toast.success(`Bridge transaction completed successfully!`, {
+        duration: 5000,
+        action: {
+          label: "View in Explorer",
+          onClick: () => window.open(currentTransaction.explorerURL, "_blank"),
+        },
+      });
+    }
 
     // Reset progress after a delay
     setTimeout(() => {
