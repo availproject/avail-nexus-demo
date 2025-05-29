@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Network,
   NexusSDK,
   OnAllowanceHookData,
   OnIntentHookData,
@@ -47,7 +48,9 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
     console.log("initializeSDK", isConnected, nexusSdk);
     if (isConnected && !nexusSdk) {
       try {
-        const sdk = new NexusSDK();
+        const sdk = new NexusSDK({
+          network: Network.CERISE,
+        });
         await sdk.initialize(window.ethereum);
         setNexusSdk(sdk);
         setIsInitialized(true);
