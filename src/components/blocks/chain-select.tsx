@@ -6,8 +6,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { chainData, chainIcons } from "@/lib/constants";
-import { SUPPORTED_CHAINS, SUPPORTED_CHAINS_IDS } from "avail-nexus-sdk";
+import {
+  CHAIN_METADATA,
+  chainIcons,
+  SUPPORTED_CHAINS_IDS,
+  TESTNET_CHAINS,
+} from "avail-nexus-sdk";
 import { Label } from "../ui/label";
 import Image from "next/image";
 
@@ -37,12 +41,12 @@ const ChainSelect = ({
               <div className="flex items-center gap-2">
                 <Image
                   src={chainIcons[selectedChain]}
-                  alt={chainData[selectedChain]?.name ?? ""}
+                  alt={CHAIN_METADATA[selectedChain]?.name ?? ""}
                   width={24}
                   height={24}
                   className="rounded-full"
                 />
-                {chainData[selectedChain]?.name}
+                {CHAIN_METADATA[selectedChain]?.name}
               </div>
             )}
           </SelectValue>
@@ -50,8 +54,8 @@ const ChainSelect = ({
       </div>
 
       <SelectContent className="bg-accent-foreground rounded-[var(--ck-connectbutton-border-radius)]">
-        {Object.entries(SUPPORTED_CHAINS).map(([, chainId]) => {
-          const chain = chainData[chainId as SUPPORTED_CHAINS_IDS];
+        {Object.entries(TESTNET_CHAINS).map(([, chainId]) => {
+          const chain = CHAIN_METADATA[chainId as SUPPORTED_CHAINS_IDS];
           if (!chain) return null;
           return (
             <SelectItem

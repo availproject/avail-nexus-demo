@@ -6,9 +6,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { AVAILABLE_TOKENS } from "@/lib/constants";
 import Image from "next/image";
-import { SUPPORTED_TOKENS } from "avail-nexus-sdk";
+import {
+  SUPPORTED_TOKENS,
+  TESTNET_TOKEN_METADATA,
+  TokenMetadata,
+} from "avail-nexus-sdk";
 
 const TokenSelect = ({
   selectedToken,
@@ -27,12 +30,15 @@ const TokenSelect = ({
       <SelectTrigger className="w-full !shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)] border-none">
         <SelectValue placeholder="Select a token">
           {selectedChain &&
-            AVAILABLE_TOKENS?.find((t) => t.symbol === selectedToken) && (
+            Object.values(TESTNET_TOKEN_METADATA)?.find(
+              (t) => t.symbol === selectedToken
+            ) && (
               <div className="flex items-center gap-2">
                 <Image
                   src={
-                    AVAILABLE_TOKENS?.find((t) => t.symbol === selectedToken)
-                      ?.icon ?? ""
+                    Object.values(TESTNET_TOKEN_METADATA)?.find(
+                      (t) => t.symbol === selectedToken
+                    )?.icon ?? ""
                   }
                   alt={selectedToken ?? ""}
                   width={24}
@@ -45,7 +51,7 @@ const TokenSelect = ({
         </SelectValue>
       </SelectTrigger>
       <SelectContent className="bg-accent-foreground rounded-[var(--ck-connectbutton-border-radius)]">
-        {AVAILABLE_TOKENS?.map((token) => (
+        {Object.values(TESTNET_TOKEN_METADATA)?.map((token: TokenMetadata) => (
           <SelectItem
             key={token.symbol}
             value={token.symbol}
@@ -60,7 +66,7 @@ const TokenSelect = ({
                 className="rounded-full"
               />
               <div className="flex flex-col">
-                <span>{token.symbol}</span>
+                <span>{token.name}</span>
               </div>
             </div>
           </SelectItem>

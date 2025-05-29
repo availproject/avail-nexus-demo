@@ -1,12 +1,12 @@
 "use client";
 import { WagmiProvider, createConfig, http, useAccount } from "wagmi";
 import {
-  arbitrum,
-  base,
-  linea,
-  mainnet,
-  optimism,
-  polygon,
+  sepolia,
+  baseSepolia,
+  arbitrumSepolia,
+  optimismSepolia,
+  polygonMumbai,
+  lineaTestnet,
 } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
@@ -15,14 +15,21 @@ import { useState, useEffect } from "react";
 
 const config = createConfig(
   getDefaultConfig({
-    chains: [mainnet, arbitrum, base, optimism, polygon, linea],
+    chains: [
+      sepolia,
+      arbitrumSepolia,
+      baseSepolia,
+      optimismSepolia,
+      polygonMumbai,
+      lineaTestnet,
+    ],
     transports: {
-      [mainnet.id]: http(mainnet.rpcUrls.default.http[0]),
-      [arbitrum.id]: http(arbitrum.rpcUrls.default.http[0]),
-      [base.id]: http(base.rpcUrls.default.http[0]),
-      [optimism.id]: http(optimism.rpcUrls.default.http[0]),
-      [polygon.id]: http(polygon.rpcUrls.default.http[0]),
-      [linea.id]: http(linea.rpcUrls.default.http[0]),
+      [sepolia.id]: http(sepolia.rpcUrls.default.http[0]),
+      [arbitrumSepolia.id]: http(arbitrumSepolia.rpcUrls.default.http[0]),
+      [baseSepolia.id]: http(baseSepolia.rpcUrls.default.http[0]),
+      [optimismSepolia.id]: http(optimismSepolia.rpcUrls.default.http[0]),
+      [polygonMumbai.id]: http(polygonMumbai.rpcUrls.default.http[0]),
+      [lineaTestnet.id]: http(lineaTestnet.rpcUrls.default.http[0]),
     },
 
     walletConnectProjectId:

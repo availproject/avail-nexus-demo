@@ -18,7 +18,10 @@ const Nexus = () => {
       <CardHeader className="flex flex-col w-full items-center">
         <CardTitle className="text-xl">Nexus</CardTitle>
         <CardDescription className="text-center">
-          Nexus is a platform for creating and managing your own Nexus.
+          One click, across chains.
+        </CardDescription>
+        <CardDescription className="text-xs text-center">
+          You are on Devnet.
         </CardDescription>
       </CardHeader>
       <CardContent>
