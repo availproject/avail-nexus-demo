@@ -47,6 +47,7 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
     console.log("initializeSDK", isConnected, nexusSdk);
     if (isConnected && !nexusSdk) {
       try {
+        // Mainnet config
         const sdk = new NexusSDK();
         await sdk.initialize(window.ethereum);
         setNexusSdk(sdk);
