@@ -4,14 +4,14 @@ import { useBridgeValidation } from "./useBridgeValidation";
 import {
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
-  UnifiedBalanceResponse,
+  UserAsset,
 } from "avail-nexus-sdk";
 import { validateAmountInput } from "@/lib/bridge/formatters";
 
 /**
  * Orchestrator hook for bridge form management
  */
-export const useBridgeForm = (availableBalance: UnifiedBalanceResponse[]) => {
+export const useBridgeForm = (availableBalance: UserAsset[]) => {
   // Store selectors
   const form = useBridgeStore(bridgeSelectors.form);
   const selectedChain = useBridgeStore(bridgeSelectors.selectedChain);

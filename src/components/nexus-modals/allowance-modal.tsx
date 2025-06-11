@@ -78,7 +78,7 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
       const source = sources[index];
       console.log("Processing allowance for token:", source.token.symbol, {
         selectedValue: val,
-        minAllowance: source.minAllowance,
+        minAllowance: source.allowance.minimum,
         decimals: source.token.decimals,
         type: typeof val,
       });
@@ -146,21 +146,22 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
             >
               <div className="flex items-center gap-x-2">
                 <p className="font-semibold">
-                  Token: {source.token.symbol} on {source.chainName}
+                  Token: {source.token.symbol} on {source.chain.name}
                 </p>
                 <Image
-                  src={source.chainLogo}
-                  alt={`${source.chainName} logo`}
+                  src={source.chain.logo}
+                  alt={`${source.chain.name} logo`}
                   width={20}
                   height={20}
                 />
               </div>
               <p className="text-sm">
                 Current Allowance:{" "}
-                {formatDisplayAmount(source.currentAllowance)}
+                {formatDisplayAmount(source.allowance.current)}
               </p>
               <p className="text-sm">
-                Minimum Required: {formatDisplayAmount(source.minAllowance)}
+                Minimum Required:{" "}
+                {formatDisplayAmount(source.allowance.minimum)}
               </p>
 
               <RadioGroup
@@ -173,7 +174,7 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="min" id={`min-${index}`} />
                   <Label htmlFor={`min-${index}`}>
-                    Minimum ({formatDisplayAmount(source.minAllowance)})
+                    Minimum ({formatDisplayAmount(source.allowance.minimum)})
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">

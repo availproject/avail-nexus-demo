@@ -134,8 +134,28 @@ export const useBridgeTransaction = () => {
     resetAllProgress,
   ]);
 
+  const simulateBridge = useCallback(async () => {
+    if (!selectedToken || !bridgeAmount || !nexusSdk) {
+      return null;
+    }
+
+    try {
+      const simulation = await nexusSdk.simulateBridge({
+        chainId: selectedChain,
+        token: selectedToken,
+        amount: bridgeAmount,
+      });
+      console.log("Simulation result:", simulation);
+      return simulation;
+    } catch (error) {
+      console.error("Simulation failed:", error);
+      return null;
+    }
+  }, [selectedToken, bridgeAmount, nexusSdk]);
+
   return {
     isBridging,
     executeBridge,
+    simulateBridge,
   };
 };

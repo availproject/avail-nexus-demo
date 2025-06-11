@@ -5,13 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useBridgeForm } from "@/hooks/bridge/useBridgeForm";
 import { cn } from "@/lib/utils";
-import { UnifiedBalanceResponse } from "avail-nexus-sdk";
+import { UserAsset } from "avail-nexus-sdk";
 import { Infinity } from "lucide-react";
 import ChainSelect from "../blocks/chain-select";
 import TokenSelect from "../blocks/token-select";
 
 interface BridgeFormProps {
-  availableBalance: UnifiedBalanceResponse[];
+  availableBalance: UserAsset[];
   onSubmit: () => void;
   isSubmitting?: boolean;
 }

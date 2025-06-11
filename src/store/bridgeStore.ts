@@ -10,7 +10,7 @@ import {
 import {
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
-  UnifiedBalanceResponse,
+  UserAsset,
 } from "avail-nexus-sdk";
 import { BridgeFormData, ComponentStep } from "@/types/bridge";
 import { TransactionData, TransactionHistoryItem } from "@/types/transaction";
@@ -23,7 +23,7 @@ interface BridgeState {
   form: BridgeFormData;
 
   // Balance state
-  availableBalance: UnifiedBalanceResponse[];
+  availableBalance: UserAsset[];
 
   // Transaction history
   transactionHistory: TransactionHistoryItem[];
@@ -51,7 +51,7 @@ interface BridgeActions {
   resetForm: () => void;
 
   // Balance actions
-  setAvailableBalance: (balance: UnifiedBalanceResponse[]) => void;
+  setAvailableBalance: (balance: UserAsset[]) => void;
 
   // Transaction history actions
   loadHistory: () => void;
@@ -141,7 +141,7 @@ export const useBridgeStore = create<BridgeStore>()(
         }),
 
       // Balance actions
-      setAvailableBalance: (balance: UnifiedBalanceResponse[]) =>
+      setAvailableBalance: (balance: UserAsset[]) =>
         set((state) => {
           state.availableBalance = balance;
         }),
