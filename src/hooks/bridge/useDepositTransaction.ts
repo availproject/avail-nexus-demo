@@ -1,12 +1,9 @@
 import { useCallback, useRef } from "react";
-import {
-  useDepositStore,
-  depositSelectors,
-  DepositSimulation,
-} from "@/store/depositStore";
+import { useDepositStore, depositSelectors } from "@/store/depositStore";
 import { useNexus } from "@/provider/NexusProvider";
 import { useTransactionProgress } from "./useTransactionProgress";
 import { toast } from "sonner";
+import { Abi } from "viem";
 
 interface ErrorWithCode extends Error {
   code?: number;
@@ -18,11 +15,11 @@ interface ErrorWithCode extends Error {
 export interface DepositParams {
   toChainId: number;
   contractAddress: string;
-  contractAbi: any[];
+  contractAbi: Abi;
   functionName: string;
-  functionParams: any[];
+  functionParams: string[];
   value?: string;
-  gasLimit?: string;
+  gasLimit?: bigint;
   waitForReceipt?: boolean;
   requiredConfirmations?: number;
   receiptTimeout?: number;
@@ -86,7 +83,7 @@ export const useDepositTransaction = () => {
         functionName,
         functionParams,
         value,
-        gasLimit,
+        ...(gasLimit && { gasLimit: BigInt(gasLimit) }),
         waitForReceipt: true,
         requiredConfirmations: 2,
         ...depositParams,
@@ -95,7 +92,7 @@ export const useDepositTransaction = () => {
       if (
         !params.contractAddress ||
         !params.functionName ||
-        !params.contractAbi.length ||
+        !(params.contractAbi as Abi).length ||
         !nexusSdk
       ) {
         const errorMsg = "Missing required parameters for deposit transaction";
@@ -112,7 +109,7 @@ export const useDepositTransaction = () => {
         console.log("Starting deposit transaction:", params);
 
         // Execute deposit transaction
-        const depositResult = await nexusSdk.deposit(params);
+        const depositResult = await nexusSdk.deposit(params as DepositParams);
 
         console.log("Deposit result:", depositResult);
 
@@ -211,21 +208,23 @@ export const useDepositTransaction = () => {
         functionName,
         functionParams,
         value,
-        gasLimit,
+        ...(gasLimit && { gasLimit: BigInt(gasLimit) }),
         ...depositParams,
       };
 
       if (
         !params.contractAddress ||
         !params.functionName ||
-        !params.contractAbi.length ||
+        !(params.contractAbi as Abi).length ||
         !nexusSdk
       ) {
         return null;
       }
 
       try {
-        const simulation = await nexusSdk.simulateDeposit(params);
+        const simulation = await nexusSdk.simulateDeposit(
+          params as DepositParams
+        );
         console.log("Deposit simulation result:", simulation);
         return simulation;
       } catch (error) {
@@ -249,7 +248,12 @@ export const useDepositTransaction = () => {
    * Run simulation for current deposit parameters
    */
   const runDepositSimulation = useCallback(async () => {
-    if (!contractAddress || !functionName || !contractAbi.length || !nexusSdk) {
+    if (
+      !contractAddress ||
+      !functionName ||
+      !(contractAbi as Abi).length ||
+      !nexusSdk
+    ) {
       clearSimulation();
       return;
     }
@@ -261,47 +265,27 @@ export const useDepositTransaction = () => {
       const result = await nexusSdk.simulateDeposit({
         toChainId,
         contractAddress,
-        contractAbi,
+        contractAbi: contractAbi as Abi,
         functionName,
         functionParams,
         value,
-        gasLimit,
+        ...(gasLimit && { gasLimit: BigInt(gasLimit) }),
       });
 
       console.log("Deposit simulation result:", result);
 
       if (result) {
-        const simulationData: DepositSimulation = {
-          estimatedGas: result.estimatedCostEth || "0.001",
-          totalCost: result.estimatedCostEth || "0.001",
-          estimatedTime: 60, // 1 minute default for deposits
-          estimatedCostEth: result.estimatedCostEth,
-          gasLimit: result.gasLimit,
-        };
-
-        setSimulation(simulationData);
+        setSimulation(result);
       } else {
-        // Fallback simulation if SDK doesn't provide detailed response
-        const fallbackSimulation: DepositSimulation = {
-          estimatedGas: "0.001",
-          totalCost: "0.001",
-          estimatedTime: 60,
-        };
-        setSimulation(fallbackSimulation);
+        // Clear simulation if no result
+        clearSimulation();
       }
     } catch (error) {
       console.error("Deposit simulation failed:", error);
       setSimulationError(
         error instanceof Error ? error.message : "Simulation failed"
       );
-
-      // Provide fallback simulation even on error
-      const fallbackSimulation: DepositSimulation = {
-        estimatedGas: "0.001",
-        totalCost: "0.001",
-        estimatedTime: 60,
-      };
-      setSimulation(fallbackSimulation);
+      setSimulation(null);
     } finally {
       setSimulating(false);
     }
@@ -323,20 +307,17 @@ export const useDepositTransaction = () => {
   /**
    * Trigger simulation with debounce
    */
-  const triggerDepositSimulation = useCallback(
-    (params?: Partial<DepositParams>) => {
-      // Clear existing timeout
-      if (simulationTimeoutRef.current) {
-        clearTimeout(simulationTimeoutRef.current);
-      }
+  const triggerDepositSimulation = useCallback(() => {
+    // Clear existing timeout
+    if (simulationTimeoutRef.current) {
+      clearTimeout(simulationTimeoutRef.current);
+    }
 
-      // Set new timeout for debounced simulation
-      simulationTimeoutRef.current = setTimeout(() => {
-        runDepositSimulation();
-      }, 500); // 500ms delay
-    },
-    [runDepositSimulation]
-  );
+    // Set new timeout for debounced simulation
+    simulationTimeoutRef.current = setTimeout(() => {
+      runDepositSimulation();
+    }, 500); // 500ms delay
+  }, [runDepositSimulation]);
 
   return {
     executeDeposit,

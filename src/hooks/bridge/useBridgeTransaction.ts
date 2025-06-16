@@ -161,7 +161,7 @@ export const useBridgeTransaction = () => {
       console.error("Simulation failed:", error);
       return null;
     }
-  }, [selectedToken, bridgeAmount, nexusSdk]);
+  }, [selectedToken, bridgeAmount, nexusSdk, selectedChain]);
 
   /**
    * Run simulation for current bridge parameters

@@ -85,37 +85,6 @@ export const useTransactionProgress = (
   );
 
   /**
-   * Handle step completion from SDK
-   */
-  const handleStepComplete = useCallback(
-    (completedStepData: StepCompletionEventData) => {
-      const { typeID } = completedStepData;
-
-      // Find the completed step
-      const completedStep = progressSteps.find(
-        (step) => step.typeID === typeID
-      );
-
-      if (!completedStep || completedStep.done) {
-        return;
-      }
-
-      updateStepCompletion(typeID);
-
-      if (typeID === "IF") {
-        handleTransactionCompleted();
-      } else if (typeID === "IS" && "data" in completedStepData) {
-        handleTransactionSubmitted(
-          completedStepData.data as IntentSubmittedData
-        );
-      } else {
-        handleRegularStepCompletion(completedStep);
-      }
-    },
-    [progressSteps, updateStepCompletion]
-  );
-
-  /**
    * Handle transaction submission (Intent Submitted)
    */
   const handleTransactionSubmitted = useCallback(
@@ -202,6 +171,43 @@ export const useTransactionProgress = (
   }, []);
 
   /**
+   * Handle step completion from SDK
+   */
+  const handleStepComplete = useCallback(
+    (completedStepData: StepCompletionEventData) => {
+      const { typeID } = completedStepData;
+
+      // Find the completed step
+      const completedStep = progressSteps.find(
+        (step) => step.typeID === typeID
+      );
+
+      if (!completedStep || completedStep.done) {
+        return;
+      }
+
+      updateStepCompletion(typeID);
+
+      if (typeID === "IF") {
+        handleTransactionCompleted();
+      } else if (typeID === "IS" && "data" in completedStepData) {
+        handleTransactionSubmitted(
+          completedStepData.data as IntentSubmittedData
+        );
+      } else {
+        handleRegularStepCompletion(completedStep);
+      }
+    },
+    [
+      progressSteps,
+      updateStepCompletion,
+      handleTransactionCompleted,
+      handleTransactionSubmitted,
+      handleRegularStepCompletion,
+    ]
+  );
+
+  /**
    * Set up SDK event listeners
    */
   useEffect(() => {
@@ -255,6 +261,9 @@ export const useTransactionProgress = (
     nexusSdk,
     handleExpectedSteps,
     handleStepComplete,
+    handleRegularStepCompletion,
+    handleTransactionSubmitted,
+    handleTransactionCompleted,
     resetProgress,
     setCurrentTransaction,
   ]);

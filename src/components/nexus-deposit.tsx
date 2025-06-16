@@ -1,18 +1,18 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Loader2, Plus, Trash2, Info } from "lucide-react";
 import { toast } from "sonner";
 import { useNexus } from "@/provider/NexusProvider";
-import { SUPPORTED_CHAINS_IDS } from "avail-nexus-sdk";
+import { DepositSimulation, SUPPORTED_CHAINS_IDS } from "avail-nexus-sdk";
 import ChainSelect from "./blocks/chain-select";
-import { SimulationPreview } from "./shared/simulation-preview";
 import IntentModal from "./nexus-modals/intent-modal";
 import AllowanceModal from "./nexus-modals/allowance-modal";
 import { INITIAL_CHAIN } from "@/lib/constants";
 import { ScrollArea } from "./ui/scroll-area";
+import { DepositSimulationPreview } from "./shared/deposit-simulation-preview";
 
 interface DepositState {
   toChainId: SUPPORTED_CHAINS_IDS;
@@ -23,7 +23,7 @@ interface DepositState {
   value: string;
   gasLimit: string;
   isDepositing: boolean;
-  simulation: any;
+  simulation: DepositSimulation | null;
   isSimulating: boolean;
   simulationError: string | null;
 }
@@ -140,7 +140,7 @@ const NexusDeposit = () => {
     });
   };
 
-  const runSimulation = async () => {
+  const runSimulation = useCallback(async () => {
     if (
       !state.contractAddress ||
       !state.functionName ||
@@ -175,13 +175,7 @@ const NexusDeposit = () => {
 
       console.log("Deposit simulation result:", result);
 
-      const simulation = {
-        estimatedGas: result?.estimatedCostEth || "0.001",
-        totalCost: result?.estimatedCostEth || "0.001",
-        estimatedTime: 60,
-      };
-
-      setState({ ...state, simulation, isSimulating: false });
+      setState({ ...state, simulation: result, isSimulating: false });
     } catch (error) {
       console.error("Deposit simulation failed:", error);
       const errorMessage =
@@ -193,7 +187,7 @@ const NexusDeposit = () => {
       });
       toast.error(errorMessage);
     }
-  };
+  }, [state, nexusSdk, setState]);
 
   const handleDeposit = async () => {
     if (
@@ -294,6 +288,8 @@ const NexusDeposit = () => {
     state.functionName,
     state.contractAbi,
     state.functionParams,
+    state.isSimulating,
+    runSimulation,
   ]);
 
   const isFormValid =
@@ -425,7 +421,7 @@ const NexusDeposit = () => {
 
         {/* Simulation Preview */}
         {(state.simulation || state.isSimulating || state.simulationError) && (
-          <SimulationPreview
+          <DepositSimulationPreview
             simulation={state.simulation}
             isSimulating={state.isSimulating}
             simulationError={state.simulationError}

@@ -2,20 +2,10 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { INITIAL_CHAIN } from "@/lib/constants";
-import { SUPPORTED_CHAINS_IDS, SUPPORTED_TOKENS } from "avail-nexus-sdk";
+import { DepositSimulation, SUPPORTED_CHAINS_IDS } from "avail-nexus-sdk";
 import { ComponentStep } from "@/types/bridge";
 import { TransactionData, TransactionHistoryItem } from "@/types/transaction";
-
-/**
- * Deposit simulation result interface
- */
-export interface DepositSimulation {
-  estimatedGas: string;
-  totalCost: string;
-  estimatedTime: number; // estimated completion time in seconds
-  estimatedCostEth?: string;
-  gasLimit?: string;
-}
+import { Abi } from "viem";
 
 /**
  * Deposit form data interface
@@ -24,8 +14,8 @@ export interface DepositFormData {
   toChainId: SUPPORTED_CHAINS_IDS;
   contractAddress: string;
   functionName: string;
-  functionParams: any[];
-  contractAbi: any[];
+  functionParams: string[];
+  contractAbi: unknown;
   value?: string;
   gasLimit?: string;
 }
@@ -38,8 +28,8 @@ interface DepositState {
   toChainId: SUPPORTED_CHAINS_IDS;
   contractAddress: string;
   functionName: string;
-  functionParams: any[];
-  contractAbi: any[];
+  functionParams: string[];
+  contractAbi: unknown;
   value: string;
   gasLimit: string;
 
@@ -61,8 +51,8 @@ interface DepositState {
   setToChainId: (chainId: SUPPORTED_CHAINS_IDS) => void;
   setContractAddress: (address: string) => void;
   setFunctionName: (name: string) => void;
-  setFunctionParams: (params: any[]) => void;
-  setContractAbi: (abi: any[]) => void;
+  setFunctionParams: (params: string[]) => void;
+  setContractAbi: (abi: unknown) => void;
   setValue: (value: string) => void;
   setGasLimit: (gasLimit: string) => void;
 
@@ -87,7 +77,7 @@ interface DepositState {
  */
 export const useDepositStore = create<DepositState>()(
   persist(
-    immer((set, get) => ({
+    immer((set) => ({
       // Initial form state
       toChainId: INITIAL_CHAIN,
       contractAddress: "",
@@ -265,5 +255,5 @@ export const depositSelectors = {
   isFormValid: (state: DepositState) =>
     state.contractAddress.trim() !== "" &&
     state.functionName.trim() !== "" &&
-    state.contractAbi.length > 0,
+    (state.contractAbi as Abi).length > 0,
 };
