@@ -12,12 +12,6 @@ interface ErrorWithCode extends Error {
   code?: number;
 }
 
-interface TransferSimulation {
-  estimatedGas: string;
-  totalCost: string;
-  estimatedTime: number;
-}
-
 interface TransferParams {
   token: SUPPORTED_TOKENS;
   amount: string;
@@ -42,7 +36,7 @@ export const useTransferTransaction = () => {
   const simulationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Simulation state
-  const [simulation, setSimulation] = useState<TransferSimulation | null>(null);
+  const [simulation, setSimulation] = useState<SimulationResult | null>(null);
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationError, setSimulationError] = useState<string | null>(null);
 
@@ -160,7 +154,7 @@ export const useTransferTransaction = () => {
         setSimulationError(null);
 
         // Try to simulate transfer using SDK if available
-        const result: SimulationResult | any =
+        const result: SimulationResult | null =
           await nexusSdk.simulateTransfer?.({
             token,
             amount,
@@ -168,55 +162,13 @@ export const useTransferTransaction = () => {
             recipient,
           });
 
-        if (result?.intent) {
-          // If we get the same structure as bridge simulation
-          const { intent } = result;
-          const { fees } = intent;
-
-          const simulationData: TransferSimulation = {
-            estimatedGas: fees.caGas || fees.total || "0.001",
-            totalCost: fees.total || "0.001",
-            estimatedTime: 60, // 1 minute default for transfers
-          };
-
-          setSimulation(simulationData);
-        } else if (result) {
-          // Handle other possible response structures
-          const simulationData: TransferSimulation = {
-            estimatedGas:
-              (result as any).estimatedGas ??
-              (result as any).gasCost ??
-              "0.001",
-            totalCost:
-              (result as any).totalCost ??
-              (result as any).estimatedGas ??
-              "0.001",
-            estimatedTime: (result as any).estimatedTime ?? 60, // 1 minute default for transfers
-          };
-
-          setSimulation(simulationData);
-        } else {
-          // Fallback simulation if SDK doesn't support transfer simulation
-          const fallbackSimulation: TransferSimulation = {
-            estimatedGas: "0.001", // Typical transfer gas cost
-            totalCost: "0.001",
-            estimatedTime: 60, // 1 minute
-          };
-          setSimulation(fallbackSimulation);
-        }
+        setSimulation(result);
       } catch (error) {
         console.error("Transfer simulation failed:", error);
         setSimulationError(
           error instanceof Error ? error.message : "Simulation failed"
         );
-
-        // Provide fallback simulation even on error
-        const fallbackSimulation: TransferSimulation = {
-          estimatedGas: "0.001",
-          totalCost: "0.001",
-          estimatedTime: 60,
-        };
-        setSimulation(fallbackSimulation);
+        setSimulation(null);
       } finally {
         setIsSimulating(false);
       }

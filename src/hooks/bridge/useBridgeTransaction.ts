@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import {
-  useBridgeStore,
-  bridgeSelectors,
-  BridgeSimulation,
-} from "@/store/bridgeStore";
+import { useBridgeStore, bridgeSelectors } from "@/store/bridgeStore";
 import { useNexus } from "@/provider/NexusProvider";
 import { useTransactionProgress } from "./useTransactionProgress";
 import {
@@ -195,39 +191,10 @@ export const useBridgeTransaction = () => {
 
       if (result?.intent) {
         const { intent } = result;
-        const { fees } = intent;
 
-        const simulationData: BridgeSimulation = {
-          estimatedGas: fees.caGas || "0",
-          bridgeFee: fees.solver || "0",
-          totalCost: fees.total || "0",
-          estimatedTime: 300, // 5 minutes default
-          breakdown: {
-            networkFee: fees.caGas,
-            protocolFee: fees.protocol,
-            solverFee: fees.solver,
-            gasSupplied: fees.gasSupplied,
-          },
-          intent: {
-            destination: intent.destination
-              ? {
-                  ...intent.destination,
-                  chainLogo: intent.destination.chainLogo ?? "",
-                }
-              : undefined,
-            sources: intent.sources?.map((source) => ({
-              ...source,
-              chainLogo: source.chainLogo ?? "",
-              contractAddress: source.contractAddress,
-            })),
-            sourcesTotal: intent.sourcesTotal,
-            token: intent.token
-              ? {
-                  ...intent.token,
-                  logo: intent.token.logo ?? "",
-                }
-              : undefined,
-          },
+        const simulationData: SimulationResult = {
+          intent,
+          token: result.token,
         };
 
         setSimulation(simulationData);

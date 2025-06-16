@@ -53,7 +53,7 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleFormSubmit} className="w-full max-w-sm space-y-4">
+    <form onSubmit={handleFormSubmit} className="w-full space-y-4">
       {/* Chain Selection */}
       <div className="space-y-2">
         <ChainSelect
@@ -74,7 +74,7 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
       {/* Amount Input */}
       <div className="space-y-2">
         <div className="relative">
-          <div className="w-full max-w-sm flex items-center gap-x-2 shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)]">
+          <div className="w-full flex items-center gap-x-2 shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)]">
             <Input
               type="text"
               placeholder="0.0"

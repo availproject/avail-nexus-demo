@@ -1,10 +1,10 @@
 "use client";
 
 import {
+  EthereumProvider,
   NexusSDK,
   OnAllowanceHookData,
   OnIntentHookData,
-  NexusNetwork,
 } from "avail-nexus-sdk";
 import React, {
   createContext,
@@ -17,6 +17,7 @@ import React, {
   SetStateAction,
   Dispatch,
 } from "react";
+import { useAccount } from "wagmi";
 
 interface NexusContextType {
   nexusSdk: NexusSDK | undefined;
@@ -44,15 +45,26 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
     useState<OnAllowanceHookData | null>(null);
   const [intentModal, setIntentModal] = useState<OnIntentHookData | null>(null);
 
+  const { connector } = useAccount();
+
   const initializeSDK = useCallback(async () => {
     console.log("initializeSDK", isConnected, nexusSdk);
-    if (isConnected && !nexusSdk) {
+    if (isConnected && !nexusSdk && connector) {
       try {
+        // Get the EIP-1193 provider from the connector
+        // For ConnectKit/wagmi, we need to get the provider from the connector
+        const provider = (await connector.getProvider()) as EthereumProvider;
+
+        if (!provider) {
+          throw new Error("No EIP-1193 provider available");
+        }
+
         // Testnet config
         const sdk = new NexusSDK();
-        await sdk.initialize(window.ethereum);
+        await sdk.initialize(provider);
         setNexusSdk(sdk);
         setIsInitialized(true);
+
         sdk.setOnAllowanceHook(async (data) => {
           // This is a hook for the dev to show user the allowances that need to be setup for the current tx to happen
           // where,
@@ -61,6 +73,7 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
           // deny(): stops the flow
           setAllowanceModal(data);
         });
+
         sdk.setOnIntentHook((data) => {
           // This is a hook for the dev to show user the intent, the sources and associated fees
           // where,
@@ -75,7 +88,7 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
         setIsInitialized(false);
       }
     }
-  }, [isConnected, nexusSdk]);
+  }, [isConnected, nexusSdk, connector]);
 
   const cleanupSDK = useCallback(() => {
     if (nexusSdk) {

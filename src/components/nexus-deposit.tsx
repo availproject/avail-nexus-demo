@@ -12,6 +12,7 @@ import { SimulationPreview } from "./shared/simulation-preview";
 import IntentModal from "./nexus-modals/intent-modal";
 import AllowanceModal from "./nexus-modals/allowance-modal";
 import { INITIAL_CHAIN } from "@/lib/constants";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface DepositState {
   toChainId: SUPPORTED_CHAINS_IDS;
@@ -212,6 +213,7 @@ const NexusDeposit = () => {
       try {
         parsedAbi = JSON.parse(state.contractAbi);
       } catch (error) {
+        console.error("Invalid ABI format", error);
         throw new Error("Invalid ABI format");
       }
 
@@ -300,184 +302,186 @@ const NexusDeposit = () => {
     state.contractAbi.trim() !== "";
 
   return (
-    <div className="flex flex-col gap-4 max-w-lg mx-auto p-4">
-      <div className="text-center mb-4">
-        <h3 className="text-lg font-semibold">Smart Contract Deposit</h3>
-        <p className="text-sm text-muted-foreground">
-          Deposit directly to smart contracts after bridging
-        </p>
-      </div>
+    <ScrollArea className="h-[calc(100vh-400px)]">
+      <div className="flex flex-col gap-4 max-w-lg mx-auto p-4">
+        <div className="text-center mb-4">
+          <h3 className="text-lg font-semibold">Smart Contract Deposit</h3>
+          <p className="text-sm text-muted-foreground">
+            Deposit directly to smart contracts after bridging
+          </p>
+        </div>
 
-      {/* Chain Selection */}
-      <div className="space-y-2">
-        <Label>Target Chain</Label>
-        <ChainSelect
-          selectedChain={state.toChainId}
-          handleSelect={handleChainSelect}
-        />
-      </div>
+        {/* Chain Selection */}
+        <div className="space-y-2">
+          <ChainSelect
+            selectedChain={state.toChainId}
+            handleSelect={handleChainSelect}
+          />
+        </div>
 
-      {/* Contract Address */}
-      <div className="space-y-2">
-        <Label>Contract Address *</Label>
-        <Input
-          type="text"
-          placeholder="0x..."
-          value={state.contractAddress}
-          onChange={(e) => handleInputChange("contractAddress", e.target.value)}
-        />
-      </div>
+        {/* Contract Address */}
+        <div className="space-y-2">
+          <Label className="font-bold ">Contract Address *</Label>
+          <Input
+            type="text"
+            placeholder="0x..."
+            className="!shadow-[var(--ck-connectbutton-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] border-none !focus-visible:none outline-none"
+            value={state.contractAddress}
+            onChange={(e) =>
+              handleInputChange("contractAddress", e.target.value)
+            }
+          />
+        </div>
 
-      {/* Example ABI Templates */}
-      <div className="space-y-2">
-        <Label>Quick Templates</Label>
-        <div className="flex flex-wrap gap-2">
-          {Object.keys(EXAMPLE_ABIS).map((type) => (
+        {/* Example ABI Templates */}
+        <div className="space-y-2">
+          <Label className="font-bold">Quick Templates</Label>
+          <div className="flex flex-wrap gap-2">
+            {Object.keys(EXAMPLE_ABIS).map((type) => (
+              <Button
+                key={type}
+                variant="connectkit"
+                size="sm"
+                onClick={() =>
+                  loadExampleABI(type as keyof typeof EXAMPLE_ABIS)
+                }
+                className="bg-white rounded-full font-medium"
+              >
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Function Name */}
+        <div className="space-y-2">
+          <Label className="font-bold">Function Name *</Label>
+          <Input
+            type="text"
+            placeholder="deposit, stake, supply, etc."
+            className="!shadow-[var(--ck-connectbutton-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] border-none !focus-visible:none outline-none"
+            value={state.functionName}
+            onChange={(e) => handleInputChange("functionName", e.target.value)}
+          />
+        </div>
+
+        {/* Function Parameters */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="font-bold">Function Parameters</Label>
             <Button
-              key={type}
-              variant="outline"
+              variant="connectkit"
               size="sm"
-              onClick={() => loadExampleABI(type as keyof typeof EXAMPLE_ABIS)}
+              onClick={addFunctionParam}
+              className="bg-white rounded-full font-medium"
             >
-              {type.charAt(0).toUpperCase() + type.slice(1)}
+              <Plus className="w-4 h-4 mr-1" />
+              Add Param
             </Button>
+          </div>
+          {state.functionParams.map((param, index) => (
+            <div key={index} className="flex gap-2">
+              <Input
+                type="text"
+                placeholder={`Parameter ${index + 1}`}
+                className="!shadow-[var(--ck-connectbutton-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] border-none !focus-visible:none outline-none"
+                value={param}
+                onChange={(e) => updateFunctionParam(index, e.target.value)}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => removeFunctionParam(index)}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
           ))}
         </div>
-      </div>
 
-      {/* Contract ABI */}
-      <div className="space-y-2">
-        <Label>Contract ABI *</Label>
-        <textarea
-          placeholder="Paste contract ABI JSON here..."
-          value={state.contractAbi}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-            handleInputChange("contractAbi", e.target.value)
-          }
-          rows={6}
-          className="font-mono text-xs w-full p-3 border border-input bg-background rounded-md resize-vertical focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-        />
-      </div>
-
-      {/* Function Name */}
-      <div className="space-y-2">
-        <Label>Function Name *</Label>
-        <Input
-          type="text"
-          placeholder="deposit, stake, supply, etc."
-          value={state.functionName}
-          onChange={(e) => handleInputChange("functionName", e.target.value)}
-        />
-      </div>
-
-      {/* Function Parameters */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label>Function Parameters</Label>
-          <Button variant="outline" size="sm" onClick={addFunctionParam}>
-            <Plus className="w-4 h-4 mr-1" />
-            Add Param
-          </Button>
+        {/* Value (ETH) */}
+        <div className="space-y-2">
+          <Label className="font-bold">Value (ETH)</Label>
+          <Input
+            type="text"
+            placeholder="0 (for payable functions)"
+            className="!shadow-[var(--ck-connectbutton-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] border-none !focus-visible:none outline-none"
+            value={state.value}
+            onChange={(e) => handleInputChange("value", e.target.value)}
+          />
         </div>
-        {state.functionParams.map((param, index) => (
-          <div key={index} className="flex gap-2">
-            <Input
-              type="text"
-              placeholder={`Parameter ${index + 1}`}
-              value={param}
-              onChange={(e) => updateFunctionParam(index, e.target.value)}
-            />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => removeFunctionParam(index)}
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
-        ))}
-      </div>
 
-      {/* Value (ETH) */}
-      <div className="space-y-2">
-        <Label>Value (ETH)</Label>
-        <Input
-          type="text"
-          placeholder="0 (for payable functions)"
-          value={state.value}
-          onChange={(e) => handleInputChange("value", e.target.value)}
-        />
-      </div>
-
-      {/* Gas Limit */}
-      <div className="space-y-2">
-        <Label>Gas Limit (optional)</Label>
-        <Input
-          type="text"
-          placeholder="Auto-estimate if empty"
-          value={state.gasLimit}
-          onChange={(e) => handleInputChange("gasLimit", e.target.value)}
-        />
-      </div>
-
-      {/* Simulation Preview */}
-      {(state.simulation || state.isSimulating || state.simulationError) && (
-        <SimulationPreview
-          simulation={state.simulation}
-          isSimulating={state.isSimulating}
-          simulationError={state.simulationError}
-          title="Deposit Cost Estimate"
-          className="w-full"
-        />
-      )}
-
-      {/* Info Box */}
-      <div className="p-3 border rounded-lg bg-blue-50 dark:bg-blue-950">
-        <div className="flex items-start gap-2">
-          <Info className="w-4 h-4 text-blue-600 mt-0.5" />
-          <div className="text-xs text-blue-700 dark:text-blue-300">
-            <p className="font-medium mb-1">How it works:</p>
-            <ul className="space-y-1 list-disc list-inside">
-              <li>Bridge tokens to target chain</li>
-              <li>Execute smart contract function</li>
-              <li>Monitor transaction progress</li>
-            </ul>
-          </div>
+        {/* Gas Limit */}
+        <div className="space-y-2">
+          <Label className="font-bold">Gas Limit (optional)</Label>
+          <Input
+            type="text"
+            placeholder="Auto-estimate if empty"
+            className="!shadow-[var(--ck-connectbutton-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] border-none !focus-visible:none outline-none"
+            value={state.gasLimit}
+            onChange={(e) => handleInputChange("gasLimit", e.target.value)}
+          />
         </div>
-      </div>
 
-      {/* Submit Button */}
-      <Button
-        variant="connectkit"
-        className="w-full font-semibold"
-        onClick={handleDeposit}
-        disabled={!isFormValid || state.isDepositing}
-      >
-        {state.isDepositing ? (
-          <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Processing Deposit...
-          </>
-        ) : (
-          "Execute Deposit"
+        {/* Simulation Preview */}
+        {(state.simulation || state.isSimulating || state.simulationError) && (
+          <SimulationPreview
+            simulation={state.simulation}
+            isSimulating={state.isSimulating}
+            simulationError={state.simulationError}
+            title="Deposit Cost Estimate"
+            className="w-full"
+          />
         )}
-      </Button>
 
-      {/* Modals */}
-      {intentModal && (
-        <IntentModal
-          intentModal={intentModal}
-          setIntentModal={setIntentModal}
-        />
-      )}
+        {/* Info Box */}
+        <div className="p-3 border rounded-lg bg-blue-50 dark:bg-blue-950">
+          <div className="flex items-start gap-2">
+            <Info className="w-4 h-4 text-blue-600 mt-0.5" />
+            <div className="text-xs text-blue-700 dark:text-blue-300">
+              <p className="font-medium mb-1">How it works:</p>
+              <ul className="space-y-1 list-disc list-inside">
+                <li>Bridge tokens to target chain</li>
+                <li>Execute smart contract function</li>
+                <li>Monitor transaction progress</li>
+              </ul>
+            </div>
+          </div>
+        </div>
 
-      {allowanceModal && (
-        <AllowanceModal
-          allowanceModal={allowanceModal}
-          setAllowanceModal={setAllowanceModal}
-        />
-      )}
-    </div>
+        {/* Submit Button */}
+        <Button
+          variant="connectkit"
+          className="w-full font-semibold"
+          onClick={handleDeposit}
+          disabled={!isFormValid || state.isDepositing}
+        >
+          {state.isDepositing ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Processing Deposit...
+            </>
+          ) : (
+            "Execute Deposit"
+          )}
+        </Button>
+
+        {/* Modals */}
+        {intentModal && (
+          <IntentModal
+            intentModal={intentModal}
+            setIntentModal={setIntentModal}
+          />
+        )}
+
+        {allowanceModal && (
+          <AllowanceModal
+            allowanceModal={allowanceModal}
+            setAllowanceModal={setAllowanceModal}
+          />
+        )}
+      </div>
+    </ScrollArea>
   );
 };
 

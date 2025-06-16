@@ -8,51 +8,13 @@ import {
   updateTransactionInHistory,
 } from "@/lib/bridge/transactionStorage";
 import {
+  SimulationResult,
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
   UserAsset,
 } from "avail-nexus-sdk";
 import { BridgeFormData, ComponentStep } from "@/types/bridge";
 import { TransactionData, TransactionHistoryItem } from "@/types/transaction";
-
-/**
- * Bridge simulation result interface
- */
-export interface BridgeSimulation {
-  estimatedGas: string; // fees.caGas
-  bridgeFee: string; // fees.solver
-  totalCost: string; // fees.total
-  estimatedTime: number; // estimated completion time in seconds
-  breakdown?: {
-    networkFee?: string; // fees.caGas (gas cost)
-    protocolFee?: string; // fees.protocol
-    solverFee?: string; // fees.solver
-    gasSupplied?: string; // fees.gasSupplied
-  };
-  // Enhanced data from SDK intent
-  intent?: {
-    destination?: {
-      amount: string;
-      chainID: number;
-      chainLogo: string;
-      chainName: string;
-    };
-    sources?: Array<{
-      amount: string;
-      chainID: number;
-      chainLogo: string;
-      chainName: string;
-      contractAddress?: string;
-    }>;
-    sourcesTotal?: string;
-    token?: {
-      decimals: number;
-      logo: string;
-      name: string;
-      symbol: string;
-    };
-  };
-}
 
 /**
  * Bridge store state interface
@@ -65,7 +27,7 @@ interface BridgeState {
   availableBalance: UserAsset[];
 
   // Simulation state
-  simulation: BridgeSimulation | null;
+  simulation: SimulationResult | null;
   isSimulating: boolean;
   simulationError: string | null;
 
@@ -98,7 +60,7 @@ interface BridgeActions {
   setAvailableBalance: (balance: UserAsset[]) => void;
 
   // Simulation actions
-  setSimulation: (simulation: BridgeSimulation | null) => void;
+  setSimulation: (simulation: SimulationResult | null) => void;
   setSimulating: (simulating: boolean) => void;
   setSimulationError: (error: string | null) => void;
   clearSimulation: () => void;

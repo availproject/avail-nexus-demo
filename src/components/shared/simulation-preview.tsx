@@ -1,46 +1,13 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, DollarSign, TrendingUp, ArrowRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Loader2, TrendingUp, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface SimulationData {
-  estimatedGas: string;
-  bridgeFee?: string;
-  totalCost: string;
-  estimatedTime: number;
-  breakdown?: {
-    networkFee?: string;
-    protocolFee?: string;
-    solverFee?: string;
-    gasSupplied?: string;
-  };
-  // Enhanced simulation data from SDK
-  intent?: {
-    destination?: {
-      amount: string;
-      chainID: number;
-      chainLogo: string;
-      chainName: string;
-    };
-    sources?: Array<{
-      amount: string;
-      chainID: number;
-      chainLogo: string;
-      chainName: string;
-      contractAddress?: string;
-    }>;
-    sourcesTotal?: string;
-    token?: {
-      decimals: number;
-      logo: string;
-      name: string;
-      symbol: string;
-    };
-  };
-}
+import Image from "next/image";
+import { SimulationResult } from "avail-nexus-sdk";
+import { Separator } from "../ui/separator";
 
 interface SimulationPreviewProps {
-  simulation: SimulationData | null;
+  simulation: SimulationResult | null;
   isSimulating: boolean;
   simulationError?: string | null;
   title?: string;
@@ -66,9 +33,16 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
 
   if (simulationError) {
     return (
-      <Card className={cn("border-red-200 bg-red-50", className)}>
+      <Card
+        className={cn(
+          "border-none !shadow-[var(--ck-tertiary-box-shadow)] !rounded-[var(--ck-tertiary-border-radius)] bg-destructive/30",
+          className
+        )}
+      >
         <CardContent className="p-4">
-          <div className="text-red-600 text-sm">Error: {simulationError}</div>
+          <div className="text-destructive text-sm font-bold">
+            Error: {simulationError}
+          </div>
         </CardContent>
       </Card>
     );
@@ -76,9 +50,14 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
 
   if (isSimulating) {
     return (
-      <Card className={cn("border-blue-200 bg-blue-50", className)}>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-center text-blue-600">
+      <Card
+        className={cn(
+          "border-none !shadow-[var(--ck-tertiary-box-shadow)] !rounded-[var(--ck-tertiary-border-radius)] bg-accent/10",
+          className
+        )}
+      >
+        <CardContent className="p-4 rounded-none">
+          <div className="flex items-center justify-center text-primary font-medium">
             <Loader2 className="w-4 h-4 animate-spin mr-2" />
             <span className="text-sm">Calculating costs...</span>
           </div>
@@ -91,83 +70,78 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
     return null;
   }
 
-  const { intent } = simulation;
+  const { intent, token } = simulation;
 
   return (
-    <Card className={cn("border-green-200 bg-green-50", className)}>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm text-green-700 flex items-center gap-2">
-          <TrendingUp className="w-4 h-4" />
-          {title}
-        </CardTitle>
-      </CardHeader>
+    <Card
+      className={cn(
+        "border-none !shadow-[var(--ck-tertiary-box-shadow)] !rounded-[var(--ck-tertiary-border-radius)] bg-accent/10 gap-y-1",
+        className
+      )}
+    >
       <CardContent className="pt-0 space-y-3">
-        {/* Token Information */}
-        {intent?.token && (
-          <div className="flex items-center gap-2 p-2 bg-white rounded border">
-            <img
-              src={intent.token.logo}
-              alt={intent.token.symbol}
-              className="w-6 h-6 rounded-full"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-              }}
-            />
-            <div>
-              <div className="font-medium text-sm">{intent.token.name}</div>
-              <div className="text-xs text-muted-foreground">
-                {intent.token.symbol}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Bridge Route Information */}
-        {intent?.sources && intent?.destination && (
+        {intent?.sources && intent?.destination && intent.token && (
           <div className="space-y-2">
-            <div className="text-xs font-medium text-muted-foreground">
-              Bridge Route
+            <div className="text-sm font-bold text-muted-foreground flex items-center gap-x-2">
+              <TrendingUp
+                className="w-5 h-5"
+                strokeWidth={2}
+                fontWeight={"bold"}
+              />
+              {title}
             </div>
             <div className="flex items-center gap-2 text-xs">
               {/* Source Chain */}
-              <div className="flex items-center gap-1 bg-white p-2 rounded border flex-1">
-                <img
-                  src={intent.sources[0]?.chainLogo}
-                  alt={intent.sources[0]?.chainName}
-                  className="w-4 h-4 rounded-full"
+              <div className="flex flex-col justify-center items-center gap-1  p-2 flex-1 shadow-[var(--ck-tertiary-box-shadow)] !rounded-[var(--ck-tertiary-border-radius)]">
+                <Image
+                  src={intent.sources[0].chainLogo ?? ""}
+                  alt={intent.sources[0].chainName ?? ""}
+                  width={24}
+                  height={24}
+                  className="rounded-full"
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
                   }}
                 />
-                <div>
-                  <div className="font-medium">
-                    {intent.sources[0]?.chainName}
-                  </div>
-                  <div className="text-muted-foreground">
-                    {intent.sources[0]?.amount} {intent.token?.symbol}
-                  </div>
+                <div className="text-muted-foreground font-bold">
+                  {intent.sources[0]?.amount} {intent.token?.symbol}
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              <div className="flex flex-col justify-center items-center gap-y-1 p-2 w-fit shadow-[var(--ck-tertiary-box-shadow)] !rounded-[var(--ck-tertiary-border-radius)]">
+                <Image
+                  src={token.logo ?? ""}
+                  alt={token.symbol}
+                  className="rounded-full"
+                  width={24}
+                  height={24}
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+                <div className="font-bold text-xs text-muted-foreground">
+                  {intent.token.symbol}
                 </div>
               </div>
 
               <ArrowRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
 
               {/* Destination Chain */}
-              <div className="flex items-center gap-1 bg-white p-2 rounded border flex-1">
-                <img
-                  src={intent.destination.chainLogo}
-                  alt={intent.destination.chainName}
-                  className="w-4 h-4 rounded-full"
+              <div className="flex flex-col justify-center items-center gap-1  p-2 flex-1 shadow-[var(--ck-tertiary-box-shadow)] !rounded-[var(--ck-tertiary-border-radius)]">
+                <Image
+                  src={intent.destination.chainLogo ?? ""}
+                  alt={intent.destination.chainName ?? ""}
+                  width={24}
+                  height={24}
+                  className="rounded-full"
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
                   }}
                 />
-                <div>
-                  <div className="font-medium">
-                    {intent.destination.chainName}
-                  </div>
-                  <div className="text-muted-foreground">
-                    {intent.destination.amount} {intent.token?.symbol}
-                  </div>
+
+                <div className="text-muted-foreground font-bold">
+                  {intent.destination.amount} {intent.token?.symbol}
                 </div>
               </div>
             </div>
@@ -175,74 +149,56 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
         )}
 
         {/* Cost Summary */}
-        <div className="space-y-2">
+        <div className="space-y-2 pt-4 font-bold">
           {/* Network Gas */}
           <div className="flex justify-between items-center">
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              <DollarSign className="w-3 h-3" />
-              Network Gas
-            </span>
-            <span className="text-sm font-medium">
-              {formatCost(simulation.estimatedGas)}
+            <span className="text-sm text-muted-foreground">Network Gas</span>
+            <span className="text-md">
+              {formatCost(intent.fees.caGas ?? "0")}
             </span>
           </div>
 
           {/* Solver Fee (if applicable) */}
-          {simulation.bridgeFee && parseFloat(simulation.bridgeFee) > 0 && (
+          {intent.fees.solver && parseFloat(intent.fees.solver) > 0 && (
             <div className="flex justify-between items-center">
-              <span className="text-xs text-muted-foreground">Solver Fee</span>
-              <span className="text-sm font-medium">
-                {formatCost(simulation.bridgeFee)}
+              <span className="text-sm text-muted-foreground">Solver Fee</span>
+              <span className="text-md">{formatCost(intent.fees.solver)}</span>
+            </div>
+          )}
+
+          {intent.fees.protocol && parseFloat(intent.fees.protocol) > 0 && (
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">
+                Protocol Fee
+              </span>
+              <span className="text-md">
+                {formatCost(intent.fees.protocol)}
               </span>
             </div>
           )}
 
+          {intent.fees.gasSupplied &&
+            parseFloat(intent.fees.gasSupplied) > 0 && (
+              <div className="flex justify-between text-xs">
+                <span className="text-sm text-muted-foreground">
+                  Additional Gas
+                </span>
+                <span className="text-md">
+                  {formatCost(intent.fees.gasSupplied)}
+                </span>
+              </div>
+            )}
+
+          <Separator />
+
           {/* Total Cost */}
-          <div className="flex justify-between items-center pt-1 border-t border-green-200">
-            <span className="text-sm font-semibold text-green-700">
-              Total Cost
-            </span>
-            <span className="text-sm font-bold text-green-700">
-              {formatCost(simulation.totalCost)}
+          <div className="flex justify-between items-center pt-1">
+            <span className="text-sm text-primary">Total Cost</span>
+            <span className="text-md text-primary">
+              {formatCost(intent.fees.total ?? "0")}
             </span>
           </div>
         </div>
-
-        {/* Fee Breakdown (if available) */}
-        {simulation.breakdown && (
-          <div className="pt-2 border-t border-green-200">
-            <div className="text-xs text-muted-foreground mb-1">
-              Fee Breakdown:
-            </div>
-            {simulation.breakdown.networkFee && (
-              <div className="flex justify-between text-xs">
-                <span>Network Gas</span>
-                <span>{formatCost(simulation.breakdown.networkFee)}</span>
-              </div>
-            )}
-            {simulation.breakdown.protocolFee &&
-              parseFloat(simulation.breakdown.protocolFee) > 0 && (
-                <div className="flex justify-between text-xs">
-                  <span>Protocol Fee</span>
-                  <span>{formatCost(simulation.breakdown.protocolFee)}</span>
-                </div>
-              )}
-            {simulation.breakdown.solverFee &&
-              parseFloat(simulation.breakdown.solverFee) > 0 && (
-                <div className="flex justify-between text-xs">
-                  <span>Solver Fee</span>
-                  <span>{formatCost(simulation.breakdown.solverFee)}</span>
-                </div>
-              )}
-            {simulation.breakdown.gasSupplied &&
-              parseFloat(simulation.breakdown.gasSupplied) > 0 && (
-                <div className="flex justify-between text-xs">
-                  <span>Additional Gas</span>
-                  <span>{formatCost(simulation.breakdown.gasSupplied)}</span>
-                </div>
-              )}
-          </div>
-        )}
       </CardContent>
     </Card>
   );

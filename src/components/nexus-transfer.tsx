@@ -142,7 +142,7 @@ const NexusTransfer = () => {
 
   return (
     <div className="flex flex-col gap-y-4 py-4">
-      <div className="w-full max-w-sm space-y-4">
+      <div className="w-full space-y-4">
         <ChainSelect
           selectedChain={state.selectedChain}
           handleSelect={handleChainSelect}
@@ -153,7 +153,7 @@ const NexusTransfer = () => {
           handleTokenSelect={handleTokenSelect}
         />
       </div>
-      <div className="w-full max-w-sm flex items-center gap-x-2 shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)]">
+      <div className="w-full flex items-center gap-x-2 shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)]">
         <Input
           type="text"
           placeholder="Recipient address"
@@ -167,7 +167,7 @@ const NexusTransfer = () => {
           disabled={!state.selectedToken}
         />
       </div>
-      <div className="w-full max-w-sm flex items-center gap-x-2 shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)]">
+      <div className="w-full flex items-center gap-x-2 shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)]">
         <Input
           type="text"
           placeholder="Amount"
@@ -188,7 +188,7 @@ const NexusTransfer = () => {
             isSimulating={isSimulating}
             simulationError={simulationError}
             title="Transfer Cost Estimate"
-            className="w-full max-w-sm"
+            className="w-full"
           />
         )}
 

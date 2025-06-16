@@ -20,7 +20,7 @@
     "@radix-ui/react-slot": "^1.2.2",
     "@radix-ui/react-tabs": "^1.1.11",
     "@tanstack/react-query": "^5.76.1",
-    "avail-nexus-sdk": "0.0.3-dev.6",
+    "avail-nexus-sdk": "^0.0.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "connectkit": "^1.9.0",
