@@ -4,11 +4,14 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useBridgeForm } from "@/hooks/bridge/useBridgeForm";
+import { useBridgeTransaction } from "@/hooks/bridge/useBridgeTransaction";
+import { useBridgeStore, bridgeSelectors } from "@/store/bridgeStore";
 import { cn } from "@/lib/utils";
 import { UserAsset } from "avail-nexus-sdk";
 import { Infinity } from "lucide-react";
 import ChainSelect from "../blocks/chain-select";
 import TokenSelect from "../blocks/token-select";
+import { SimulationPreview } from "../shared/simulation-preview";
 
 interface BridgeFormProps {
   availableBalance: UserAsset[];
@@ -37,6 +40,10 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
     selectedTokenBalance,
     submissionState,
   } = useBridgeForm(availableBalance);
+
+  // Get simulation data from the bridge transaction hook
+  const { simulation, isSimulating } = useBridgeTransaction();
+  const simulationError = useBridgeStore(bridgeSelectors.simulationError);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,6 +108,17 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
           <div className="text-xs text-red-500">{validation.errorMessage}</div>
         )}
       </div>
+
+      {/* Simulation Preview */}
+      {selectedToken && bridgeAmount && parseFloat(bridgeAmount) > 0 && (
+        <SimulationPreview
+          simulation={simulation}
+          isSimulating={isSimulating}
+          simulationError={simulationError}
+          title="Bridge Cost Estimate"
+          className="w-full"
+        />
+      )}
 
       {/* Submit Button */}
       <Button

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { INITIAL_CHAIN } from "@/lib/constants";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
@@ -11,6 +11,7 @@ import ChainSelect from "./blocks/chain-select";
 import TokenSelect from "./blocks/token-select";
 import { useTransactionProgress } from "@/hooks/bridge/useTransactionProgress";
 import { useTransferTransaction } from "@/hooks/bridge/useTransferTransaction";
+import { SimulationPreview } from "./shared/simulation-preview";
 import IntentModal from "./nexus-modals/intent-modal";
 import AllowanceModal from "./nexus-modals/allowance-modal";
 
@@ -38,7 +39,13 @@ const NexusTransfer = () => {
     setAllowanceModal,
   } = useNexus();
 
-  const { executeTransfer } = useTransferTransaction();
+  const {
+    executeTransfer,
+    simulation,
+    isSimulating,
+    simulationError,
+    triggerTransferSimulation,
+  } = useTransferTransaction();
 
   useTransactionProgress({
     transactionType: "transfer",
@@ -49,6 +56,30 @@ const NexusTransfer = () => {
       recipientAddress: state.recipientAddress,
     },
   });
+
+  // Trigger simulation when transfer parameters change
+  useEffect(() => {
+    if (
+      state.selectedToken &&
+      state.amount &&
+      state.recipientAddress &&
+      state.selectedChain &&
+      parseFloat(state.amount) > 0
+    ) {
+      triggerTransferSimulation({
+        token: state.selectedToken,
+        amount: state.amount,
+        chainId: state.selectedChain,
+        recipient: state.recipientAddress,
+      });
+    }
+  }, [
+    state.selectedToken,
+    state.amount,
+    state.recipientAddress,
+    state.selectedChain,
+    triggerTransferSimulation,
+  ]);
 
   const handleChainSelect = (chainId: SUPPORTED_CHAINS_IDS) => {
     setState({ ...state, selectedChain: chainId });
@@ -146,6 +177,20 @@ const NexusTransfer = () => {
           disabled={!state.selectedToken}
         />
       </div>
+
+      {/* Transfer Simulation Preview */}
+      {state.selectedToken &&
+        state.amount &&
+        state.recipientAddress &&
+        parseFloat(state.amount) > 0 && (
+          <SimulationPreview
+            simulation={simulation}
+            isSimulating={isSimulating}
+            simulationError={simulationError}
+            title="Transfer Cost Estimate"
+            className="w-full max-w-sm"
+          />
+        )}
 
       <Button
         variant="connectkit"

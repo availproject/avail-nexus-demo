@@ -1,5 +1,9 @@
-import { useCallback } from "react";
-import { useBridgeStore, bridgeSelectors } from "@/store/bridgeStore";
+import { useCallback, useEffect, useRef } from "react";
+import {
+  useBridgeStore,
+  bridgeSelectors,
+  BridgeSimulation,
+} from "@/store/bridgeStore";
 import { useNexus } from "@/provider/NexusProvider";
 import { useTransactionProgress } from "./useTransactionProgress";
 import {
@@ -9,6 +13,7 @@ import {
 } from "@/lib/bridge/errorHandling";
 import { toast } from "sonner";
 import { BridgeTransactionParams } from "@/types/bridge";
+import { SimulationResult } from "avail-nexus-sdk";
 
 interface ErrorWithCode extends Error {
   code?: number;
@@ -28,17 +33,26 @@ const isAllowanceRejectionError = (error: unknown): boolean => {
 
 export const useBridgeTransaction = () => {
   const { nexusSdk } = useNexus();
+  const simulationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Store selectors
   const selectedChain = useBridgeStore(bridgeSelectors.selectedChain);
   const selectedToken = useBridgeStore(bridgeSelectors.selectedToken);
   const bridgeAmount = useBridgeStore(bridgeSelectors.bridgeAmount);
   const isBridging = useBridgeStore(bridgeSelectors.isBridging);
+  const simulation = useBridgeStore(bridgeSelectors.simulation);
+  const isSimulating = useBridgeStore(bridgeSelectors.isSimulating);
 
   // Store actions
   const setBridging = useBridgeStore((state) => state.setBridging);
   const setError = useBridgeStore((state) => state.setError);
   const resetForm = useBridgeStore((state) => state.resetForm);
+  const setSimulation = useBridgeStore((state) => state.setSimulation);
+  const setSimulating = useBridgeStore((state) => state.setSimulating);
+  const setSimulationError = useBridgeStore(
+    (state) => state.setSimulationError
+  );
+  const clearSimulation = useBridgeStore((state) => state.clearSimulation);
 
   // Hooks
   const { resetAllProgress } = useTransactionProgress();
@@ -153,9 +167,132 @@ export const useBridgeTransaction = () => {
     }
   }, [selectedToken, bridgeAmount, nexusSdk]);
 
+  /**
+   * Run simulation for current bridge parameters
+   */
+  const runSimulation = useCallback(async () => {
+    if (
+      !selectedToken ||
+      !bridgeAmount ||
+      !nexusSdk ||
+      parseFloat(bridgeAmount) <= 0
+    ) {
+      clearSimulation();
+      return;
+    }
+
+    try {
+      setSimulating(true);
+      setSimulationError(null);
+
+      const result: SimulationResult = await nexusSdk.simulateBridge({
+        chainId: selectedChain,
+        token: selectedToken,
+        amount: bridgeAmount,
+      });
+
+      console.log("Simulation result:", result);
+
+      if (result?.intent) {
+        const { intent } = result;
+        const { fees } = intent;
+
+        const simulationData: BridgeSimulation = {
+          estimatedGas: fees.caGas || "0",
+          bridgeFee: fees.solver || "0",
+          totalCost: fees.total || "0",
+          estimatedTime: 300, // 5 minutes default
+          breakdown: {
+            networkFee: fees.caGas,
+            protocolFee: fees.protocol,
+            solverFee: fees.solver,
+            gasSupplied: fees.gasSupplied,
+          },
+          intent: {
+            destination: intent.destination
+              ? {
+                  ...intent.destination,
+                  chainLogo: intent.destination.chainLogo ?? "",
+                }
+              : undefined,
+            sources: intent.sources?.map((source) => ({
+              ...source,
+              chainLogo: source.chainLogo ?? "",
+              contractAddress: source.contractAddress,
+            })),
+            sourcesTotal: intent.sourcesTotal,
+            token: intent.token
+              ? {
+                  ...intent.token,
+                  logo: intent.token.logo ?? "",
+                }
+              : undefined,
+          },
+        };
+
+        setSimulation(simulationData);
+      } else {
+        clearSimulation();
+      }
+    } catch (error) {
+      console.error("Bridge simulation failed:", error);
+      setSimulationError(
+        error instanceof Error ? error.message : "Simulation failed"
+      );
+      clearSimulation();
+    } finally {
+      setSimulating(false);
+    }
+  }, [
+    selectedToken,
+    bridgeAmount,
+    selectedChain,
+    nexusSdk,
+    setSimulating,
+    setSimulationError,
+    setSimulation,
+    clearSimulation,
+  ]);
+
+  /**
+   * Auto-run simulation when form inputs change (with debouncing)
+   */
+  useEffect(() => {
+    // Clear existing timeout
+    if (simulationTimeoutRef.current) {
+      clearTimeout(simulationTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced simulation
+    simulationTimeoutRef.current = setTimeout(() => {
+      runSimulation();
+    }, 500); // 500ms debounce
+
+    // Cleanup on unmount
+    return () => {
+      if (simulationTimeoutRef.current) {
+        clearTimeout(simulationTimeoutRef.current);
+      }
+    };
+  }, [selectedToken, bridgeAmount, selectedChain, runSimulation]);
+
+  /**
+   * Manual simulation trigger
+   */
+  const triggerSimulation = useCallback(() => {
+    if (simulationTimeoutRef.current) {
+      clearTimeout(simulationTimeoutRef.current);
+    }
+    runSimulation();
+  }, [runSimulation]);
+
   return {
     isBridging,
     executeBridge,
     simulateBridge,
+    simulation,
+    isSimulating,
+    runSimulation,
+    triggerSimulation,
   };
 };

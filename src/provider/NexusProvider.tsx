@@ -4,6 +4,7 @@ import {
   NexusSDK,
   OnAllowanceHookData,
   OnIntentHookData,
+  NexusNetwork,
 } from "avail-nexus-sdk";
 import React, {
   createContext,
@@ -47,7 +48,7 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
     console.log("initializeSDK", isConnected, nexusSdk);
     if (isConnected && !nexusSdk) {
       try {
-        // Mainnet config
+        // Testnet config
         const sdk = new NexusSDK();
         await sdk.initialize(window.ethereum);
         setNexusSdk(sdk);

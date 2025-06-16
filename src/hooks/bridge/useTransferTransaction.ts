@@ -1,11 +1,28 @@
-import { useCallback } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { useNexus } from "@/provider/NexusProvider";
 import { useTransactionProgress } from "./useTransactionProgress";
 import { toast } from "sonner";
-import { SUPPORTED_CHAINS_IDS, SUPPORTED_TOKENS } from "avail-nexus-sdk";
+import {
+  SUPPORTED_CHAINS_IDS,
+  SUPPORTED_TOKENS,
+  SimulationResult,
+} from "avail-nexus-sdk";
 
 interface ErrorWithCode extends Error {
   code?: number;
+}
+
+interface TransferSimulation {
+  estimatedGas: string;
+  totalCost: string;
+  estimatedTime: number;
+}
+
+interface TransferParams {
+  token: SUPPORTED_TOKENS;
+  amount: string;
+  chainId: SUPPORTED_CHAINS_IDS;
+  recipient: `0x${string}`;
 }
 
 const isAllowanceRejectionError = (error: unknown): boolean => {
@@ -20,15 +37,14 @@ const isAllowanceRejectionError = (error: unknown): boolean => {
   return errorWithCode?.code === 4001;
 };
 
-interface TransferParams {
-  token: SUPPORTED_TOKENS;
-  amount: string;
-  chainId: SUPPORTED_CHAINS_IDS;
-  recipient: `0x${string}`;
-}
-
 export const useTransferTransaction = () => {
   const { nexusSdk } = useNexus();
+  const simulationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Simulation state
+  const [simulation, setSimulation] = useState<TransferSimulation | null>(null);
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [simulationError, setSimulationError] = useState<string | null>(null);
 
   // Hooks
   const { resetAllProgress } = useTransactionProgress({
@@ -120,7 +136,126 @@ export const useTransferTransaction = () => {
     [nexusSdk, resetAllProgress]
   );
 
+  /**
+   * Run simulation for transfer parameters
+   */
+  const runTransferSimulation = useCallback(
+    async (transferParams: TransferParams) => {
+      const { token, amount, chainId, recipient } = transferParams;
+
+      if (
+        !token ||
+        !amount ||
+        !chainId ||
+        !recipient ||
+        !nexusSdk ||
+        parseFloat(amount) <= 0
+      ) {
+        setSimulation(null);
+        return;
+      }
+
+      try {
+        setIsSimulating(true);
+        setSimulationError(null);
+
+        // Try to simulate transfer using SDK if available
+        const result: SimulationResult | any =
+          await nexusSdk.simulateTransfer?.({
+            token,
+            amount,
+            chainId,
+            recipient,
+          });
+
+        if (result?.intent) {
+          // If we get the same structure as bridge simulation
+          const { intent } = result;
+          const { fees } = intent;
+
+          const simulationData: TransferSimulation = {
+            estimatedGas: fees.caGas || fees.total || "0.001",
+            totalCost: fees.total || "0.001",
+            estimatedTime: 60, // 1 minute default for transfers
+          };
+
+          setSimulation(simulationData);
+        } else if (result) {
+          // Handle other possible response structures
+          const simulationData: TransferSimulation = {
+            estimatedGas:
+              (result as any).estimatedGas ??
+              (result as any).gasCost ??
+              "0.001",
+            totalCost:
+              (result as any).totalCost ??
+              (result as any).estimatedGas ??
+              "0.001",
+            estimatedTime: (result as any).estimatedTime ?? 60, // 1 minute default for transfers
+          };
+
+          setSimulation(simulationData);
+        } else {
+          // Fallback simulation if SDK doesn't support transfer simulation
+          const fallbackSimulation: TransferSimulation = {
+            estimatedGas: "0.001", // Typical transfer gas cost
+            totalCost: "0.001",
+            estimatedTime: 60, // 1 minute
+          };
+          setSimulation(fallbackSimulation);
+        }
+      } catch (error) {
+        console.error("Transfer simulation failed:", error);
+        setSimulationError(
+          error instanceof Error ? error.message : "Simulation failed"
+        );
+
+        // Provide fallback simulation even on error
+        const fallbackSimulation: TransferSimulation = {
+          estimatedGas: "0.001",
+          totalCost: "0.001",
+          estimatedTime: 60,
+        };
+        setSimulation(fallbackSimulation);
+      } finally {
+        setIsSimulating(false);
+      }
+    },
+    [nexusSdk]
+  );
+
+  /**
+   * Debounced simulation trigger
+   */
+  const triggerTransferSimulation = useCallback(
+    (transferParams: TransferParams) => {
+      // Clear existing timeout
+      if (simulationTimeoutRef.current) {
+        clearTimeout(simulationTimeoutRef.current);
+      }
+
+      // Set new timeout for debounced simulation
+      simulationTimeoutRef.current = setTimeout(() => {
+        runTransferSimulation(transferParams);
+      }, 500); // 500ms debounce
+    },
+    [runTransferSimulation]
+  );
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (simulationTimeoutRef.current) {
+        clearTimeout(simulationTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return {
     executeTransfer,
+    simulation,
+    isSimulating,
+    simulationError,
+    triggerTransferSimulation,
   };
 };

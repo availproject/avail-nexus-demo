@@ -16,6 +16,45 @@ import { BridgeFormData, ComponentStep } from "@/types/bridge";
 import { TransactionData, TransactionHistoryItem } from "@/types/transaction";
 
 /**
+ * Bridge simulation result interface
+ */
+export interface BridgeSimulation {
+  estimatedGas: string; // fees.caGas
+  bridgeFee: string; // fees.solver
+  totalCost: string; // fees.total
+  estimatedTime: number; // estimated completion time in seconds
+  breakdown?: {
+    networkFee?: string; // fees.caGas (gas cost)
+    protocolFee?: string; // fees.protocol
+    solverFee?: string; // fees.solver
+    gasSupplied?: string; // fees.gasSupplied
+  };
+  // Enhanced data from SDK intent
+  intent?: {
+    destination?: {
+      amount: string;
+      chainID: number;
+      chainLogo: string;
+      chainName: string;
+    };
+    sources?: Array<{
+      amount: string;
+      chainID: number;
+      chainLogo: string;
+      chainName: string;
+      contractAddress?: string;
+    }>;
+    sourcesTotal?: string;
+    token?: {
+      decimals: number;
+      logo: string;
+      name: string;
+      symbol: string;
+    };
+  };
+}
+
+/**
  * Bridge store state interface
  */
 interface BridgeState {
@@ -24,6 +63,11 @@ interface BridgeState {
 
   // Balance state
   availableBalance: UserAsset[];
+
+  // Simulation state
+  simulation: BridgeSimulation | null;
+  isSimulating: boolean;
+  simulationError: string | null;
 
   // Transaction history
   transactionHistory: TransactionHistoryItem[];
@@ -52,6 +96,12 @@ interface BridgeActions {
 
   // Balance actions
   setAvailableBalance: (balance: UserAsset[]) => void;
+
+  // Simulation actions
+  setSimulation: (simulation: BridgeSimulation | null) => void;
+  setSimulating: (simulating: boolean) => void;
+  setSimulationError: (error: string | null) => void;
+  clearSimulation: () => void;
 
   // Transaction history actions
   loadHistory: () => void;
@@ -96,6 +146,9 @@ const initialState: BridgeState = {
     bridgeAmount: "",
   },
   availableBalance: [],
+  simulation: null,
+  isSimulating: false,
+  simulationError: null,
   transactionHistory: [],
   showHistory: false,
   currentTransaction: null,
@@ -144,6 +197,27 @@ export const useBridgeStore = create<BridgeStore>()(
       setAvailableBalance: (balance: UserAsset[]) =>
         set((state) => {
           state.availableBalance = balance;
+        }),
+
+      // Simulation actions
+      setSimulation: (simulation) =>
+        set((state) => {
+          state.simulation = simulation;
+        }),
+
+      setSimulating: (simulating) =>
+        set((state) => {
+          state.isSimulating = simulating;
+        }),
+
+      setSimulationError: (error) =>
+        set((state) => {
+          state.simulationError = error;
+        }),
+
+      clearSimulation: () =>
+        set((state) => {
+          state.simulation = null;
         }),
 
       // Transaction history actions
@@ -259,6 +333,9 @@ export const useBridgeStore = create<BridgeStore>()(
         currentTransaction: null,
         progressSteps: [],
         availableBalance: [],
+        simulation: null,
+        isSimulating: false,
+        simulationError: null,
       }),
     }
   )
@@ -323,6 +400,12 @@ export const bridgeSelectors = {
 
   // Balance selectors
   availableBalance: (state: BridgeStore) => state.availableBalance,
+
+  // Simulation selectors
+  simulation: (state: BridgeStore) => state.simulation,
+  isSimulating: (state: BridgeStore) => state.isSimulating,
+  simulationError: (state: BridgeStore) => state.simulationError,
+  hasSimulation: (state: BridgeStore) => !!state.simulation,
 
   // Transaction history selectors
   transactionHistory: (state: BridgeStore) => state.transactionHistory,
