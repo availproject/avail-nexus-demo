@@ -11,7 +11,6 @@ import UnifiedBalance from "./unified-balance";
 import NexusContentWrapper from "./blocks/nexus-content-wrapper";
 import NexusTransfer from "./nexus-transfer";
 import NexusBridge from "./bridge/nexus-bridge";
-import NexusDeposit from "./nexus-deposit";
 
 const Nexus = () => {
   return (
@@ -25,7 +24,7 @@ const Nexus = () => {
       <CardContent>
         <NexusContentWrapper>
           <Tabs defaultValue="unified-balance">
-            <TabsList className="grid w-full grid-cols-4 shadow-[var(--ck-primary-button-box-shadow)]">
+            <TabsList className="grid w-full grid-cols-3 shadow-[var(--ck-primary-button-box-shadow)]">
               <TabsTrigger
                 value="unified-balance"
                 className="data-[state=active]:border-secondary/50 "
@@ -44,12 +43,12 @@ const Nexus = () => {
               >
                 Transfer
               </TabsTrigger>
-              <TabsTrigger
+              {/* <TabsTrigger
                 value="deposit"
                 className=" data-[state=active]:border-secondary/50 "
               >
                 Deposit
-              </TabsTrigger>
+              </TabsTrigger> */}
             </TabsList>
             <TabsContent value="unified-balance">
               <UnifiedBalance />
@@ -60,9 +59,9 @@ const Nexus = () => {
             <TabsContent value="transfer">
               <NexusTransfer />
             </TabsContent>
-            <TabsContent value="deposit">
+            {/* <TabsContent value="deposit">
               <NexusDeposit />
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         </NexusContentWrapper>
       </CardContent>
