@@ -11,7 +11,7 @@ import UnifiedBalance from "./unified-balance";
 import NexusContentWrapper from "./blocks/nexus-content-wrapper";
 import NexusTransfer from "./nexus-transfer";
 import NexusBridge from "./bridge/nexus-bridge";
-import NexusDeposit from "./nexus-deposit";
+import NexusExecute from "./nexus-execute";
 
 const Nexus = () => {
   return (
@@ -45,10 +45,10 @@ const Nexus = () => {
                 Transfer
               </TabsTrigger>
               <TabsTrigger
-                value="deposit"
+                value="execute"
                 className=" data-[state=active]:border-secondary/50 "
               >
-                Deposit
+                Execute
               </TabsTrigger>
             </TabsList>
             <TabsContent value="unified-balance">
@@ -60,8 +60,8 @@ const Nexus = () => {
             <TabsContent value="transfer">
               <NexusTransfer />
             </TabsContent>
-            <TabsContent value="deposit">
-              <NexusDeposit />
+            <TabsContent value="execute">
+              <NexusExecute />
             </TabsContent>
           </Tabs>
         </NexusContentWrapper>

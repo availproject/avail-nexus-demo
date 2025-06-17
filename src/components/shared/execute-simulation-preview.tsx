@@ -2,11 +2,11 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DepositSimulation } from "avail-nexus-sdk";
+import { ExecuteSimulation } from "avail-nexus-sdk";
 import { Separator } from "../ui/separator";
 
-interface DepositSimulationPreviewProps {
-  simulation: DepositSimulation | null;
+interface ExecuteSimulationPreviewProps {
+  simulation: ExecuteSimulation | null;
   isSimulating: boolean;
   simulationError?: string | null;
   title?: string;
@@ -16,8 +16,8 @@ interface DepositSimulationPreviewProps {
 /**
  * Enhanced simulation preview component for displaying comprehensive bridge/transfer information
  */
-export const DepositSimulationPreview: React.FC<
-  DepositSimulationPreviewProps
+export const ExecuteSimulationPreview: React.FC<
+  ExecuteSimulationPreviewProps
 > = ({
   simulation,
   isSimulating,

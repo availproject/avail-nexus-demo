@@ -6,15 +6,15 @@ import { Label } from "./ui/label";
 import { Loader2, Plus, Trash2, Info } from "lucide-react";
 import { toast } from "sonner";
 import { useNexus } from "@/provider/NexusProvider";
-import { DepositSimulation, SUPPORTED_CHAINS_IDS } from "avail-nexus-sdk";
+import { ExecuteSimulation, SUPPORTED_CHAINS_IDS } from "avail-nexus-sdk";
 import ChainSelect from "./blocks/chain-select";
 import IntentModal from "./nexus-modals/intent-modal";
 import AllowanceModal from "./nexus-modals/allowance-modal";
 import { INITIAL_CHAIN } from "@/lib/constants";
 import { ScrollArea } from "./ui/scroll-area";
-import { DepositSimulationPreview } from "./shared/deposit-simulation-preview";
+import { ExecuteSimulationPreview } from "./shared/execute-simulation-preview";
 
-interface DepositState {
+interface ExecuteState {
   toChainId: SUPPORTED_CHAINS_IDS;
   contractAddress: string;
   functionName: string;
@@ -22,8 +22,8 @@ interface DepositState {
   contractAbi: string;
   value: string;
   gasLimit: string;
-  isDepositing: boolean;
-  simulation: DepositSimulation | null;
+  isExecuting: boolean;
+  simulation: ExecuteSimulation | null;
   isSimulating: boolean;
   simulationError: string | null;
 }
@@ -79,8 +79,8 @@ const EXAMPLE_ABIS = {
   ],
 };
 
-const NexusDeposit = () => {
-  const [state, setState] = useState<DepositState>({
+const NexusExecute = () => {
+  const [state, setState] = useState<ExecuteState>({
     toChainId: INITIAL_CHAIN,
     contractAddress: "",
     functionName: "",
@@ -88,7 +88,7 @@ const NexusDeposit = () => {
     contractAbi: "",
     value: "",
     gasLimit: "",
-    isDepositing: false,
+    isExecuting: false,
     simulation: null,
     isSimulating: false,
     simulationError: null,
@@ -107,7 +107,7 @@ const NexusDeposit = () => {
   };
 
   const handleInputChange = (
-    field: keyof DepositState,
+    field: keyof ExecuteState,
     value: string | string[]
   ) => {
     setState({ ...state, [field]: value });
@@ -171,13 +171,13 @@ const NexusDeposit = () => {
         ...(state.gasLimit && { gasLimit: BigInt(state.gasLimit) }),
       };
 
-      const result = await nexusSdk.simulateDeposit(params);
+      const result = await nexusSdk.simulateExecute(params);
 
-      console.log("Deposit simulation result:", result);
+      console.log("Execute simulation result:", result);
 
       setState({ ...state, simulation: result, isSimulating: false });
     } catch (error) {
-      console.error("Deposit simulation failed:", error);
+      console.error("Execute simulation failed:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Simulation failed";
       setState({
@@ -189,7 +189,7 @@ const NexusDeposit = () => {
     }
   }, [state, nexusSdk, setState]);
 
-  const handleDeposit = async () => {
+  const handleExecute = async () => {
     if (
       !state.contractAddress ||
       !state.functionName ||
@@ -200,7 +200,7 @@ const NexusDeposit = () => {
       return;
     }
 
-    setState({ ...state, isDepositing: true });
+    setState({ ...state, isExecuting: true });
 
     try {
       let parsedAbi;
@@ -223,13 +223,13 @@ const NexusDeposit = () => {
         ...(state.gasLimit && { gasLimit: BigInt(state.gasLimit) }),
       };
 
-      console.log("Starting deposit transaction:", params);
+      console.log("Starting execute transaction:", params);
 
-      const result = await nexusSdk.deposit(params);
+      const result = await nexusSdk.execute(params);
 
-      console.log("Deposit result:", result);
+      console.log("Execute result:", result);
 
-      toast.success("Deposit completed successfully!", {
+      toast.success("Execute completed successfully!", {
         description: `Transaction: ${result.transactionHash}`,
       });
 
@@ -242,12 +242,12 @@ const NexusDeposit = () => {
         contractAbi: "",
         value: "",
         gasLimit: "",
-        isDepositing: false,
+        isExecuting: false,
       });
     } catch (error) {
-      console.error("Deposit transaction failed:", error);
+      console.error("Execute transaction failed:", error);
 
-      let errorMessage = "Deposit failed";
+      let errorMessage = "Execute failed";
       if (error instanceof Error) {
         if (error.message.includes("User rejected")) {
           errorMessage = "Transaction was rejected by user";
@@ -262,7 +262,7 @@ const NexusDeposit = () => {
         }
       }
 
-      setState({ ...state, isDepositing: false });
+      setState({ ...state, isExecuting: false });
       toast.error(errorMessage, {
         description: "Please try again",
       });
@@ -301,9 +301,9 @@ const NexusDeposit = () => {
     <ScrollArea className="h-[calc(100vh-400px)]">
       <div className="flex flex-col gap-4 max-w-lg mx-auto p-4">
         <div className="text-center mb-4">
-          <h3 className="text-lg font-semibold">Smart Contract Deposit</h3>
+          <h3 className="text-lg font-semibold">Smart Contract Execute</h3>
           <p className="text-sm text-muted-foreground">
-            Deposit directly to smart contracts after bridging
+            Execute any Smart Contract function
           </p>
         </div>
 
@@ -376,7 +376,7 @@ const NexusDeposit = () => {
             </Button>
           </div>
           {state.functionParams.map((param, index) => (
-            <div key={index} className="flex gap-2">
+            <div key={param} className="flex gap-2">
               <Input
                 type="text"
                 placeholder={`Parameter ${index + 1}`}
@@ -421,7 +421,7 @@ const NexusDeposit = () => {
 
         {/* Simulation Preview */}
         {(state.simulation || state.isSimulating || state.simulationError) && (
-          <DepositSimulationPreview
+          <ExecuteSimulationPreview
             simulation={state.simulation}
             isSimulating={state.isSimulating}
             simulationError={state.simulationError}
@@ -449,16 +449,16 @@ const NexusDeposit = () => {
         <Button
           variant="connectkit"
           className="w-full font-semibold"
-          onClick={handleDeposit}
-          disabled={!isFormValid || state.isDepositing}
+          onClick={handleExecute}
+          disabled={!isFormValid || state.isExecuting}
         >
-          {state.isDepositing ? (
+          {state.isExecuting ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Processing Deposit...
+              Processing...
             </>
           ) : (
-            "Execute Deposit"
+            "Execute function"
           )}
         </Button>
 
@@ -481,4 +481,4 @@ const NexusDeposit = () => {
   );
 };
 
-export default NexusDeposit;
+export default NexusExecute;

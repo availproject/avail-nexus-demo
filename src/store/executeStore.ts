@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { INITIAL_CHAIN } from "@/lib/constants";
-import { DepositSimulation, SUPPORTED_CHAINS_IDS } from "avail-nexus-sdk";
+import { ExecuteSimulation, SUPPORTED_CHAINS_IDS } from "avail-nexus-sdk";
 import { ComponentStep } from "@/types/bridge";
 import { TransactionData, TransactionHistoryItem } from "@/types/transaction";
 import { Abi } from "viem";
@@ -10,7 +10,7 @@ import { Abi } from "viem";
 /**
  * Deposit form data interface
  */
-export interface DepositFormData {
+export interface ExecuteFormData {
   toChainId: SUPPORTED_CHAINS_IDS;
   contractAddress: string;
   functionName: string;
@@ -23,7 +23,7 @@ export interface DepositFormData {
 /**
  * Deposit store state interface
  */
-interface DepositState {
+interface ExecuteState {
   // Form data
   toChainId: SUPPORTED_CHAINS_IDS;
   contractAddress: string;
@@ -34,11 +34,11 @@ interface DepositState {
   gasLimit: string;
 
   // UI state
-  isDepositing: boolean;
+  isExecuting: boolean;
   error: string | null;
 
   // Simulation state
-  simulation: DepositSimulation | null;
+  simulation: ExecuteSimulation | null;
   isSimulating: boolean;
   simulationError: string | null;
 
@@ -56,10 +56,10 @@ interface DepositState {
   setValue: (value: string) => void;
   setGasLimit: (gasLimit: string) => void;
 
-  setDepositing: (isDepositing: boolean) => void;
+  setExecuting: (isExecuting: boolean) => void;
   setError: (error: string | null) => void;
 
-  setSimulation: (simulation: DepositSimulation | null) => void;
+  setSimulation: (simulation: ExecuteSimulation | null) => void;
   setSimulating: (isSimulating: boolean) => void;
   setSimulationError: (error: string | null) => void;
   clearSimulation: () => void;
@@ -75,7 +75,7 @@ interface DepositState {
 /**
  * Deposit store
  */
-export const useDepositStore = create<DepositState>()(
+export const useExecuteStore = create<ExecuteState>()(
   persist(
     immer((set) => ({
       // Initial form state
@@ -88,7 +88,7 @@ export const useDepositStore = create<DepositState>()(
       gasLimit: "",
 
       // Initial UI state
-      isDepositing: false,
+      isExecuting: false,
       error: null,
 
       // Initial simulation state
@@ -138,9 +138,9 @@ export const useDepositStore = create<DepositState>()(
         }),
 
       // UI actions
-      setDepositing: (isDepositing) =>
+      setExecuting: (isExecuting) =>
         set((state) => {
-          state.isDepositing = isDepositing;
+          state.isExecuting = isExecuting;
         }),
 
       setError: (error) =>
@@ -212,7 +212,7 @@ export const useDepositStore = create<DepositState>()(
         }),
     })),
     {
-      name: "deposit-store",
+      name: "execute-store",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         toChainId: state.toChainId,
@@ -225,34 +225,34 @@ export const useDepositStore = create<DepositState>()(
 /**
  * Deposit store selectors
  */
-export const depositSelectors = {
+export const executeSelectors = {
   // Form selectors
-  toChainId: (state: DepositState) => state.toChainId,
-  contractAddress: (state: DepositState) => state.contractAddress,
-  functionName: (state: DepositState) => state.functionName,
-  functionParams: (state: DepositState) => state.functionParams,
-  contractAbi: (state: DepositState) => state.contractAbi,
-  value: (state: DepositState) => state.value,
-  gasLimit: (state: DepositState) => state.gasLimit,
+  toChainId: (state: ExecuteState) => state.toChainId,
+  contractAddress: (state: ExecuteState) => state.contractAddress,
+  functionName: (state: ExecuteState) => state.functionName,
+  functionParams: (state: ExecuteState) => state.functionParams,
+  contractAbi: (state: ExecuteState) => state.contractAbi,
+  value: (state: ExecuteState) => state.value,
+  gasLimit: (state: ExecuteState) => state.gasLimit,
 
   // UI selectors
-  isDepositing: (state: DepositState) => state.isDepositing,
-  error: (state: DepositState) => state.error,
+  isExecuting: (state: ExecuteState) => state.isExecuting,
+  error: (state: ExecuteState) => state.error,
 
   // Simulation selectors
-  simulation: (state: DepositState) => state.simulation,
-  isSimulating: (state: DepositState) => state.isSimulating,
-  simulationError: (state: DepositState) => state.simulationError,
+  simulation: (state: ExecuteState) => state.simulation,
+  isSimulating: (state: ExecuteState) => state.isSimulating,
+  simulationError: (state: ExecuteState) => state.simulationError,
 
   // Progress selectors
-  progressSteps: (state: DepositState) => state.progressSteps,
-  hasActiveSteps: (state: DepositState) => state.progressSteps.length > 0,
-  completedStepsCount: (state: DepositState) =>
+  progressSteps: (state: ExecuteState) => state.progressSteps,
+  hasActiveSteps: (state: ExecuteState) => state.progressSteps.length > 0,
+  completedStepsCount: (state: ExecuteState) =>
     state.progressSteps.filter((step) => step.done).length,
-  currentTransaction: (state: DepositState) => state.currentTransaction,
+  currentTransaction: (state: ExecuteState) => state.currentTransaction,
 
   // Validation selectors
-  isFormValid: (state: DepositState) =>
+  isFormValid: (state: ExecuteState) =>
     state.contractAddress.trim() !== "" &&
     state.functionName.trim() !== "" &&
     (state.contractAbi as Abi).length > 0,

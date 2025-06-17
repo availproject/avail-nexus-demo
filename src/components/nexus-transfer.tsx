@@ -160,7 +160,7 @@ const NexusTransfer = () => {
           className="border-none focus-visible:ring-0 focus-visible:ring-offset-0"
           value={
             state.recipientAddress
-              ? nexusSdk?.truncateAddress(state.recipientAddress, 4, 4)
+              ? nexusSdk?.utils.truncateAddress(state.recipientAddress, 4, 4)
               : ""
           }
           onChange={handleRecipientAddressChange}

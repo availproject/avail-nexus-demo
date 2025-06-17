@@ -1,4 +1,4 @@
-export type TransactionType = "bridge" | "transfer" | "deposit";
+export type TransactionType = "bridge" | "transfer" | "execute";
 
 export interface TransactionData {
   explorerURL: string;

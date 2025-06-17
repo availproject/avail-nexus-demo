@@ -70,7 +70,7 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
     return null;
   }
 
-  const { intent, token } = simulation as SimulationResult;
+  const { intent, token } = simulation;
   return (
     <Card
       className={cn(
