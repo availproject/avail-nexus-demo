@@ -70,7 +70,6 @@ export const useTransactionProgress = (
       );
       if (!completedStep || completedStep.done) return;
       updateStepCompletion(typeID);
-      console.log("completedStepData", completedStepData);
       // Handle different step types
       switch (typeID) {
         case "IF": // Intent Fulfilled
@@ -100,7 +99,6 @@ export const useTransactionProgress = (
         case "IS": // Intent Submitted
           if (data) {
             fetchTransactions();
-            console.log("completedStepData", completedStepData);
             setExplorerURL(completedStepData?.data?.explorerURL ?? "");
             toast.success(
               `${transactionType} transaction submitted successfully!`
