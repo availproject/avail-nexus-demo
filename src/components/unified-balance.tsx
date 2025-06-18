@@ -26,7 +26,6 @@ const UnifiedBalance = () => {
       setIsLoading(true);
       setError(null);
       const unifiedBalance = await nexusSdk.getUnifiedBalances();
-      console.log(unifiedBalance);
       setBalance(unifiedBalance);
     } catch (error: unknown) {
       console.error("Unable to fetch balance", error);

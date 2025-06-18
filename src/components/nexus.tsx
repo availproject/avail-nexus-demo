@@ -11,21 +11,20 @@ import UnifiedBalance from "./unified-balance";
 import NexusContentWrapper from "./blocks/nexus-content-wrapper";
 import NexusTransfer from "./nexus-transfer";
 import NexusBridge from "./bridge/nexus-bridge";
-import NexusExecute from "./nexus-execute";
 
 const Nexus = () => {
   return (
-    <Card className="bg-accent-foreground !shadow-[var(--ck-modal-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] border-none min-w-2xs">
+    <Card className="bg-accent-foreground !shadow-[var(--ck-modal-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] border-none mx-auto w-[95%] max-w-lg">
       <CardHeader className="flex flex-col w-full items-center">
         <CardTitle className="text-xl">Nexus</CardTitle>
         <CardDescription className="text-center">
-          Nexus is a platform for creating and managing your own Nexus.
+          Cross-chain transactions made easy.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-1 md:px-6">
         <NexusContentWrapper>
           <Tabs defaultValue="unified-balance">
-            <TabsList className="grid w-full grid-cols-4 shadow-[var(--ck-primary-button-box-shadow)]">
+            <TabsList className="grid w-full grid-cols-3 shadow-[var(--ck-primary-button-box-shadow)]">
               <TabsTrigger
                 value="unified-balance"
                 className="data-[state=active]:border-secondary/50 "
@@ -44,12 +43,6 @@ const Nexus = () => {
               >
                 Transfer
               </TabsTrigger>
-              <TabsTrigger
-                value="execute"
-                className=" data-[state=active]:border-secondary/50 "
-              >
-                Execute
-              </TabsTrigger>
             </TabsList>
             <TabsContent value="unified-balance">
               <UnifiedBalance />
@@ -59,9 +52,6 @@ const Nexus = () => {
             </TabsContent>
             <TabsContent value="transfer">
               <NexusTransfer />
-            </TabsContent>
-            <TabsContent value="execute">
-              <NexusExecute />
             </TabsContent>
           </Tabs>
         </NexusContentWrapper>

@@ -1,16 +1,19 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { INITIAL_CHAIN } from "@/lib/constants";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNexus } from "@/provider/NexusProvider";
-import { SUPPORTED_CHAINS_IDS, SUPPORTED_TOKENS } from "avail-nexus-sdk";
+import {
+  SUPPORTED_CHAINS,
+  SUPPORTED_CHAINS_IDS,
+  SUPPORTED_TOKENS,
+} from "avail-nexus-sdk";
 import ChainSelect from "./blocks/chain-select";
 import TokenSelect from "./blocks/token-select";
-import { useTransactionProgress } from "@/hooks/bridge/useTransactionProgress";
-import { useTransferTransaction } from "@/hooks/bridge/useTransferTransaction";
+import { useTransactionProgress } from "@/hooks/useTransactionProgress";
+import { useTransferTransaction } from "@/hooks/useTransferTransaction";
 import { SimulationPreview } from "./shared/simulation-preview";
 import IntentModal from "./nexus-modals/intent-modal";
 import AllowanceModal from "./nexus-modals/allowance-modal";
@@ -25,7 +28,7 @@ interface TransferState {
 
 const NexusTransfer = () => {
   const [state, setState] = useState<TransferState>({
-    selectedChain: INITIAL_CHAIN,
+    selectedChain: SUPPORTED_CHAINS.ETHEREUM,
     selectedToken: undefined,
     recipientAddress: undefined,
     amount: "",
@@ -120,6 +123,8 @@ const NexusTransfer = () => {
         recipient: state.recipientAddress,
       });
 
+      console.log("result", result);
+
       if (result.success) {
         // Clear form on successful transfer
         setState({
@@ -128,8 +133,6 @@ const NexusTransfer = () => {
           recipientAddress: undefined,
           isTransferring: false,
         });
-
-        toast.success("Transfer completed successfully!");
       }
     } catch (error: unknown) {
       console.error("Unexpected error in handleTransfer:", error);
@@ -160,7 +163,7 @@ const NexusTransfer = () => {
           className="border-none focus-visible:ring-0 focus-visible:ring-offset-0"
           value={
             state.recipientAddress
-              ? nexusSdk?.utils.truncateAddress(state.recipientAddress, 4, 4)
+              ? nexusSdk?.utils.truncateAddress(state.recipientAddress, 6, 6)
               : ""
           }
           onChange={handleRecipientAddressChange}

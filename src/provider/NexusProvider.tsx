@@ -26,6 +26,7 @@ interface NexusContextType {
   setAllowanceModal: Dispatch<SetStateAction<OnAllowanceHookData | null>>;
   intentModal: OnIntentHookData | null;
   setIntentModal: Dispatch<SetStateAction<OnIntentHookData | null>>;
+  cleanupSDK: () => void;
 }
 
 const NexusContext = createContext<NexusContextType | undefined>(undefined);
@@ -48,7 +49,6 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
   const { connector } = useAccount();
 
   const initializeSDK = useCallback(async () => {
-    console.log("initializeSDK", isConnected, nexusSdk);
     if (isConnected && !nexusSdk && connector) {
       try {
         // Get the EIP-1193 provider from the connector
@@ -59,8 +59,8 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
           throw new Error("No EIP-1193 provider available");
         }
 
-        // Testnet config
         const sdk = new NexusSDK();
+
         await sdk.initialize(provider);
         setNexusSdk(sdk);
         setIsInitialized(true);
@@ -100,7 +100,6 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
   }, [nexusSdk]);
 
   useEffect(() => {
-    console.log("useEffect", isConnected);
     if (!isConnected) {
       cleanupSDK();
     } else {
@@ -120,8 +119,9 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
       setAllowanceModal,
       intentModal,
       setIntentModal,
+      cleanupSDK,
     }),
-    [nexusSdk, isInitialized, allowanceModal, intentModal]
+    [nexusSdk, isInitialized, allowanceModal, intentModal, cleanupSDK]
   );
 
   return (

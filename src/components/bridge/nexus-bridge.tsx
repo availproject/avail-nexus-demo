@@ -1,8 +1,7 @@
 "use client";
 
-import { useBridgeTransaction } from "@/hooks/bridge/useBridgeTransaction";
-import { useTransactionHistory } from "@/hooks/bridge/useTransactionHistory";
-import { useTransactionProgress } from "@/hooks/bridge/useTransactionProgress";
+import { useBridgeTransaction } from "@/hooks/useBridgeTransaction";
+import { useTransactionProgress } from "@/hooks/useTransactionProgress";
 import { useNexus } from "@/provider/NexusProvider";
 import { bridgeSelectors, useBridgeStore } from "@/store/bridgeStore";
 import { Loader2 } from "lucide-react";
@@ -33,7 +32,6 @@ const NexusBridge: React.FC = () => {
     (state) => state.setAvailableBalance
   );
 
-  const { initializeHistory } = useTransactionHistory();
   const { executeBridge, isBridging } = useBridgeTransaction();
   useTransactionProgress();
 
@@ -64,16 +62,10 @@ const NexusBridge: React.FC = () => {
   }, [executeBridge, fetchAvailableBalance]);
 
   useEffect(() => {
-    initializeHistory();
     if (!availableBalance.length && !isLoading) {
       fetchAvailableBalance();
     }
-  }, [
-    initializeHistory,
-    availableBalance.length,
-    isLoading,
-    fetchAvailableBalance,
-  ]);
+  }, [availableBalance.length, isLoading, fetchAvailableBalance]);
 
   if (isLoading && !availableBalance.length) {
     return (

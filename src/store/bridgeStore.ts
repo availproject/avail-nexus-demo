@@ -1,20 +1,14 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { INITIAL_CHAIN } from "@/lib/constants";
-import {
-  loadTransactionHistory,
-  addTransactionToHistory,
-  updateTransactionInHistory,
-} from "@/lib/bridge/transactionStorage";
 import {
   SimulationResult,
+  SUPPORTED_CHAINS,
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
   UserAsset,
 } from "avail-nexus-sdk";
 import { BridgeFormData, ComponentStep } from "@/types/bridge";
-import { TransactionData, TransactionHistoryItem } from "@/types/transaction";
 
 /**
  * Bridge store state interface
@@ -31,12 +25,6 @@ interface BridgeState {
   isSimulating: boolean;
   simulationError: string | null;
 
-  // Transaction history
-  transactionHistory: TransactionHistoryItem[];
-  showHistory: boolean;
-
-  // Current transaction
-  currentTransaction: TransactionData | null;
   progressSteps: ComponentStep[];
 
   // UI state
@@ -65,23 +53,10 @@ interface BridgeActions {
   setSimulationError: (error: string | null) => void;
   clearSimulation: () => void;
 
-  // Transaction history actions
-  loadHistory: () => void;
-  addTransaction: (transaction: TransactionData) => void;
-  updateTransaction: (
-    intentHash: number,
-    updates: Partial<TransactionData>
-  ) => void;
-  toggleHistoryVisibility: () => void;
-  clearHistory: () => void;
-
   // Progress tracking actions
   setProgressSteps: (steps: ComponentStep[]) => void;
   updateStepCompletion: (typeID: string) => void;
   resetProgress: () => void;
-
-  // Current transaction actions
-  setCurrentTransaction: (transaction: TransactionData | null) => void;
 
   // UI state actions
   setLoading: (loading: boolean) => void;
@@ -103,7 +78,7 @@ type BridgeStore = BridgeState & BridgeActions;
  */
 const initialState: BridgeState = {
   form: {
-    selectedChain: INITIAL_CHAIN,
+    selectedChain: SUPPORTED_CHAINS.ETHEREUM,
     selectedToken: undefined,
     bridgeAmount: "",
   },
@@ -111,9 +86,6 @@ const initialState: BridgeState = {
   simulation: null,
   isSimulating: false,
   simulationError: null,
-  transactionHistory: [],
-  showHistory: false,
-  currentTransaction: null,
   progressSteps: [],
   isLoading: false,
   isBridging: false,
@@ -182,45 +154,6 @@ export const useBridgeStore = create<BridgeStore>()(
           state.simulation = null;
         }),
 
-      // Transaction history actions
-      loadHistory: () =>
-        set((state) => {
-          state.transactionHistory = loadTransactionHistory();
-        }),
-
-      addTransaction: (transaction) =>
-        set((state) => {
-          const updatedHistory = addTransactionToHistory(transaction);
-          state.transactionHistory = updatedHistory;
-        }),
-
-      updateTransaction: (intentHash, updates) =>
-        set((state) => {
-          const updatedHistory = updateTransactionInHistory(
-            intentHash,
-            updates
-          );
-          state.transactionHistory = updatedHistory;
-
-          if (state.currentTransaction?.intentHash === intentHash) {
-            state.currentTransaction = {
-              ...state.currentTransaction,
-              ...updates,
-            };
-          }
-        }),
-
-      toggleHistoryVisibility: () =>
-        set((state) => {
-          state.showHistory = !state.showHistory;
-        }),
-
-      clearHistory: () =>
-        set((state) => {
-          state.transactionHistory = [];
-          localStorage.removeItem("bridgeTransactions");
-        }),
-
       setProgressSteps: (steps) =>
         set((state) => {
           state.progressSteps = steps.map((step) => ({ ...step, done: false }));
@@ -239,11 +172,6 @@ export const useBridgeStore = create<BridgeStore>()(
       resetProgress: () =>
         set((state) => {
           state.progressSteps = [];
-        }),
-
-      setCurrentTransaction: (transaction) =>
-        set((state) => {
-          state.currentTransaction = transaction;
         }),
 
       // UI state actions
@@ -276,8 +204,6 @@ export const useBridgeStore = create<BridgeStore>()(
       name: "bridge-store",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        transactionHistory: state.transactionHistory,
-        showHistory: state.showHistory,
         form: {
           selectedChain: state.form.selectedChain,
         },
@@ -292,7 +218,6 @@ export const useBridgeStore = create<BridgeStore>()(
         isBridging: false,
         error: null,
         showAllowanceModal: false,
-        currentTransaction: null,
         progressSteps: [],
         availableBalance: [],
         simulation: null,
@@ -302,30 +227,6 @@ export const useBridgeStore = create<BridgeStore>()(
     }
   )
 );
-
-let cachedRecentTransactions: TransactionHistoryItem[] = [];
-let lastTransactionHistoryLength = 0;
-let lastTransactionHistoryHash = "";
-
-const getRecentTransactions = (
-  transactionHistory: TransactionHistoryItem[]
-): TransactionHistoryItem[] => {
-  // Create a simple hash of the transaction history to detect changes
-  const currentHash = transactionHistory
-    .map((tx) => `${tx.id}-${tx.status}`)
-    .join("|");
-
-  if (
-    transactionHistory.length !== lastTransactionHistoryLength ||
-    currentHash !== lastTransactionHistoryHash
-  ) {
-    cachedRecentTransactions = transactionHistory.slice(0, 5);
-    lastTransactionHistoryLength = transactionHistory.length;
-    lastTransactionHistoryHash = currentHash;
-  }
-
-  return cachedRecentTransactions;
-};
 
 // Memoized selector for completed steps count to prevent infinite loops
 let cachedCompletedStepsCount = 0;
@@ -369,12 +270,6 @@ export const bridgeSelectors = {
   simulationError: (state: BridgeStore) => state.simulationError,
   hasSimulation: (state: BridgeStore) => !!state.simulation,
 
-  // Transaction history selectors
-  transactionHistory: (state: BridgeStore) => state.transactionHistory,
-  recentTransactions: (state: BridgeStore) =>
-    getRecentTransactions(state.transactionHistory),
-  showHistory: (state: BridgeStore) => state.showHistory,
-
   // Progress selectors
   progressSteps: (state: BridgeStore) => state.progressSteps,
   hasActiveSteps: (state: BridgeStore) => state.progressSteps.length > 0,
@@ -386,10 +281,6 @@ export const bridgeSelectors = {
   isBridging: (state: BridgeStore) => state.isBridging,
   error: (state: BridgeStore) => state.error,
   showAllowanceModal: (state: BridgeStore) => state.showAllowanceModal,
-
-  // Current transaction selectors
-  currentTransaction: (state: BridgeStore) => state.currentTransaction,
-  hasCurrentTransaction: (state: BridgeStore) => !!state.currentTransaction,
 
   // Computed selectors
   isFormValid: (state: BridgeStore) =>

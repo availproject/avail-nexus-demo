@@ -13,6 +13,10 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
 import { AllowanceHookSource, OnAllowanceHookData } from "avail-nexus-sdk";
+import { useBridgeStore } from "@/store/bridgeStore";
+import { toast } from "sonner";
+import { useNexus } from "@/provider/NexusProvider";
+
 interface AllowanceModalProps {
   allowanceModal: OnAllowanceHookData | null;
   setAllowanceModal: Dispatch<SetStateAction<OnAllowanceHookData | null>>;
@@ -22,7 +26,9 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
   allowanceModal,
   setAllowanceModal,
 }) => {
+  const { nexusSdk } = useNexus();
   const [selectedAllowances, setSelectedAllowances] = useState<string[]>([]);
+  const { reset } = useBridgeStore();
 
   useEffect(() => {
     if (allowanceModal) {
@@ -116,11 +122,9 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
 
   const handleDeny = () => {
     deny();
+    reset();
+    toast.info("Allowance denied");
     setAllowanceModal(null);
-  };
-
-  const formatDisplayAmount = (amount: string): string => {
-    return parseFloat(amount).toFixed(6);
   };
 
   console.log("allowanceModal", allowanceModal);
@@ -155,14 +159,24 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
                   height={20}
                 />
               </div>
-              <p className="text-sm">
-                Current Allowance:{" "}
-                {formatDisplayAmount(source.allowance.current)}
-              </p>
-              <p className="text-sm">
-                Minimum Required:{" "}
-                {formatDisplayAmount(source.allowance.minimum)}
-              </p>
+              <div className="flex justify-between items-center text-sm">
+                <span>Current Allowance</span>
+                <span className="font-bold">
+                  {nexusSdk?.utils.formatBalance(
+                    source.allowance.current,
+                    source.token.decimals
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span>Required Allowance</span>
+                <span className="font-bold">
+                  {nexusSdk?.utils.formatBalance(
+                    source.allowance.minimum,
+                    source.token.decimals
+                  )}
+                </span>
+              </div>
 
               <RadioGroup
                 value={getRadioValue(index)}
@@ -174,7 +188,12 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="min" id={`min-${index}`} />
                   <Label htmlFor={`min-${index}`}>
-                    Minimum ({formatDisplayAmount(source.allowance.minimum)})
+                    Minimum (
+                    {nexusSdk?.utils.formatBalance(
+                      source.allowance.minimum,
+                      source.token.decimals
+                    )}
+                    )
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">

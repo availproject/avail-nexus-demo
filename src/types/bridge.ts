@@ -1,5 +1,4 @@
 import { SUPPORTED_CHAINS, ProgressStep, UserAsset } from "avail-nexus-sdk";
-import { TransactionData } from "./transaction";
 
 export type SupportedChainId =
   (typeof SUPPORTED_CHAINS)[keyof typeof SUPPORTED_CHAINS];
@@ -21,7 +20,6 @@ export interface BridgeState extends BridgeFormData {
   isBridging: boolean;
   error: string | null;
   steps: ComponentStep[];
-  currentTransactionData: TransactionData | null;
   showAllowanceModal: boolean;
 }
 
