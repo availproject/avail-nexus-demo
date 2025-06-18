@@ -41,7 +41,7 @@ export const useTransferTransaction = () => {
   const [simulationError, setSimulationError] = useState<string | null>(null);
 
   // Hooks
-  const { resetAllProgress } = useTransactionProgress({
+  const { resetProgress } = useTransactionProgress({
     transactionType: "transfer",
   });
 
@@ -55,19 +55,11 @@ export const useTransferTransaction = () => {
       if (!token || !amount || !chainId || !recipient || !nexusSdk) {
         const errorMsg = "Missing required parameters for transfer transaction";
         toast.error(errorMsg);
-        resetAllProgress();
+        resetProgress();
         return { success: false, error: errorMsg };
       }
 
       try {
-        console.log("Starting transfer transaction:", {
-          chainId,
-          token,
-          amount,
-          recipient,
-        });
-
-        // Execute transfer transaction
         const transferTxn = await nexusSdk.transfer({
           token,
           amount,
@@ -75,14 +67,11 @@ export const useTransferTransaction = () => {
           recipient,
         });
 
-        console.log("transferTxn", transferTxn);
-
-        return { success: true, data: transferTxn };
+        return transferTxn;
       } catch (error) {
         console.error("Transfer transaction failed:", error);
 
-        // ALWAYS reset progress on any error
-        resetAllProgress();
+        resetProgress();
 
         // Handle specific error cases
         let errorMessage = "Transfer failed";
@@ -127,7 +116,7 @@ export const useTransferTransaction = () => {
         return { success: false, error: errorMessage };
       }
     },
-    [nexusSdk, resetAllProgress]
+    [nexusSdk, resetProgress]
   );
 
   /**

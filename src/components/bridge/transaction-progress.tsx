@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Clock } from "lucide-react";
-import { useTransactionProgress } from "@/hooks/bridge/useTransactionProgress";
+import { useTransactionProgress } from "@/hooks/useTransactionProgress";
 import { formatStepName } from "@/lib/bridge/formatters";
 import { Progress } from "../ui/progress";
 
@@ -10,9 +10,8 @@ export const TransactionProgress: React.FC = () => {
   const {
     progressSteps,
     hasActiveSteps,
-    progressPercentage,
     completedStepsCount,
-    totalSteps,
+    getProgressPercentage,
   } = useTransactionProgress();
 
   if (!hasActiveSteps) {
@@ -34,12 +33,12 @@ export const TransactionProgress: React.FC = () => {
               </span>
             </div>
             <span className="text-xs text-muted-foreground">
-              {completedStepsCount}/{totalSteps}
+              {completedStepsCount}/{progressSteps.length}
             </span>
           </div>
         )}
       </div>
-      <Progress value={progressPercentage} />
+      <Progress value={getProgressPercentage()} />
     </div>
   );
 };

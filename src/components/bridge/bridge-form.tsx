@@ -3,8 +3,8 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useBridgeForm } from "@/hooks/bridge/useBridgeForm";
-import { useBridgeTransaction } from "@/hooks/bridge/useBridgeTransaction";
+import { useBridgeForm } from "@/hooks/useBridgeForm";
+import { useBridgeTransaction } from "@/hooks/useBridgeTransaction";
 import { useBridgeStore, bridgeSelectors } from "@/store/bridgeStore";
 import { cn } from "@/lib/utils";
 import { UserAsset } from "avail-nexus-sdk";

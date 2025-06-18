@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useBridgeStore, bridgeSelectors } from "@/store/bridgeStore";
 import { useNexus } from "@/provider/NexusProvider";
-import { useTransactionProgress } from "./useTransactionProgress";
 import {
   parseBridgeError,
   formatErrorForUser,
@@ -10,6 +9,8 @@ import {
 import { toast } from "sonner";
 import { BridgeTransactionParams } from "@/types/bridge";
 import { SimulationResult } from "avail-nexus-sdk";
+import { useTransactionProgress } from "./useTransactionProgress";
+import { useSDKTransactionHistory } from "./useSDKTransactionHistory";
 
 interface ErrorWithCode extends Error {
   code?: number;
@@ -51,7 +52,8 @@ export const useBridgeTransaction = () => {
   const clearSimulation = useBridgeStore((state) => state.clearSimulation);
 
   // Hooks
-  const { resetAllProgress } = useTransactionProgress();
+  const { resetProgress } = useTransactionProgress();
+  const { refetch } = useSDKTransactionHistory();
 
   /**
    * Execute bridge transaction with full flow
@@ -62,7 +64,7 @@ export const useBridgeTransaction = () => {
       setError(errorMsg);
       toast.error(errorMsg);
       // Reset progress on parameter validation error
-      resetAllProgress();
+      resetProgress();
       return { success: false, error: errorMsg };
     }
 
@@ -92,7 +94,7 @@ export const useBridgeTransaction = () => {
       console.error("Bridge transaction failed:", error);
 
       // ALWAYS reset progress on any error
-      resetAllProgress();
+      resetProgress();
 
       // Parse and handle the error
       const bridgeError = parseBridgeError(error);
@@ -132,6 +134,7 @@ export const useBridgeTransaction = () => {
       return { success: false, error: userFriendlyMessage };
     } finally {
       setBridging(false);
+      refetch();
     }
   }, [
     selectedToken,
@@ -141,7 +144,8 @@ export const useBridgeTransaction = () => {
     setBridging,
     setError,
     resetForm,
-    resetAllProgress,
+    resetProgress,
+    refetch,
   ]);
 
   const simulateBridge = useCallback(async () => {
@@ -202,7 +206,7 @@ export const useBridgeTransaction = () => {
         clearSimulation();
       }
     } catch (error) {
-      console.error("Bridge simulation failed:", error);
+      console.error(error);
       setSimulationError(
         error instanceof Error ? error.message : "Simulation failed"
       );

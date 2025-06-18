@@ -1,12 +1,12 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { useBridgeStore, bridgeSelectors } from "@/store/bridgeStore";
-import { useBridgeValidation } from "./useBridgeValidation";
 import {
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
   UserAsset,
 } from "avail-nexus-sdk";
 import { validateAmountInput } from "@/lib/bridge/formatters";
+import { useBridgeValidation } from "./useBridgeValidation";
 
 /**
  * Orchestrator hook for bridge form management
@@ -168,20 +168,28 @@ export const useBridgeForm = (availableBalance: UserAsset[]) => {
   }, [canSubmit, validation.isValid, isBridging, isLoading]);
 
   /**
-   * Get form submission readiness
+   * Get form submission readiness with improved error messaging
    */
   const getSubmissionState = useCallback(() => {
     if (isBridging) return { ready: false, reason: "Transaction in progress" };
     if (isLoading) return { ready: false, reason: "Loading..." };
+
+    if (selectedToken && !isTokenAvailable(selectedToken))
+      return {
+        ready: false,
+        reason: "Insufficient balance for selected token",
+      };
+
+    // Use validation errors first as they are more specific
+    if (!validation.isValid && validation.errorMessage) {
+      return { ready: false, reason: validation.errorMessage };
+    }
+
+    // Fallback checks for basic form completeness
     if (!selectedToken)
       return { ready: false, reason: "Please select a token" };
     if (!bridgeAmount || bridgeAmount.trim() === "")
       return { ready: false, reason: "Please enter an amount" };
-    if (!validation.isValid)
-      return {
-        ready: false,
-        reason: validation.errorMessage ?? "Invalid form",
-      };
 
     return { ready: true, reason: null };
   }, [
@@ -191,16 +199,8 @@ export const useBridgeForm = (availableBalance: UserAsset[]) => {
     bridgeAmount,
     validation.isValid,
     validation.errorMessage,
+    isTokenAvailable,
   ]);
-
-  /**
-   * Clear token selection if it becomes unavailable
-   */
-  useEffect(() => {
-    if (selectedToken && !isTokenAvailable(selectedToken)) {
-      setSelectedToken(undefined);
-    }
-  }, [selectedToken, isTokenAvailable, setSelectedToken]);
 
   return {
     // Form state
