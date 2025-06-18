@@ -51,9 +51,9 @@ const TokenSelect = ({
         </SelectValue>
       </SelectTrigger>
       <SelectContent className="bg-accent-foreground rounded-[var(--ck-connectbutton-border-radius)]">
-        {Object.entries(tokenData)?.map(([_, token]) => (
+        {Object.entries(tokenData)?.map(([, token]) => (
           <SelectItem
-            key={token.symbol + _}
+            key={token.symbol}
             value={token.symbol}
             className="flex items-center gap-2 hover:bg-background/50 rounded-[var(--ck-connectbutton-border-radius)]"
           >

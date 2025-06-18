@@ -65,7 +65,7 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
         setNexusSdk(sdk);
         setIsInitialized(true);
 
-        sdk.setOnAllowanceHook(async (data) => {
+        sdk.setOnAllowanceHook(async (data: OnAllowanceHookData) => {
           // This is a hook for the dev to show user the allowances that need to be setup for the current tx to happen
           // where,
           // sources: an array of objects with minAllowance, chainID, token symbol, etc.
@@ -74,7 +74,7 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
           setAllowanceModal(data);
         });
 
-        sdk.setOnIntentHook((data) => {
+        sdk.setOnIntentHook((data: OnIntentHookData) => {
           // This is a hook for the dev to show user the intent, the sources and associated fees
           // where,
           // intent: Intent data containing sources and fees for display purpose

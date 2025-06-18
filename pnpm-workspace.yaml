@@ -1,0 +1,3 @@
+overrides:
+  avail-nexus-sdk@0.0.4-dev.1: link:../../../Library/pnpm/global/5/node_modules/avail-nexus-sdk@0.0.4-dev.1
+  avail-nexus-sdk: link:../nexus-sdk

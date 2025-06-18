@@ -5,7 +5,6 @@ import { useNexus } from "@/provider/NexusProvider";
 
 import { formatStepName } from "@/lib/bridge/formatters";
 import { toast } from "sonner";
-import { useAccount } from "wagmi";
 import { StepCompletionEventData, TransactionType } from "@/types/transaction";
 import { useSDKTransactionHistory } from "./useSDKTransactionHistory";
 
@@ -25,10 +24,9 @@ interface TransactionProgressOptions {
 export const useTransactionProgress = (
   options: TransactionProgressOptions = {}
 ) => {
-  const { transactionType = "bridge", formData } = options;
+  const { transactionType = "bridge" } = options;
 
   const { nexusSdk } = useNexus();
-  const account = useAccount();
   const [explorerURL, setExplorerURL] = useState<string>("");
 
   // Store selectors
@@ -37,15 +35,6 @@ export const useTransactionProgress = (
   const completedStepsCount = useBridgeStore(
     bridgeSelectors.completedStepsCount
   );
-  const storeSelectedToken = useBridgeStore(bridgeSelectors.selectedToken);
-  const storeBridgeAmount = useBridgeStore(bridgeSelectors.bridgeAmount);
-  const storeSelectedChain = useBridgeStore(bridgeSelectors.selectedChain);
-
-  // Get form data - use provided formData or fallback to bridge store
-  const selectedToken = formData?.selectedToken ?? storeSelectedToken;
-  const bridgeAmount = formData?.amount ?? storeBridgeAmount;
-  const selectedChain = formData?.selectedChain ?? storeSelectedChain;
-  const recipientAddress = formData?.recipientAddress;
 
   // Store actions
   const setProgressSteps = useBridgeStore((state) => state.setProgressSteps);
@@ -119,12 +108,6 @@ export const useTransactionProgress = (
       fetchTransactions,
       resetProgress,
       transactionType,
-      selectedToken,
-      bridgeAmount,
-      selectedChain,
-      recipientAddress,
-      account?.chain?.name,
-      explorerURL,
     ]
   );
 
