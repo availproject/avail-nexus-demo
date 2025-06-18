@@ -145,6 +145,7 @@ export const useBridgeTransaction = () => {
     setError,
     resetForm,
     resetProgress,
+    refetch,
   ]);
 
   const simulateBridge = useCallback(async () => {

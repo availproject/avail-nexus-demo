@@ -12,7 +12,6 @@ import { Infinity } from "lucide-react";
 import ChainSelect from "../blocks/chain-select";
 import TokenSelect from "../blocks/token-select";
 import { SimulationPreview } from "../shared/simulation-preview";
-import { useNexus } from "@/provider/NexusProvider";
 
 interface BridgeFormProps {
   availableBalance: UserAsset[];

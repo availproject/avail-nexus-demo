@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState } from "react";
-import { CHAIN_METADATA, ProgressStep } from "avail-nexus-sdk";
+import { ProgressStep } from "avail-nexus-sdk";
 import { useBridgeStore, bridgeSelectors } from "@/store/bridgeStore";
 import { useNexus } from "@/provider/NexusProvider";
 
@@ -7,7 +7,6 @@ import { formatStepName } from "@/lib/bridge/formatters";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
 import { StepCompletionEventData, TransactionType } from "@/types/transaction";
-import { ComponentStep } from "@/types/bridge";
 import { useSDKTransactionHistory } from "./useSDKTransactionHistory";
 
 interface TransactionProgressOptions {
@@ -125,6 +124,7 @@ export const useTransactionProgress = (
       selectedChain,
       recipientAddress,
       account?.chain?.name,
+      explorerURL,
     ]
   );
 
@@ -173,7 +173,7 @@ export const useTransactionProgress = (
     setProgressSteps,
     handleStepComplete,
     handleTransactionError,
-    nexusSdk?.nexusAdapter?.caEvents,
+    nexusSdk?.nexusAdapter,
   ]);
 
   return {

@@ -25,9 +25,10 @@ const TokenSelect = ({
   isTestnet?: boolean;
 }) => {
   const tokenData = isTestnet ? TESTNET_TOKEN_METADATA : TOKEN_METADATA;
-  const selectedTokenData = Object.entries(tokenData)?.find(
-    ([_, token]) => token.symbol === selectedToken
-  );
+  const selectedTokenData = Object.entries(tokenData)?.find(([_, token]) => {
+    console.log("_", _);
+    return token.symbol === selectedToken;
+  });
   return (
     <Select
       value={selectedToken}
@@ -52,7 +53,7 @@ const TokenSelect = ({
       <SelectContent className="bg-accent-foreground rounded-[var(--ck-connectbutton-border-radius)]">
         {Object.entries(tokenData)?.map(([_, token]) => (
           <SelectItem
-            key={token.symbol}
+            key={token.symbol + _}
             value={token.symbol}
             className="flex items-center gap-2 hover:bg-background/50 rounded-[var(--ck-connectbutton-border-radius)]"
           >
