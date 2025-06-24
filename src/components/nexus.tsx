@@ -76,9 +76,6 @@ const Nexus = ({ isTestnet }: { isTestnet: boolean }) => {
             <TabsContent value="bridge-execute">
               <NexusBridgeAndExecute />
             </TabsContent>
-            <TabsContent value="bridge-execute">
-              <NexusBridgeAndExecute />
-            </TabsContent>
           </Tabs>
         </NexusContentWrapper>
       </CardContent>
