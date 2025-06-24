@@ -188,17 +188,31 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
 
       console.log("simulateBridgeAndExecute result", result);
 
-      if (!result.success) {
-        throw new Error(result.error || "Simulation failed");
-      }
-
+      // Always set the multiStepResult, whether success or failure
       setMultiStepResult(result);
-      setBridgeSimulation(result.bridgeSimulation);
-      setExecuteSimulation(result.executeSimulation || null);
+
+      if (result.success) {
+        setBridgeSimulation(result.bridgeSimulation);
+        setExecuteSimulation(result.executeSimulation || null);
+        setError(null); // Clear any previous errors on success
+      } else {
+        // On failure, clear the simulation states but keep the error in multiStepResult
+        setBridgeSimulation(null);
+        setExecuteSimulation(null);
+        setError(result.error || "Simulation failed");
+      }
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Simulation failed";
       setError(errorMessage);
+      // Create a failed result object when there's an exception
+      setMultiStepResult({
+        success: false,
+        error: errorMessage,
+        steps: [],
+        bridgeSimulation: null,
+        executeSimulation: undefined,
+      });
       console.error("Simulation error:", err);
     } finally {
       setIsSimulating(false);

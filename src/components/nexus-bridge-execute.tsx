@@ -395,17 +395,35 @@ const NexusBridgeAndExecute = () => {
             </Card>
           )}
 
-        {/* Simulation Preview */}
+        {/* Simulation Results */}
         {selectedToken &&
           bridgeAmount &&
           selectedTemplate &&
           multiStepResult &&
-          isValidMultiStepResult &&
           parseFloat(bridgeAmount) > 0 &&
           !isSimulating && (
             <div className="space-y-4">
-              {isValidMultiStepResult ? (
-                // New multi-step simulation display
+              {/* Simulation Error Display */}
+              {multiStepResult.error && (
+                <Card className="w-full border-red-500 bg-red-50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-red-500" />
+                      <div>
+                        <div className="text-lg font-semibold mb-1 text-red-800">
+                          Simulation Failed
+                        </div>
+                        <div className="text-sm text-red-700">
+                          {multiStepResult.error}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Successful Simulation Display */}
+              {!multiStepResult.error && isValidMultiStepResult && (
                 <div className="space-y-4">
                   {/* Total Cost Summary */}
                   <Card className="w-full border-none py-4 !shadow-[var(--ck-connectbutton-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] bg-accent-foreground">
@@ -427,10 +445,10 @@ const NexusBridgeAndExecute = () => {
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Execute</span>
                           <span className="font-medium">
-                            {
+                            {parseFloat(
                               multiStepResult.totalEstimatedCost?.breakdown
-                                .execute
-                            }{" "}
+                                .execute ?? "0"
+                            ).toFixed(6)}{" "}
                             {selectedToken}
                           </span>
                         </div>
@@ -438,7 +456,9 @@ const NexusBridgeAndExecute = () => {
                           <div className="flex justify-between font-semibold">
                             <span>Total</span>
                             <span>
-                              {multiStepResult.totalEstimatedCost?.total}{" "}
+                              {parseFloat(
+                                multiStepResult.totalEstimatedCost?.total ?? "0"
+                              ).toFixed(6)}{" "}
                               {selectedToken}
                             </span>
                           </div>
@@ -519,7 +539,12 @@ const NexusBridgeAndExecute = () => {
                                 typeof step.simulation === "object" &&
                                 "success" in step.simulation && (
                                   <div className="text-xs">
-                                    <div>Cost: {step.simulation.totalFee}</div>
+                                    <div>
+                                      Cost:{" "}
+                                      {parseFloat(
+                                        step.simulation.gasUsed
+                                      ).toFixed(6)}
+                                    </div>
                                     <div
                                       className={
                                         step.simulation.success
@@ -540,48 +565,54 @@ const NexusBridgeAndExecute = () => {
                     ))}
                   </div>
                 </div>
-              ) : (
-                // Legacy simulation display
-                <div className="space-y-4">
-                  {bridgeSimulation && (
-                    <SimulationPreview
-                      simulation={bridgeSimulation}
-                      isSimulating={isSimulating}
-                      simulationError={null}
-                      title="Bridge Cost Estimate"
-                      className="w-full"
-                    />
-                  )}
-
-                  {executeSimulation && (
-                    <Card className="w-full border-none py-4 !shadow-[var(--ck-connectbutton-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] bg-accent-foreground">
-                      <CardContent className="p-4">
-                        <div className="text-lg font-semibold mb-2">
-                          Execute Cost Estimate
-                        </div>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">
-                              Gas Cost
-                            </span>
-                            <span className="font-medium">
-                              {executeSimulation.totalFee ?? "0"}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">
-                              Status
-                            </span>
-                            <span className="font-medium">
-                              {executeSimulation.success ? "Success" : "Failed"}
-                            </span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
               )}
+
+              {/* Legacy Simulation Display (fallback) */}
+              {!multiStepResult.error &&
+                !isValidMultiStepResult &&
+                (bridgeSimulation || executeSimulation) && (
+                  <div className="space-y-4">
+                    {bridgeSimulation && (
+                      <SimulationPreview
+                        simulation={bridgeSimulation}
+                        isSimulating={isSimulating}
+                        simulationError={null}
+                        title="Bridge Cost Estimate"
+                        className="w-full"
+                      />
+                    )}
+
+                    {executeSimulation && (
+                      <Card className="w-full border-none py-4 !shadow-[var(--ck-connectbutton-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] bg-accent-foreground">
+                        <CardContent className="p-4">
+                          <div className="text-lg font-semibold mb-2">
+                            Execute Cost Estimate
+                          </div>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Gas Cost
+                              </span>
+                              <span className="font-medium">
+                                {executeSimulation.gasUsed ?? "0"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Status
+                              </span>
+                              <span className="font-medium">
+                                {executeSimulation.success
+                                  ? "Success"
+                                  : "Failed"}
+                              </span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                )}
             </div>
           )}
 

@@ -174,22 +174,23 @@ export const useBridgeForm = (availableBalance: UserAsset[]) => {
     if (isBridging) return { ready: false, reason: "Transaction in progress" };
     if (isLoading) return { ready: false, reason: "Loading..." };
 
-    if (selectedToken && !isTokenAvailable(selectedToken))
-      return {
-        ready: false,
-        reason: "Insufficient balance for selected token",
-      };
-
-    // Use validation errors first as they are more specific
-    if (!validation.isValid && validation.errorMessage) {
-      return { ready: false, reason: validation.errorMessage };
-    }
-
-    // Fallback checks for basic form completeness
+    // Fallback checks for basic form completeness first
     if (!selectedToken)
       return { ready: false, reason: "Please select a token" };
     if (!bridgeAmount || bridgeAmount.trim() === "")
       return { ready: false, reason: "Please enter an amount" };
+
+    // Use validation errors first as they are more specific and consider the actual amount
+    if (!validation.isValid && validation.errorMessage) {
+      return { ready: false, reason: validation.errorMessage };
+    }
+
+    // Only check token availability as a last resort if no amount is entered
+    if (selectedToken && !bridgeAmount && !isTokenAvailable(selectedToken))
+      return {
+        ready: false,
+        reason: "Insufficient balance for selected token",
+      };
 
     return { ready: true, reason: null };
   }, [
