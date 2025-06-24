@@ -3,15 +3,19 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useBridgeForm } from "@/hooks/bridge/useBridgeForm";
+import { useBridgeForm } from "@/hooks/useBridgeForm";
+import { useBridgeTransaction } from "@/hooks/useBridgeTransaction";
+import { useBridgeStore, bridgeSelectors } from "@/store/bridgeStore";
 import { cn } from "@/lib/utils";
-import { UnifiedBalanceResponse } from "avail-nexus-sdk";
+import { UserAsset } from "avail-nexus-sdk";
 import { Infinity } from "lucide-react";
 import ChainSelect from "../blocks/chain-select";
 import TokenSelect from "../blocks/token-select";
+import { SimulationPreview } from "../shared/simulation-preview";
 
 interface BridgeFormProps {
-  availableBalance: UnifiedBalanceResponse[];
+  isTestnet: boolean;
+  availableBalance: UserAsset[];
   onSubmit: () => void;
   isSubmitting?: boolean;
 }
@@ -23,6 +27,7 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
   availableBalance,
   onSubmit,
   isSubmitting = false,
+  isTestnet,
 }) => {
   const {
     selectedChain,
@@ -38,6 +43,10 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
     submissionState,
   } = useBridgeForm(availableBalance);
 
+  // Get simulation data from the bridge transaction hook
+  const { simulation, isSimulating } = useBridgeTransaction();
+  const simulationError = useBridgeStore(bridgeSelectors.simulationError);
+
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (canSubmit && !isSubmitting) {
@@ -46,12 +55,13 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleFormSubmit} className="w-full max-w-sm space-y-4">
+    <form onSubmit={handleFormSubmit} className="w-full space-y-4">
       {/* Chain Selection */}
       <div className="space-y-2">
         <ChainSelect
           selectedChain={selectedChain}
           handleSelect={handleChainSelect}
+          isTestnet={isTestnet}
         />
       </div>
 
@@ -61,13 +71,14 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
           selectedToken={selectedToken}
           selectedChain={selectedChain.toString()}
           handleTokenSelect={handleTokenSelect}
+          isTestnet={isTestnet}
         />
       </div>
 
       {/* Amount Input */}
       <div className="space-y-2">
         <div className="relative">
-          <div className="w-full max-w-sm flex items-center gap-x-2 shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)]">
+          <div className="w-full flex items-center gap-x-2 shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)]">
             <Input
               type="text"
               placeholder="0.0"
@@ -101,6 +112,17 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
           <div className="text-xs text-red-500">{validation.errorMessage}</div>
         )}
       </div>
+
+      {/* Simulation Preview */}
+      {selectedToken && bridgeAmount && parseFloat(bridgeAmount) > 0 && (
+        <SimulationPreview
+          simulation={simulation}
+          isSimulating={isSimulating}
+          simulationError={simulationError}
+          title="Bridge Cost Estimate"
+          className="w-full"
+        />
+      )}
 
       {/* Submit Button */}
       <Button

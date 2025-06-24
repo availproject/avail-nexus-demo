@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 import { validateAmountInput } from "@/lib/bridge/formatters";
-import { SUPPORTED_TOKENS, UnifiedBalanceResponse } from "avail-nexus-sdk";
+import { SUPPORTED_TOKENS, UserAsset } from "avail-nexus-sdk";
 import { BridgeValidationResult } from "@/types/bridge";
 
 export const useBridgeValidation = (
   selectedToken: SUPPORTED_TOKENS | undefined,
   bridgeAmount: string,
-  availableBalance: UnifiedBalanceResponse[]
+  availableBalance: UserAsset[]
 ) => {
   const isValidAmountFormat = useMemo(() => {
     return validateAmountInput(bridgeAmount);
@@ -42,62 +42,62 @@ export const useBridgeValidation = (
     return amount >= 0.000001;
   }, [bridgeAmount]);
 
-  const validateTokenSelection = (): string[] => {
-    const hasUserInput = !!selectedToken || !!bridgeAmount;
-    return !selectedToken && hasUserInput ? ["Please select a token"] : [];
-  };
-
-  const validateAmountPresence = (): string[] => {
-    const hasUserInput = !!selectedToken || !!bridgeAmount;
-    if (!bridgeAmount && hasUserInput && selectedToken) {
-      return ["Please enter an amount"];
-    }
-    return [];
-  };
-
-  const validateAmountFormat = (): string[] => {
-    return bridgeAmount && !isValidAmountFormat
-      ? ["Invalid amount format"]
-      : [];
-  };
-
-  const validateAmountValue = (): string[] => {
-    if (!bridgeAmount || !isValidAmountFormat) return [];
-
-    const errors: string[] = [];
-    if (!isPositiveAmount) {
-      errors.push("Amount must be greater than zero");
-    }
-    if (!isWithinBalance) {
-      errors.push("Insufficient balance");
-    }
-    return errors;
-  };
-
-  const getAmountWarnings = (): string[] => {
-    if (!bridgeAmount || !isValidAmountFormat) return [];
-
-    const warnings: string[] = [];
-    if (!isNotDustAmount) {
-      warnings.push("Amount is very small and may not be economical");
-    }
-
-    if (tokenBalance && selectedToken === "ETH") {
-      const amount = parseFloat(bridgeAmount);
-      const balance = parseFloat(tokenBalance.balance);
-      const remainingBalance = balance - amount;
-
-      if (remainingBalance < 0.01) {
-        warnings.push("Consider leaving some ETH for gas fees");
-      }
-    }
-    return warnings;
-  };
-
   /**
    * Comprehensive validation result
    */
   const validationResult = useMemo((): BridgeValidationResult => {
+    const validateTokenSelection = (): string[] => {
+      const hasUserInput = !!selectedToken || !!bridgeAmount;
+      return !selectedToken && hasUserInput ? ["Please select a token"] : [];
+    };
+
+    const validateAmountPresence = (): string[] => {
+      const hasUserInput = !!selectedToken || !!bridgeAmount;
+      if (!bridgeAmount && hasUserInput && selectedToken) {
+        return ["Please enter an amount"];
+      }
+      return [];
+    };
+
+    const validateAmountFormat = (): string[] => {
+      return bridgeAmount && !isValidAmountFormat
+        ? ["Invalid amount format"]
+        : [];
+    };
+
+    const validateAmountValue = (): string[] => {
+      if (!bridgeAmount || !isValidAmountFormat) return [];
+
+      const errors: string[] = [];
+      if (!isPositiveAmount) {
+        errors.push("Amount must be greater than zero");
+      }
+      if (!isWithinBalance) {
+        errors.push("Insufficient balance");
+      }
+      return errors;
+    };
+
+    const getAmountWarnings = (): string[] => {
+      if (!bridgeAmount || !isValidAmountFormat) return [];
+
+      const warnings: string[] = [];
+      if (!isNotDustAmount) {
+        warnings.push("Amount is very small and may not be economical");
+      }
+
+      if (tokenBalance && selectedToken === "ETH") {
+        const amount = parseFloat(bridgeAmount);
+        const balance = parseFloat(tokenBalance.balance);
+        const remainingBalance = balance - amount;
+
+        if (remainingBalance < 0.01) {
+          warnings.push("Consider leaving some ETH for gas fees");
+        }
+      }
+      return warnings;
+    };
+
     const errors = [
       ...validateTokenSelection(),
       ...validateAmountPresence(),
@@ -113,11 +113,13 @@ export const useBridgeValidation = (
       warnings,
     };
   }, [
-    validateTokenSelection,
-    validateAmountPresence,
-    validateAmountFormat,
-    validateAmountValue,
-    getAmountWarnings,
+    selectedToken,
+    bridgeAmount,
+    isValidAmountFormat,
+    isPositiveAmount,
+    isWithinBalance,
+    isNotDustAmount,
+    tokenBalance,
   ]);
 
   const quickChecks = useMemo(

@@ -9,6 +9,7 @@ import {
 import {
   CHAIN_METADATA,
   chainIcons,
+  MAINNET_CHAINS,
   SUPPORTED_CHAINS_IDS,
   TESTNET_CHAINS,
 } from "avail-nexus-sdk";
@@ -19,11 +20,15 @@ const ChainSelect = ({
   selectedChain,
   handleSelect,
   chainLabel = "Destination Chain",
+  isTestnet = false,
 }: {
   selectedChain: SUPPORTED_CHAINS_IDS;
   handleSelect: (chainId: SUPPORTED_CHAINS_IDS) => void;
   chainLabel?: string;
+  isTestnet?: boolean;
 }) => {
+  const chains = isTestnet ? TESTNET_CHAINS : MAINNET_CHAINS;
+  const chainData = CHAIN_METADATA;
   return (
     <Select
       value={selectedChain.toString()}
@@ -54,24 +59,22 @@ const ChainSelect = ({
       </div>
 
       <SelectContent className="bg-accent-foreground rounded-[var(--ck-connectbutton-border-radius)]">
-        {Object.entries(TESTNET_CHAINS).map(([, chainId]) => {
-          const chain = CHAIN_METADATA[chainId as SUPPORTED_CHAINS_IDS];
-          if (!chain) return null;
+        {chains.map((chainId) => {
           return (
             <SelectItem
               key={chainId}
               value={chainId.toString()}
-              className="flex items-center gap-2 hover:bg-background/50 rounded-[var(--ck-connectbutton-border-radius)]"
+              className="flex items-center gap-2 !hover:bg-background/30 rounded-[var(--ck-connectbutton-border-radius)]"
             >
               <div className="flex items-center gap-2 my-1">
                 <Image
-                  src={chainIcons[chainId as SUPPORTED_CHAINS_IDS]}
-                  alt={chain.name}
+                  src={chainIcons[chainId]}
+                  alt={chainData[chainId]?.name ?? ""}
                   width={24}
                   height={24}
                   className="rounded-full"
                 />
-                {chain.name}
+                {chainData[chainId]?.name}
               </div>
             </SelectItem>
           );

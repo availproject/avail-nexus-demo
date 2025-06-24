@@ -1,11 +1,22 @@
-import { useCallback } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { useNexus } from "@/provider/NexusProvider";
 import { useTransactionProgress } from "./useTransactionProgress";
 import { toast } from "sonner";
-import { SUPPORTED_CHAINS_IDS, SUPPORTED_TOKENS } from "avail-nexus-sdk";
+import {
+  SUPPORTED_CHAINS_IDS,
+  SUPPORTED_TOKENS,
+  SimulationResult,
+} from "avail-nexus-sdk";
 
 interface ErrorWithCode extends Error {
   code?: number;
+}
+
+interface TransferParams {
+  token: SUPPORTED_TOKENS;
+  amount: string;
+  chainId: SUPPORTED_CHAINS_IDS;
+  recipient: `0x${string}`;
 }
 
 const isAllowanceRejectionError = (error: unknown): boolean => {
@@ -20,18 +31,17 @@ const isAllowanceRejectionError = (error: unknown): boolean => {
   return errorWithCode?.code === 4001;
 };
 
-interface TransferParams {
-  token: SUPPORTED_TOKENS;
-  amount: string;
-  chainId: SUPPORTED_CHAINS_IDS;
-  recipient: `0x${string}`;
-}
-
 export const useTransferTransaction = () => {
   const { nexusSdk } = useNexus();
+  const simulationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Simulation state
+  const [simulation, setSimulation] = useState<SimulationResult | null>(null);
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [simulationError, setSimulationError] = useState<string | null>(null);
 
   // Hooks
-  const { resetAllProgress } = useTransactionProgress({
+  const { resetProgress } = useTransactionProgress({
     transactionType: "transfer",
   });
 
@@ -45,34 +55,24 @@ export const useTransferTransaction = () => {
       if (!token || !amount || !chainId || !recipient || !nexusSdk) {
         const errorMsg = "Missing required parameters for transfer transaction";
         toast.error(errorMsg);
-        resetAllProgress();
+        resetProgress();
         return { success: false, error: errorMsg };
       }
 
       try {
-        console.log("Starting transfer transaction:", {
-          chainId,
-          token,
-          amount,
-          recipient,
-        });
-
-        // Execute transfer transaction
         const transferTxn = await nexusSdk.transfer({
           token,
           amount,
           chainId,
           recipient,
         });
+        resetProgress();
 
-        console.log("transferTxn", transferTxn);
-
-        return { success: true, data: transferTxn };
+        return transferTxn;
       } catch (error) {
         console.error("Transfer transaction failed:", error);
 
-        // ALWAYS reset progress on any error
-        resetAllProgress();
+        resetProgress();
 
         // Handle specific error cases
         let errorMessage = "Transfer failed";
@@ -117,10 +117,87 @@ export const useTransferTransaction = () => {
         return { success: false, error: errorMessage };
       }
     },
-    [nexusSdk, resetAllProgress]
+    [nexusSdk, resetProgress]
   );
+
+  /**
+   * Run simulation for transfer parameters
+   */
+  const runTransferSimulation = useCallback(
+    async (transferParams: TransferParams) => {
+      const { token, amount, chainId, recipient } = transferParams;
+
+      if (
+        !token ||
+        !amount ||
+        !chainId ||
+        !recipient ||
+        !nexusSdk ||
+        parseFloat(amount) <= 0
+      ) {
+        setSimulation(null);
+        return;
+      }
+
+      try {
+        setIsSimulating(true);
+        setSimulationError(null);
+
+        // Try to simulate transfer using SDK if available
+        const result: SimulationResult | null =
+          await nexusSdk.simulateTransfer?.({
+            token,
+            amount,
+            chainId,
+            recipient,
+          });
+
+        setSimulation(result);
+      } catch (error) {
+        console.error("Transfer simulation failed:", error);
+        setSimulationError(
+          error instanceof Error ? error.message : "Simulation failed"
+        );
+        setSimulation(null);
+      } finally {
+        setIsSimulating(false);
+      }
+    },
+    [nexusSdk]
+  );
+
+  /**
+   * Debounced simulation trigger
+   */
+  const triggerTransferSimulation = useCallback(
+    (transferParams: TransferParams) => {
+      // Clear existing timeout
+      if (simulationTimeoutRef.current) {
+        clearTimeout(simulationTimeoutRef.current);
+      }
+
+      // Set new timeout for debounced simulation
+      simulationTimeoutRef.current = setTimeout(() => {
+        runTransferSimulation(transferParams);
+      }, 500); // 500ms debounce
+    },
+    [runTransferSimulation]
+  );
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (simulationTimeoutRef.current) {
+        clearTimeout(simulationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return {
     executeTransfer,
+    simulation,
+    isSimulating,
+    simulationError,
+    triggerTransferSimulation,
   };
 };

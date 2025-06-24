@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Network,
+  EthereumProvider,
   NexusSDK,
   OnAllowanceHookData,
   OnIntentHookData,
@@ -17,6 +17,7 @@ import React, {
   SetStateAction,
   Dispatch,
 } from "react";
+import { useAccount } from "wagmi";
 
 interface NexusContextType {
   nexusSdk: NexusSDK | undefined;
@@ -25,6 +26,7 @@ interface NexusContextType {
   setAllowanceModal: Dispatch<SetStateAction<OnAllowanceHookData | null>>;
   intentModal: OnIntentHookData | null;
   setIntentModal: Dispatch<SetStateAction<OnIntentHookData | null>>;
+  cleanupSDK: () => void;
 }
 
 const NexusContext = createContext<NexusContextType | undefined>(undefined);
@@ -44,18 +46,29 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
     useState<OnAllowanceHookData | null>(null);
   const [intentModal, setIntentModal] = useState<OnIntentHookData | null>(null);
 
+  const { connector } = useAccount();
+
   const initializeSDK = useCallback(async () => {
-    console.log("initializeSDK", isConnected, nexusSdk);
-    if (isConnected && !nexusSdk) {
+    if (isConnected && !nexusSdk && connector) {
       try {
-        // Initialize the SDK with testnet
+        // Get the EIP-1193 provider from the connector
+        // For ConnectKit/wagmi, we need to get the provider from the connector
+        const isTestnet = process.env.NEXT_PUBLIC_ENABLE_TESTNET === "true";
+        const provider = (await connector.getProvider()) as EthereumProvider;
+
+        if (!provider) {
+          throw new Error("No EIP-1193 provider available");
+        }
+
         const sdk = new NexusSDK({
-          network: Network.FOLLY,
+          network: isTestnet ? "testnet" : "mainnet",
         });
-        await sdk.initialize(window.ethereum);
+
+        await sdk.initialize(provider);
         setNexusSdk(sdk);
         setIsInitialized(true);
-        sdk.setOnAllowanceHook(async (data) => {
+
+        sdk.setOnAllowanceHook(async (data: OnAllowanceHookData) => {
           // This is a hook for the dev to show user the allowances that need to be setup for the current tx to happen
           // where,
           // sources: an array of objects with minAllowance, chainID, token symbol, etc.
@@ -63,7 +76,8 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
           // deny(): stops the flow
           setAllowanceModal(data);
         });
-        sdk.setOnIntentHook((data) => {
+
+        sdk.setOnIntentHook((data: OnIntentHookData) => {
           // This is a hook for the dev to show user the intent, the sources and associated fees
           // where,
           // intent: Intent data containing sources and fees for display purpose
@@ -77,7 +91,7 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
         setIsInitialized(false);
       }
     }
-  }, [isConnected, nexusSdk]);
+  }, [isConnected, nexusSdk, connector]);
 
   const cleanupSDK = useCallback(() => {
     if (nexusSdk) {
@@ -89,7 +103,6 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
   }, [nexusSdk]);
 
   useEffect(() => {
-    console.log("useEffect", isConnected);
     if (!isConnected) {
       cleanupSDK();
     } else {
@@ -109,8 +122,9 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
       setAllowanceModal,
       intentModal,
       setIntentModal,
+      cleanupSDK,
     }),
-    [nexusSdk, isInitialized, allowanceModal, intentModal]
+    [nexusSdk, isInitialized, allowanceModal, intentModal, cleanupSDK]
   );
 
   return (

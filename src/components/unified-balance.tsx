@@ -11,13 +11,11 @@ import Image from "next/image";
 import { Separator } from "./ui/separator";
 import { DollarSign, Loader2 } from "lucide-react";
 import { Label } from "./ui/label";
-import { UnifiedBalanceResponse } from "avail-nexus-sdk";
+import { UserAsset } from "avail-nexus-sdk";
 
 const UnifiedBalance = () => {
   const { nexusSdk, isInitialized } = useNexus();
-  const [balance, setBalance] = useState<UnifiedBalanceResponse[] | undefined>(
-    undefined
-  );
+  const [balance, setBalance] = useState<UserAsset[] | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +26,7 @@ const UnifiedBalance = () => {
       setIsLoading(true);
       setError(null);
       const unifiedBalance = await nexusSdk.getUnifiedBalances();
-      console.log(unifiedBalance);
+      console.log("unifiedBalance", unifiedBalance);
       setBalance(unifiedBalance);
     } catch (error: unknown) {
       console.error("Unable to fetch balance", error);
@@ -110,7 +108,7 @@ const UnifiedBalance = () => {
                     </div>
                   </div>
                   <p className="text-lg font-medium">
-                    {formatBalance(token.balance, token.decimals)}
+                    {formatBalance(token.balance, 6)}
                   </p>
                 </div>
               </AccordionTrigger>
@@ -135,7 +133,7 @@ const UnifiedBalance = () => {
                           </div>
                           <div className="text-right">
                             <p className="text-sm font-medium">
-                              {formatBalance(chain.balance, token.decimals)}
+                              {formatBalance(chain.balance, chain.decimals)}
                             </p>
                             <p className="text-xs text-muted-foreground">
                               ${chain.balanceInFiat.toFixed(2)}

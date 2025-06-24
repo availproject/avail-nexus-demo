@@ -1,9 +1,4 @@
-import {
-  SUPPORTED_CHAINS,
-  ProgressStep,
-  UnifiedBalanceResponse,
-} from "avail-nexus-sdk";
-import { TransactionData } from "./transaction";
+import { SUPPORTED_CHAINS, ProgressStep, UserAsset } from "avail-nexus-sdk";
 
 export type SupportedChainId =
   (typeof SUPPORTED_CHAINS)[keyof typeof SUPPORTED_CHAINS];
@@ -20,12 +15,11 @@ export interface BridgeFormData {
 }
 
 export interface BridgeState extends BridgeFormData {
-  availableBalance: UnifiedBalanceResponse[];
+  availableBalance: UserAsset[];
   isLoading: boolean;
   isBridging: boolean;
   error: string | null;
   steps: ComponentStep[];
-  currentTransactionData: TransactionData | null;
   showAllowanceModal: boolean;
 }
 
