@@ -26,7 +26,7 @@ interface TransferState {
   isTransferring: boolean;
 }
 
-const NexusTransfer = () => {
+const NexusTransfer = ({ isTestnet }: { isTestnet: boolean }) => {
   const [state, setState] = useState<TransferState>({
     selectedChain: SUPPORTED_CHAINS.ETHEREUM,
     selectedToken: undefined,
@@ -147,11 +147,13 @@ const NexusTransfer = () => {
         <ChainSelect
           selectedChain={state.selectedChain}
           handleSelect={handleChainSelect}
+          isTestnet={isTestnet}
         />
         <TokenSelect
           selectedToken={state.selectedToken}
           selectedChain={state.selectedChain.toString()}
           handleTokenSelect={handleTokenSelect}
+          isTestnet={isTestnet}
         />
       </div>
       <div className="w-full flex items-center gap-x-2 shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)]">

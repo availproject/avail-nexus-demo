@@ -14,6 +14,7 @@ import TokenSelect from "../blocks/token-select";
 import { SimulationPreview } from "../shared/simulation-preview";
 
 interface BridgeFormProps {
+  isTestnet: boolean;
   availableBalance: UserAsset[];
   onSubmit: () => void;
   isSubmitting?: boolean;
@@ -26,6 +27,7 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
   availableBalance,
   onSubmit,
   isSubmitting = false,
+  isTestnet,
 }) => {
   const {
     selectedChain,
@@ -59,6 +61,7 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
         <ChainSelect
           selectedChain={selectedChain}
           handleSelect={handleChainSelect}
+          isTestnet={isTestnet}
         />
       </div>
 
@@ -68,6 +71,7 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
           selectedToken={selectedToken}
           selectedChain={selectedChain.toString()}
           handleTokenSelect={handleTokenSelect}
+          isTestnet={isTestnet}
         />
       </div>
 

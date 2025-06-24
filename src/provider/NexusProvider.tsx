@@ -53,13 +53,16 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
       try {
         // Get the EIP-1193 provider from the connector
         // For ConnectKit/wagmi, we need to get the provider from the connector
+        const isTestnet = process.env.NEXT_PUBLIC_ENABLE_TESTNET === "true";
         const provider = (await connector.getProvider()) as EthereumProvider;
 
         if (!provider) {
           throw new Error("No EIP-1193 provider available");
         }
 
-        const sdk = new NexusSDK();
+        const sdk = new NexusSDK({
+          network: isTestnet ? "testnet" : "mainnet",
+        });
 
         await sdk.initialize(provider);
         setNexusSdk(sdk);

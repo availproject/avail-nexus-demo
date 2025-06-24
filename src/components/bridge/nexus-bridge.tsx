@@ -14,7 +14,7 @@ import { TransactionProgress } from "./transaction-progress";
 import IntentModal from "../nexus-modals/intent-modal";
 import AllowanceModal from "../nexus-modals/allowance-modal";
 
-const NexusBridge: React.FC = () => {
+const NexusBridge: React.FC<{ isTestnet: boolean }> = ({ isTestnet }) => {
   const {
     nexusSdk,
     intentModal,
@@ -84,6 +84,7 @@ const NexusBridge: React.FC = () => {
           availableBalance={availableBalance}
           onSubmit={handleBridgeSubmit}
           isSubmitting={isBridging}
+          isTestnet={isTestnet}
         />
         {transactionSteps && transactionSteps.length > 0 && (
           <TransactionProgress />

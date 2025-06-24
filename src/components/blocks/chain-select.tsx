@@ -7,11 +7,11 @@ import {
   SelectValue,
 } from "../ui/select";
 import {
-  SUPPORTED_CHAINS_IDS,
-  chainIcons,
-  TESTNET_CHAINS,
-  MAINNET_CHAINS,
   CHAIN_METADATA,
+  chainIcons,
+  MAINNET_CHAINS,
+  SUPPORTED_CHAINS_IDS,
+  TESTNET_CHAINS,
 } from "avail-nexus-sdk";
 import { Label } from "../ui/label";
 import Image from "next/image";
@@ -46,12 +46,12 @@ const ChainSelect = ({
               <div className="flex items-center gap-2">
                 <Image
                   src={chainIcons[selectedChain]}
-                  alt={chainData[selectedChain]?.name ?? ""}
+                  alt={CHAIN_METADATA[selectedChain]?.name ?? ""}
                   width={24}
                   height={24}
                   className="rounded-full"
                 />
-                {chainData[selectedChain]?.name}
+                {CHAIN_METADATA[selectedChain]?.name}
               </div>
             )}
           </SelectValue>
