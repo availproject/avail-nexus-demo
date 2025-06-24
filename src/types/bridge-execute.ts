@@ -79,3 +79,34 @@ export interface BridgeExecuteValidationResult {
   errors: string[];
   warnings: string[];
 }
+
+export interface StepSimulation {
+  type: "bridge" | "approval" | "execute";
+  required: boolean;
+  simulation: SimulationResult | ApprovalSimulation | ExecuteSimulation;
+  description: string;
+}
+
+export interface ApprovalSimulation {
+  gasUsed: string;
+  gasPrice: string;
+  estimatedCost: {
+    wei: string;
+    eth: string;
+    gwei: string;
+  };
+  success: boolean;
+  error?: string;
+}
+
+export interface ExecuteSimulation {
+  gasUsed: string;
+  gasPrice: string;
+  estimatedCost: {
+    wei: string;
+    eth: string;
+    gwei: string;
+  };
+  success: boolean;
+  error?: string;
+}

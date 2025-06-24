@@ -136,8 +136,6 @@ const NexusTransfer = () => {
       }
     } catch (error: unknown) {
       console.error("Unexpected error in handleTransfer:", error);
-    } finally {
-      setState({ ...state, isTransferring: false });
     }
   };
 

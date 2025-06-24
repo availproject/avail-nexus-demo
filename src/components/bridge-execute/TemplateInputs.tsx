@@ -44,9 +44,9 @@ const TemplateInput: React.FC<{
               />
             </SelectTrigger>
             <SelectContent className="bg-accent-foreground rounded-[var(--ck-connectbutton-border-radius)]">
-              {field.options?.map((option) => (
+              {field.options?.map((option, index) => (
                 <SelectItem
-                  key={option.value}
+                  key={`${option.value}-${index}`}
                   value={option.value}
                   className="hover:bg-background/30 rounded-[var(--ck-connectbutton-border-radius)]"
                 >
@@ -137,9 +137,9 @@ const TemplateInputs: React.FC<TemplateInputsProps> = ({
   return (
     <div className={cn("space-y-4", className)}>
       {/* Required Fields */}
-      {requiredFields.map((field) => (
+      {requiredFields.map((field, index) => (
         <TemplateInput
-          key={field.name}
+          key={`required-${field.name}-${index}`}
           field={field}
           value={values[field.name] || ""}
           onChange={(value) => onChange(field.name, value)}
@@ -171,9 +171,9 @@ const TemplateInputs: React.FC<TemplateInputsProps> = ({
 
           {showAdvanced && (
             <div className="space-y-4 pl-4 border-l-2 border-muted">
-              {optionalFields.map((field) => (
+              {optionalFields.map((field, index) => (
                 <TemplateInput
-                  key={field.name}
+                  key={`optional-${field.name}-${index}`}
                   field={field}
                   value={values[field.name] || ""}
                   onChange={(value) => onChange(field.name, value)}

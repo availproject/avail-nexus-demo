@@ -25,8 +25,7 @@ const TokenSelect = ({
   isTestnet?: boolean;
 }) => {
   const tokenData = isTestnet ? TESTNET_TOKEN_METADATA : TOKEN_METADATA;
-  const selectedTokenData = Object.entries(tokenData)?.find(([_, token]) => {
-    console.log("_", _);
+  const selectedTokenData = Object.entries(tokenData)?.find(([, token]) => {
     return token.symbol === selectedToken;
   });
   return (

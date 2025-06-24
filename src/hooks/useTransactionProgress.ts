@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState } from "react";
-import { ProgressStep } from "avail-nexus-sdk";
+import { NEXUS_EVENTS, ProgressStep } from "avail-nexus-sdk";
 import { useBridgeStore, bridgeSelectors } from "@/store/bridgeStore";
 import { useNexus } from "@/provider/NexusProvider";
 
@@ -140,17 +140,16 @@ export const useTransactionProgress = (
     const { caEvents } = nexusSdk.nexusAdapter;
 
     // Add event listeners
-    caEvents.on("expected_steps", (steps: ProgressStep[]) => {
-      console.log("Expected steps received:", steps);
+    caEvents.on(NEXUS_EVENTS.EXPECTED_STEPS, (steps: ProgressStep[]) => {
       setProgressSteps(steps.map((step) => ({ ...step, done: false })));
     });
-    caEvents.on("step_complete", handleStepComplete);
-    caEvents.on("error", handleTransactionError);
+    caEvents.on(NEXUS_EVENTS.STEP_COMPLETE, handleStepComplete);
+    caEvents.on(NEXUS_EVENTS.EXECUTE_FAILED, handleTransactionError);
 
     return () => {
-      caEvents.off("expected_steps", setProgressSteps);
-      caEvents.off("step_complete", handleStepComplete);
-      caEvents.off("error", handleTransactionError);
+      caEvents.off(NEXUS_EVENTS.EXPECTED_STEPS, setProgressSteps);
+      caEvents.off(NEXUS_EVENTS.STEP_COMPLETE, handleStepComplete);
+      caEvents.off(NEXUS_EVENTS.EXECUTE_FAILED, handleTransactionError);
     };
   }, [
     setProgressSteps,

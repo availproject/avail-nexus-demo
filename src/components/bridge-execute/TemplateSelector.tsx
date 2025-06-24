@@ -72,19 +72,42 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
           <Card
             key={template.id}
             className={cn(
-              "cursor-pointer transition-all duration-200 hover:shadow-md",
+              "cursor-pointer transition-all duration-200 bg-secondary/20 gap-y-0 border-none",
               selectedTemplate?.id === template.id
-                ? "ring-2 ring-primary shadow-md"
+                ? "!shadow-[var(--ck-connectbutton-balance-connectbutton-box-shadow)]"
                 : "hover:shadow-sm"
             )}
             onClick={() => onSelect(template)}
           >
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-0">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{template.icon}</span>
                   <div>
-                    <CardTitle className="text-lg">{template.name}</CardTitle>
+                    <CardTitle className="text-lg flex flex-col gap-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex gap-2">
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "text-xs",
+                              getCategoryColor(template.category)
+                            )}
+                          >
+                            {template.category}
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "text-xs",
+                              getRiskColor(template.riskLevel)
+                            )}
+                          >
+                            {template.riskLevel} risk
+                          </Badge>
+                        </div>
+                      </div>
+                      {template.name}
+                    </CardTitle>
                     <CardDescription className="text-sm">
                       {template.description}
                     </CardDescription>
@@ -93,31 +116,15 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
               </div>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="flex items-center justify-between">
-                <div className="flex gap-2">
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      "text-xs",
-                      getCategoryColor(template.category)
-                    )}
-                  >
-                    {template.category}
-                  </Badge>
-                  <Badge
-                    variant="outline"
-                    className={cn("text-xs", getRiskColor(template.riskLevel))}
-                  >
-                    {template.riskLevel} risk
-                  </Badge>
-                </div>
-              </div>
               <p className="text-sm text-muted-foreground mt-2">
                 {template.expectedOutcome}
               </p>
               {selectedTemplate?.id === template.id && (
                 <div className="mt-3 pt-3 border-t">
-                  <Button size="sm" className="w-full">
+                  <Button
+                    size="sm"
+                    className="w-full rounded-full bg-accent/10 text-primary shadow-2xl border border-border hover:bg-accent/20"
+                  >
                     Selected ✓
                   </Button>
                 </div>

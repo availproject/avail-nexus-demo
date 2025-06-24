@@ -5,25 +5,23 @@ import {
   SUPPORTED_TOKENS,
 } from "avail-nexus-sdk";
 
-// Import ABIs
+// Import only the needed ABI
 import AAVE_ABI from "./abis/aave.json";
-import LIDO_ABI from "./abis/lido.json";
-import COMPOUND_ABI from "./abis/compound.json";
 
 export const CONTRACT_TEMPLATES: ContractTemplate[] = [
   {
-    id: "aave-deposit",
-    name: "AAVE Deposit",
-    description: "Deposit USDC into AAVE lending protocol to earn yield",
+    id: "aave-deposit-base",
+    name: "AAVE Deposit (Base)",
+    description: "Deposit USDC into AAVE V3 on Base to earn yield",
     icon: "🏦",
     category: "lending",
 
-    // AAVE V3 Pool contract (Ethereum mainnet)
-    contractAddress: "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
+    // AAVE V3 Pool contract (Base)
+    contractAddress: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Base Pool address
     abi: AAVE_ABI,
     functionName: "supply",
 
-    supportedChains: [SUPPORTED_CHAINS.ETHEREUM, SUPPORTED_CHAINS.POLYGON],
+    supportedChains: [SUPPORTED_CHAINS.BASE], // Base chain ID: 8453
     supportedTokens: ["USDC"],
 
     inputFields: [
@@ -40,60 +38,7 @@ export const CONTRACT_TEMPLATES: ContractTemplate[] = [
       },
     ],
 
-    expectedOutcome: "Earn ~3-5% APY on deposited USDC",
-    riskLevel: "low",
-    requiresEthValue: false,
-  },
-
-  {
-    id: "lido-stake",
-    name: "Lido ETH Staking",
-    description: "Stake ETH with Lido to earn staking rewards",
-    icon: "🔥",
-    category: "staking",
-
-    // Lido stETH contract (Ethereum mainnet)
-    contractAddress: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
-    abi: LIDO_ABI,
-    functionName: "submit",
-
-    supportedChains: [SUPPORTED_CHAINS.ETHEREUM],
-    supportedTokens: ["ETH"],
-
-    inputFields: [
-      {
-        name: "referral",
-        type: "address",
-        label: "Referral Address",
-        description: "Optional referral address for Lido rewards",
-        placeholder: "0x...",
-        required: false,
-      },
-    ],
-
-    expectedOutcome: "Earn ~4% APR ETH staking rewards",
-    riskLevel: "low",
-    requiresEthValue: true,
-  },
-
-  {
-    id: "compound-supply",
-    name: "Compound Supply",
-    description: "Supply USDC to Compound protocol for lending rewards",
-    icon: "📈",
-    category: "lending",
-
-    // Compound cUSDC contract (Ethereum mainnet)
-    contractAddress: "0x39AA39c021dfbaE8faC545936693aC917d5E7563",
-    abi: COMPOUND_ABI,
-    functionName: "mint",
-
-    supportedChains: [SUPPORTED_CHAINS.ETHEREUM],
-    supportedTokens: ["USDC"],
-
-    inputFields: [],
-
-    expectedOutcome: "Earn ~2-4% APY plus COMP rewards",
+    expectedOutcome: "Earn ~2-4% APY on deposited USDC",
     riskLevel: "low",
     requiresEthValue: false,
   },

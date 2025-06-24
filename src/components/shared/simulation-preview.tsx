@@ -83,6 +83,8 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
 
   const { intent, token } = simulation;
 
+  console.log("simulation", simulation);
+
   // Compact Preview Component
   const CompactPreview = () => (
     <Card
