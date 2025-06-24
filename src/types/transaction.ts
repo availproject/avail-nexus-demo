@@ -1,4 +1,8 @@
-export type TransactionType = "bridge" | "transfer" | "execute";
+export type TransactionType =
+  | "bridge"
+  | "transfer"
+  | "execute"
+  | "bridge-execute";
 
 export interface IntentSubmittedData {
   explorerURL: string;
@@ -7,8 +11,10 @@ export interface IntentSubmittedData {
 
 export interface StepCompletionEventData {
   typeID: string;
-  data?: IntentSubmittedData;
-  [key: string]: unknown;
+  data?: {
+    explorerURL?: string;
+    [key: string]: unknown;
+  };
 }
 
 export interface TransactionMonitor {

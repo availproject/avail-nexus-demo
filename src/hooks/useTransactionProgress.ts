@@ -1,11 +1,10 @@
 import { useEffect, useCallback, useState } from "react";
-import { ProgressStep } from "avail-nexus-sdk";
+import { NEXUS_EVENTS, ProgressStep } from "avail-nexus-sdk";
 import { useBridgeStore, bridgeSelectors } from "@/store/bridgeStore";
 import { useNexus } from "@/provider/NexusProvider";
 
 import { formatStepName } from "@/lib/bridge/formatters";
 import { toast } from "sonner";
-import { useAccount } from "wagmi";
 import { StepCompletionEventData, TransactionType } from "@/types/transaction";
 import { useSDKTransactionHistory } from "./useSDKTransactionHistory";
 
@@ -25,10 +24,9 @@ interface TransactionProgressOptions {
 export const useTransactionProgress = (
   options: TransactionProgressOptions = {}
 ) => {
-  const { transactionType = "bridge", formData } = options;
+  const { transactionType = "bridge" } = options;
 
   const { nexusSdk } = useNexus();
-  const account = useAccount();
   const [explorerURL, setExplorerURL] = useState<string>("");
 
   // Store selectors
@@ -37,15 +35,6 @@ export const useTransactionProgress = (
   const completedStepsCount = useBridgeStore(
     bridgeSelectors.completedStepsCount
   );
-  const storeSelectedToken = useBridgeStore(bridgeSelectors.selectedToken);
-  const storeBridgeAmount = useBridgeStore(bridgeSelectors.bridgeAmount);
-  const storeSelectedChain = useBridgeStore(bridgeSelectors.selectedChain);
-
-  // Get form data - use provided formData or fallback to bridge store
-  const selectedToken = formData?.selectedToken ?? storeSelectedToken;
-  const bridgeAmount = formData?.amount ?? storeBridgeAmount;
-  const selectedChain = formData?.selectedChain ?? storeSelectedChain;
-  const recipientAddress = formData?.recipientAddress;
 
   // Store actions
   const setProgressSteps = useBridgeStore((state) => state.setProgressSteps);
@@ -117,12 +106,6 @@ export const useTransactionProgress = (
       fetchTransactions,
       resetProgress,
       transactionType,
-      selectedToken,
-      bridgeAmount,
-      selectedChain,
-      recipientAddress,
-      account?.chain?.name,
-      explorerURL,
     ]
   );
 
@@ -155,17 +138,16 @@ export const useTransactionProgress = (
     const { caEvents } = nexusSdk.nexusAdapter;
 
     // Add event listeners
-    caEvents.on("expected_steps", (steps: ProgressStep[]) => {
-      console.log("Expected steps received:", steps);
+    caEvents.on(NEXUS_EVENTS.EXPECTED_STEPS, (steps: ProgressStep[]) => {
       setProgressSteps(steps.map((step) => ({ ...step, done: false })));
     });
-    caEvents.on("step_complete", handleStepComplete);
-    caEvents.on("error", handleTransactionError);
+    caEvents.on(NEXUS_EVENTS.STEP_COMPLETE, handleStepComplete);
+    caEvents.on(NEXUS_EVENTS.EXECUTE_FAILED, handleTransactionError);
 
     return () => {
-      caEvents.off("expected_steps", setProgressSteps);
-      caEvents.off("step_complete", handleStepComplete);
-      caEvents.off("error", handleTransactionError);
+      caEvents.off(NEXUS_EVENTS.EXPECTED_STEPS, setProgressSteps);
+      caEvents.off(NEXUS_EVENTS.STEP_COMPLETE, handleStepComplete);
+      caEvents.off(NEXUS_EVENTS.EXECUTE_FAILED, handleTransactionError);
     };
   }, [
     setProgressSteps,

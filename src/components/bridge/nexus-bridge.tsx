@@ -63,7 +63,7 @@ const NexusBridge: React.FC = () => {
 
   useEffect(() => {
     if (!availableBalance.length && !isLoading) {
-      fetchAvailableBalance();
+      // fetchAvailableBalance();
     }
   }, [availableBalance.length, isLoading, fetchAvailableBalance]);
 
