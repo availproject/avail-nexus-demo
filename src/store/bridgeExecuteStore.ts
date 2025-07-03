@@ -8,7 +8,7 @@ import {
   SUPPORTED_TOKENS,
   UserAsset,
   SimulationResult,
-} from "avail-nexus-sdk";
+} from "@avail-project/nexus";
 import { BridgeExecuteState, ContractTemplate } from "@/types/bridge-execute";
 import { ComponentStep } from "@/types/bridge";
 

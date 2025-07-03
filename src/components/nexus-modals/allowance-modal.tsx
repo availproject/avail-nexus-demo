@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
-import { AllowanceHookSource, OnAllowanceHookData } from "avail-nexus-sdk";
+import { AllowanceHookSource, OnAllowanceHookData } from "@avail-project/nexus";
 import { useBridgeStore } from "@/store/bridgeStore";
 import { toast } from "sonner";
 import { useNexus } from "@/provider/NexusProvider";

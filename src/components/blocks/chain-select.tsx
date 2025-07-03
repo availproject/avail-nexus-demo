@@ -12,7 +12,7 @@ import {
   MAINNET_CHAINS,
   SUPPORTED_CHAINS_IDS,
   TESTNET_CHAINS,
-} from "avail-nexus-sdk";
+} from "@avail-project/nexus";
 import { Label } from "../ui/label";
 import Image from "next/image";
 

@@ -1,6 +1,6 @@
 # Avail Nexus SDK Demo
 
-A comprehensive demonstration application showcasing the capabilities of the [Avail Nexus SDK](https://www.npmjs.com/package/avail-nexus-sdk) for cross-chain interactions and asynchronous composability on blockchain networks.
+A comprehensive demonstration application showcasing the capabilities of the [Avail Nexus SDK](https://www.npmjs.com/package/@avail-project/nexus) for cross-chain interactions and asynchronous composability on blockchain networks.
 
 ## 🌟 Overview
 
@@ -216,7 +216,7 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 
 ## 📚 Resources
 
-- [Avail Nexus SDK Documentation](https://www.npmjs.com/package/avail-nexus-sdk)
+- [Avail Nexus SDK Documentation](https://www.npmjs.com/package/@avail-project/nexus)
 - [Avail Project](https://www.availproject.org/)
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Wagmi Documentation](https://wagmi.sh/)

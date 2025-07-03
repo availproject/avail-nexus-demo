@@ -6,7 +6,7 @@ import {
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
   SimulationResult,
-} from "avail-nexus-sdk";
+} from "@avail-project/nexus";
 
 interface ErrorWithCode extends Error {
   code?: number;

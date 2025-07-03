@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState } from "react";
-import { NEXUS_EVENTS, ProgressStep } from "avail-nexus-sdk";
+import { NEXUS_EVENTS, ProgressStep } from "@avail-project/nexus";
 import { useBridgeStore, bridgeSelectors } from "@/store/bridgeStore";
 import { useNexus } from "@/provider/NexusProvider";
 
@@ -138,16 +138,34 @@ export const useTransactionProgress = (
     const { caEvents } = nexusSdk.nexusAdapter;
 
     // Add event listeners
-    caEvents.on(NEXUS_EVENTS.EXPECTED_STEPS, (steps: ProgressStep[]) => {
-      setProgressSteps(steps.map((step) => ({ ...step, done: false })));
-    });
-    caEvents.on(NEXUS_EVENTS.STEP_COMPLETE, handleStepComplete);
-    caEvents.on(NEXUS_EVENTS.EXECUTE_FAILED, handleTransactionError);
+    caEvents.on(
+      transactionType === "bridge-execute"
+        ? NEXUS_EVENTS.BRIDGE_EXECUTE_EXPECTED_STEPS
+        : NEXUS_EVENTS.EXPECTED_STEPS,
+      (steps: ProgressStep[]) => {
+        setProgressSteps(steps.map((step) => ({ ...step, done: false })));
+      }
+    );
+    caEvents.on(
+      transactionType === "bridge-execute"
+        ? NEXUS_EVENTS.BRIDGE_EXECUTE_COMPLETED_STEPS
+        : NEXUS_EVENTS.STEP_COMPLETE,
+      handleStepComplete
+    );
 
     return () => {
-      caEvents.off(NEXUS_EVENTS.EXPECTED_STEPS, setProgressSteps);
-      caEvents.off(NEXUS_EVENTS.STEP_COMPLETE, handleStepComplete);
-      caEvents.off(NEXUS_EVENTS.EXECUTE_FAILED, handleTransactionError);
+      caEvents.off(
+        transactionType === "bridge-execute"
+          ? NEXUS_EVENTS.BRIDGE_EXECUTE_EXPECTED_STEPS
+          : NEXUS_EVENTS.EXPECTED_STEPS,
+        setProgressSteps
+      );
+      caEvents.off(
+        transactionType === "bridge-execute"
+          ? NEXUS_EVENTS.BRIDGE_EXECUTE_COMPLETED_STEPS
+          : NEXUS_EVENTS.STEP_COMPLETE,
+        handleStepComplete
+      );
     };
   }, [
     setProgressSteps,
