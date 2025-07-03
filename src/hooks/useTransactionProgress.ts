@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState } from "react";
-import { NEXUS_EVENTS, ProgressStep } from "avail-nexus-sdk";
+import { NEXUS_EVENTS, ProgressStep } from "@avail-project/nexus";
 import { useBridgeStore, bridgeSelectors } from "@/store/bridgeStore";
 import { useNexus } from "@/provider/NexusProvider";
 

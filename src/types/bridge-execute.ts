@@ -3,7 +3,7 @@ import {
   SUPPORTED_TOKENS,
   UserAsset,
   SimulationResult,
-} from "avail-nexus-sdk";
+} from "@avail-project/nexus";
 import { ComponentStep } from "@/types/bridge";
 
 export interface TemplateInputField {

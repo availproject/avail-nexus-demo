@@ -42,6 +42,8 @@ const NexusBridgeAndExecute = () => {
     setAllowanceModal,
   } = useNexus();
 
+  if (!nexusSdk) return null;
+
   // Store selectors
   const selectedChain = useBridgeExecuteStore(
     bridgeExecuteSelectors.selectedChain

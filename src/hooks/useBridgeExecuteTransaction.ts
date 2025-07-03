@@ -5,14 +5,14 @@ import {
   SUPPORTED_TOKENS,
   SimulationResult,
   SUPPORTED_CHAINS_IDS,
-} from "avail-nexus-sdk";
+} from "@avail-project/nexus";
 import type {
   AllowanceResponse,
   BridgeAndExecuteParams,
   BridgeAndExecuteResult,
   BridgeAndExecuteSimulationResult,
   ExecuteSimulation,
-} from "avail-nexus-sdk";
+} from "@avail-project/nexus";
 import type { Abi } from "viem";
 import { getTemplateById } from "@/constants/contractTemplates";
 import { useBridgeExecuteStore } from "@/store/bridgeExecuteStore";

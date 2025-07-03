@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect } from "react";
 import { useNexus } from "@/provider/NexusProvider";
-import { RequestForFunds } from "avail-nexus-sdk";
+import { RequestForFunds } from "@avail-project/nexus";
 
 /**
  * Hook for managing transaction history using SDK's getMyIntents()

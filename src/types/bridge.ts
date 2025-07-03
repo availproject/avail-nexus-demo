@@ -1,4 +1,8 @@
-import { SUPPORTED_CHAINS, ProgressStep, UserAsset } from "avail-nexus-sdk";
+import {
+  SUPPORTED_CHAINS,
+  ProgressStep,
+  UserAsset,
+} from "@avail-project/nexus";
 
 export type SupportedChainId =
   (typeof SUPPORTED_CHAINS)[keyof typeof SUPPORTED_CHAINS];
