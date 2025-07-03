@@ -42,8 +42,6 @@ const NexusBridgeAndExecute = () => {
     setAllowanceModal,
   } = useNexus();
 
-  if (!nexusSdk) return null;
-
   // Store selectors
   const selectedChain = useBridgeExecuteStore(
     bridgeExecuteSelectors.selectedChain
@@ -285,6 +283,8 @@ const NexusBridgeAndExecute = () => {
     selectedChain,
     simulateBridgeAndExecute,
   ]);
+
+  if (!nexusSdk) return null;
 
   return (
     <ScrollArea className="h-[calc(70vh-100px)] no-scrollbar">
