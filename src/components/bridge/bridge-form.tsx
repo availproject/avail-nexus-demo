@@ -46,6 +46,7 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
   // Get simulation data from the bridge transaction hook
   const { simulation, isSimulating } = useBridgeTransaction();
   const simulationError = useBridgeStore(bridgeSelectors.simulationError);
+  const error = useBridgeStore(bridgeSelectors.error);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,7 +110,21 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
         </div>
 
         {validation.errorMessage && (selectedToken || bridgeAmount) && (
-          <div className="text-xs text-red-500">{validation.errorMessage}</div>
+          <div className="text-xs text-red-500 bg-red-50 border border-red-200 rounded px-2 py-1">
+            <strong>Error:</strong> {validation.errorMessage}
+          </div>
+        )}
+
+        {validation.warningMessage && (
+          <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded px-2 py-1">
+            <strong>Warning:</strong> {validation.warningMessage}
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+            <strong>Transaction Error:</strong> {error}
+          </div>
         )}
       </div>
 

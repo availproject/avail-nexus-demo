@@ -7,6 +7,7 @@ import {
 } from "@avail-project/nexus";
 import { validateAmountInput } from "@/lib/bridge/formatters";
 import { useBridgeValidation } from "./useBridgeValidation";
+import { toast } from "sonner";
 
 /**
  * Orchestrator hook for bridge form management
@@ -109,6 +110,11 @@ export const useBridgeForm = (availableBalance: UserAsset[]) => {
    * Clear the form
    */
   const clearForm = useCallback(() => {
+    // Only clear if user explicitly requests it or after successful transaction
+    toast.info("Form cleared", {
+      description: "All fields have been reset",
+      duration: 2000,
+    });
     resetForm();
   }, [resetForm]);
 

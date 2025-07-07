@@ -86,6 +86,7 @@ const NexusBridge: React.FC<{ isTestnet: boolean }> = ({ isTestnet }) => {
           isSubmitting={isBridging}
           isTestnet={isTestnet}
         />
+
         {transactionSteps && transactionSteps.length > 0 && (
           <TransactionProgress />
         )}

@@ -42,7 +42,6 @@ export const useBridgeTransaction = () => {
   // Store actions
   const setBridging = useBridgeStore((state) => state.setBridging);
   const setError = useBridgeStore((state) => state.setError);
-  const resetForm = useBridgeStore((state) => state.resetForm);
   const setSimulation = useBridgeStore((state) => state.setSimulation);
   const setSimulating = useBridgeStore((state) => state.setSimulating);
   const setSimulationError = useBridgeStore(
@@ -83,14 +82,24 @@ export const useBridgeTransaction = () => {
         amount: bridgeAmount,
       });
 
-      resetForm();
+      if (result?.error) {
+        setError(result.error as string);
+      }
 
-      return { success: result?.success };
-    } catch (error) {
+      if (result.success) {
+        toast.success("Bridge transaction completed successfully!", {
+          description: `${bridgeAmount} ${selectedToken} bridged successfully`,
+          duration: 5000,
+        });
+      }
+
+      console.log("Bridge transaction result:", result);
+
+      // Show success feedback before resetting form
+
+      return result;
+    } catch (error: unknown) {
       console.error("Bridge transaction failed:", error);
-
-      // ALWAYS reset progress on any error
-      resetProgress();
 
       // Parse and handle the error
       const bridgeError = parseBridgeError(error);
@@ -101,30 +110,42 @@ export const useBridgeTransaction = () => {
 
       // Special handling for allowance rejection errors
       if (isAllowanceRejectionError(error)) {
-        console.log(
-          "Allowance rejection detected in bridge transaction, resetting progress"
-        );
+        console.log("Allowance rejection detected in bridge transaction");
 
         // Set specific error message for allowance rejection
         setError("Token approval was cancelled");
 
-        // Show specific toast for allowance rejection
+        // Show specific toast for allowance rejection - don't reset progress immediately
         toast.error("Token approval was cancelled", {
           description:
             "Please approve the token allowance to continue with the bridge transaction",
-          duration: 4000,
+          duration: 6000,
         });
 
+        // Only reset progress after a delay to allow user to read the message
+        setTimeout(() => {
+          resetProgress();
+        }, 3000);
+
         return { success: false, error: "Token approval was cancelled" };
+      }
+
+      // For other errors, only reset progress if it's a non-retryable error
+      if (!bridgeError.isRetryable) {
+        setTimeout(() => {
+          resetProgress();
+        }, 2000);
       }
 
       // Set error state
       setError(userFriendlyMessage);
 
-      // Show user-friendly error toast
+      // Show user-friendly error toast with longer duration for complex errors
       toast.error(userFriendlyMessage, {
-        description: bridgeError.isRetryable ? "Please try again" : undefined,
-        duration: 4000,
+        description: bridgeError.isRetryable
+          ? "You can try again, or check your wallet and network connection"
+          : "Please check your transaction parameters and try again",
+        duration: 6000,
       });
 
       return { success: false, error: userFriendlyMessage };
@@ -139,7 +160,6 @@ export const useBridgeTransaction = () => {
     selectedChain,
     setBridging,
     setError,
-    resetForm,
     resetProgress,
     refetch,
   ]);
