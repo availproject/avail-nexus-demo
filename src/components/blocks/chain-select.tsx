@@ -31,7 +31,7 @@ const ChainSelect = ({
   const chainData = CHAIN_METADATA;
   return (
     <Select
-      value={selectedChain.toString()}
+      value={selectedChain?.toString() ?? ""}
       onValueChange={(value) =>
         handleSelect(parseInt(value) as SUPPORTED_CHAINS_IDS)
       }

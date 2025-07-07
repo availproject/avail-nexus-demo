@@ -55,14 +55,12 @@ const Nexus = ({ isTestnet }: { isTestnet: boolean }) => {
               >
                 Transfer
               </TabsTrigger>
-              {!isTestnet && (
-                <TabsTrigger
-                  value="bridge-execute"
-                  className=" data-[state=active]:border-secondary/50 "
-                >
-                  Bridge & Execute
-                </TabsTrigger>
-              )}
+              <TabsTrigger
+                value="bridge-execute"
+                className=" data-[state=active]:border-secondary/50 "
+              >
+                Bridge & Execute
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="unified-balance">
               <UnifiedBalance />
@@ -74,7 +72,7 @@ const Nexus = ({ isTestnet }: { isTestnet: boolean }) => {
               <NexusTransfer isTestnet={isTestnet} />
             </TabsContent>
             <TabsContent value="bridge-execute">
-              <NexusBridgeAndExecute />
+              <NexusBridgeAndExecute isTestnet={isTestnet} />
             </TabsContent>
           </Tabs>
         </NexusContentWrapper>

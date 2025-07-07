@@ -69,7 +69,7 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
       <div className="space-y-2">
         <TokenSelect
           selectedToken={selectedToken}
-          selectedChain={selectedChain.toString()}
+          selectedChain={selectedChain?.toString() ?? ""}
           handleTokenSelect={handleTokenSelect}
           isTestnet={isTestnet}
         />

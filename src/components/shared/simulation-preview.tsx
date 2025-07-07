@@ -11,7 +11,7 @@ import {
 import { Loader2, TrendingUp, ArrowRight, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { SimulationResult } from "@avail-project/nexus";
+import { CHAIN_METADATA, SimulationResult } from "@avail-project/nexus";
 import { Separator } from "../ui/separator";
 import { ScrollArea } from "../ui/scroll-area";
 
@@ -83,8 +83,6 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
 
   const { intent, token } = simulation;
 
-  console.log("simulation", simulation);
-
   // Compact Preview Component
   const CompactPreview = () => (
     <Card
@@ -121,7 +119,7 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
                   {intent.sources.slice(0, 2).map((source, index) => (
                     <Image
                       key={`${source.chainID}-${index}`}
-                      src={source.chainLogo ?? ""}
+                      src={CHAIN_METADATA[source.chainID]?.logo ?? ""}
                       alt={source.chainName ?? ""}
                       width={20}
                       height={20}
@@ -145,7 +143,7 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
               intent.sources?.[0] && (
                 <>
                   <Image
-                    src={intent.sources[0].chainLogo ?? ""}
+                    src={CHAIN_METADATA[intent.sources[0].chainID]?.logo ?? ""}
                     alt={intent.sources[0].chainName ?? ""}
                     width={20}
                     height={20}
@@ -167,7 +165,7 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
           {/* Destination */}
           <div className="flex flex-col items-center gap-1 p-2 flex-1 rounded-md">
             <Image
-              src={intent.destination.chainLogo ?? ""}
+              src={CHAIN_METADATA[intent.destination.chainID]?.logo ?? ""}
               alt={intent.destination.chainName ?? ""}
               width={20}
               height={20}
@@ -233,7 +231,7 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
                         className="flex flex-col justify-center items-center gap-1 p-2 shadow-[var(--ck-tertiary-box-shadow)] !rounded-[var(--ck-tertiary-border-radius)]"
                       >
                         <Image
-                          src={source.chainLogo ?? ""}
+                          src={CHAIN_METADATA[source.chainID]?.logo ?? ""}
                           alt={source.chainName ?? ""}
                           width={24}
                           height={24}
@@ -281,7 +279,9 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
                   {/* Destination Chain */}
                   <div className="flex flex-col justify-center items-center gap-1 p-2 flex-1 shadow-[var(--ck-tertiary-box-shadow)] !rounded-[var(--ck-tertiary-border-radius)]">
                     <Image
-                      src={intent.destination.chainLogo ?? ""}
+                      src={
+                        CHAIN_METADATA[intent.destination.chainID]?.logo ?? ""
+                      }
                       alt={intent.destination.chainName ?? ""}
                       width={24}
                       height={24}

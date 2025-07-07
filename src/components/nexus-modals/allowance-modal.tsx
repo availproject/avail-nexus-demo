@@ -12,7 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
-import { AllowanceHookSource, OnAllowanceHookData } from "@avail-project/nexus";
+import {
+  AllowanceHookSource,
+  CHAIN_METADATA,
+  OnAllowanceHookData,
+} from "@avail-project/nexus";
 import { useBridgeStore } from "@/store/bridgeStore";
 import { toast } from "sonner";
 import { useNexus } from "@/provider/NexusProvider";
@@ -153,7 +157,7 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
                   Token: {source.token.symbol} on {source.chain.name}
                 </p>
                 <Image
-                  src={source.chain.logo}
+                  src={CHAIN_METADATA[source.chain.id]?.logo ?? ""}
                   alt={`${source.chain.name} logo`}
                   width={20}
                   height={20}

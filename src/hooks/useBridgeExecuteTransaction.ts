@@ -28,7 +28,6 @@ interface UseBridgeExecuteTransactionReturn {
   bridgeSimulation: SimulationResult | null;
   executeSimulation: ExecuteSimulation | null;
   multiStepResult: BridgeAndExecuteSimulationResult | null;
-
   // Approval management
   setTokenAllowance: (amount: string) => Promise<{ success: boolean }>;
   isSettingAllowance: boolean;
@@ -450,10 +449,3 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
     checkCurrentAllowance,
   };
 }
-
-// {
-//   "executeTransactionHash": "0xea46c8df91bd1aec7d84a81ac0f6008df3d4a3e6e56af9ecab88c1492bb2f392",
-//   "executeExplorerUrl": "https://basescan.org/tx/0xea46c8df91bd1aec7d84a81ac0f6008df3d4a3e6e56af9ecab88c1492bb2f392",
-//   "approvalTransactionHash": "0x12f87165a111f850a315e3b3faebaa5aa711ee8058c32002919c99433e9150a8",
-//   "toChainId": 8453
-// }

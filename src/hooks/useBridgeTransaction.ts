@@ -7,7 +7,6 @@ import {
   logBridgeError,
 } from "@/lib/bridge/errorHandling";
 import { toast } from "sonner";
-import { BridgeTransactionParams } from "@/types/bridge";
 import { SimulationResult } from "@avail-project/nexus";
 import { useTransactionProgress } from "./useTransactionProgress";
 import { useSDKTransactionHistory } from "./useSDKTransactionHistory";
@@ -78,14 +77,11 @@ export const useBridgeTransaction = () => {
         amount: bridgeAmount,
       });
 
-      // Step 2: Execute bridge transaction
-      const bridgeParams: BridgeTransactionParams = {
+      const result = await nexusSdk.bridge({
         chainId: selectedChain,
         token: selectedToken,
         amount: bridgeAmount,
-      };
-
-      await nexusSdk.bridge(bridgeParams);
+      });
 
       resetForm();
 

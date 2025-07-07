@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { ArrowRight, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { OnIntentHookData } from "@avail-project/nexus";
+import { CHAIN_METADATA, OnIntentHookData } from "@avail-project/nexus";
 import { useBridgeStore } from "@/store/bridgeStore";
 import { toast } from "sonner";
 
@@ -101,7 +101,7 @@ const IntentModal: React.FC<IntentModalProps> = ({
                       className="flex flex-col justify-center items-center gap-y-1 px-3 py-2 bg-muted/10 shadow-[var(--ck-tertiary-box-shadow)] !rounded-[var(--ck-tertiary-border-radius)]"
                     >
                       <Image
-                        src={source.chainLogo ?? ""}
+                        src={CHAIN_METADATA[source.chainID]?.logo ?? ""}
                         alt={source.chainName ?? ""}
                         width={24}
                         height={24}
@@ -149,7 +149,9 @@ const IntentModal: React.FC<IntentModalProps> = ({
                 {intent.destination && (
                   <>
                     <Image
-                      src={intent.destination.chainLogo ?? ""}
+                      src={
+                        CHAIN_METADATA[intent.destination.chainID]?.logo ?? ""
+                      }
                       alt={intent.destination.chainName ?? ""}
                       width={24}
                       height={24}

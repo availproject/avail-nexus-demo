@@ -63,7 +63,7 @@ const NexusBridge: React.FC<{ isTestnet: boolean }> = ({ isTestnet }) => {
 
   useEffect(() => {
     if (!availableBalance.length && !isLoading) {
-      // fetchAvailableBalance();
+      fetchAvailableBalance();
     }
   }, [availableBalance.length, isLoading, fetchAvailableBalance]);
 

@@ -33,7 +33,7 @@ import { SimulationPreview } from "./shared/simulation-preview";
 import IntentModal from "./nexus-modals/intent-modal";
 import AllowanceModal from "./nexus-modals/allowance-modal";
 
-const NexusBridgeAndExecute = () => {
+const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
   const {
     nexusSdk,
     intentModal,
@@ -174,7 +174,6 @@ const NexusBridgeAndExecute = () => {
   // Handle form submission
   const handleSubmit = useCallback(async () => {
     if (!canSubmit || !selectedTemplate || !nexusSdk) return;
-
     const result = await executeBridgeAndExecute();
 
     if (result?.success) {
@@ -284,7 +283,7 @@ const NexusBridgeAndExecute = () => {
     simulateBridgeAndExecute,
   ]);
 
-  if (!nexusSdk) return null;
+  if (!nexusSdk || isTestnet) return null;
 
   return (
     <ScrollArea className="h-[calc(70vh-100px)] no-scrollbar">
@@ -299,6 +298,7 @@ const NexusBridgeAndExecute = () => {
               selectedChain={selectedChain}
               handleSelect={setSelectedChain}
               chainLabel="Destination Chain"
+              isTestnet={isTestnet}
             />
 
             {/* Token Selection */}
@@ -306,6 +306,7 @@ const NexusBridgeAndExecute = () => {
               selectedToken={selectedToken}
               selectedChain={selectedChain.toString()}
               handleTokenSelect={setSelectedToken}
+              isTestnet={isTestnet}
             />
 
             {/* Amount Input */}
