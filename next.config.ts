@@ -17,7 +17,20 @@ const nextConfig: NextConfig = {
     ],
   },
   webpack: (config) => {
-    config.resolve.fallback = { fs: false, net: false, tls: false };
+    config.resolve.fallback = {
+      fs: false,
+      net: false,
+      tls: false,
+      // Handle optional pino-pretty dependency
+      "pino-pretty": false,
+    };
+
+    // Ignore optional dependencies that aren't needed for production
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "pino-pretty": false,
+    };
+
     return config;
   },
 };

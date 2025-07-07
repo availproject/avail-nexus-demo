@@ -85,7 +85,7 @@ export const useBridgeTransaction = () => {
 
       resetForm();
 
-      return { success: true };
+      return { success: result?.success };
     } catch (error) {
       console.error("Bridge transaction failed:", error);
 

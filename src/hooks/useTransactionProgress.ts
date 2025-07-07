@@ -106,6 +106,7 @@ export const useTransactionProgress = (
       fetchTransactions,
       resetProgress,
       transactionType,
+      explorerURL,
     ]
   );
 
@@ -172,6 +173,7 @@ export const useTransactionProgress = (
     handleStepComplete,
     handleTransactionError,
     nexusSdk?.nexusAdapter,
+    transactionType,
   ]);
 
   return {
