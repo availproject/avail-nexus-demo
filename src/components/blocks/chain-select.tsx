@@ -8,7 +8,6 @@ import {
 } from "../ui/select";
 import {
   CHAIN_METADATA,
-  chainIcons,
   MAINNET_CHAINS,
   SUPPORTED_CHAINS_IDS,
   TESTNET_CHAINS,
@@ -45,7 +44,7 @@ const ChainSelect = ({
             {!!selectedChain && (
               <div className="flex items-center gap-2">
                 <Image
-                  src={chainIcons[selectedChain]}
+                  src={CHAIN_METADATA[selectedChain]?.logo}
                   alt={CHAIN_METADATA[selectedChain]?.name ?? ""}
                   width={24}
                   height={24}
@@ -68,7 +67,7 @@ const ChainSelect = ({
             >
               <div className="flex items-center gap-2 my-1">
                 <Image
-                  src={chainIcons[chainId]}
+                  src={CHAIN_METADATA[chainId]?.logo}
                   alt={chainData[chainId]?.name ?? ""}
                   width={24}
                   height={24}
