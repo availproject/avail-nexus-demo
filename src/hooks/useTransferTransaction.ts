@@ -6,7 +6,7 @@ import {
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
   SimulationResult,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus/core";
 
 interface ErrorWithCode extends Error {
   code?: number;
@@ -151,6 +151,8 @@ export const useTransferTransaction = () => {
             chainId,
             recipient,
           });
+
+        console.log("transfer sim", result);
 
         setSimulation(result);
       } catch (error) {

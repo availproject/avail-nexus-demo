@@ -7,7 +7,7 @@ import {
   logBridgeError,
 } from "@/lib/bridge/errorHandling";
 import { toast } from "sonner";
-import { SimulationResult } from "@avail-project/nexus";
+import { SimulationResult } from "@avail-project/nexus/core";
 import { useTransactionProgress } from "./useTransactionProgress";
 import { useSDKTransactionHistory } from "./useSDKTransactionHistory";
 

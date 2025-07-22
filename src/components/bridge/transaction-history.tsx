@@ -8,7 +8,7 @@ import { History, ExternalLink, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "../ui/separator";
 import { useSDKTransactionHistory } from "@/hooks/useSDKTransactionHistory";
-import { CHAIN_METADATA, RequestForFunds } from "@avail-project/nexus";
+import { CHAIN_METADATA, RequestForFunds } from "@avail-project/nexus/core";
 import Image from "next/image";
 
 /**

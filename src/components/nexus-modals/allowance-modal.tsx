@@ -16,7 +16,7 @@ import {
   AllowanceHookSource,
   CHAIN_METADATA,
   OnAllowanceHookData,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus/core";
 import { useBridgeStore } from "@/store/bridgeStore";
 import { toast } from "sonner";
 import { useNexus } from "@/provider/NexusProvider";

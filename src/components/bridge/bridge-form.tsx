@@ -7,11 +7,11 @@ import { useBridgeForm } from "@/hooks/useBridgeForm";
 import { useBridgeTransaction } from "@/hooks/useBridgeTransaction";
 import { useBridgeStore, bridgeSelectors } from "@/store/bridgeStore";
 import { cn } from "@/lib/utils";
-import { UserAsset } from "@avail-project/nexus";
 import { Infinity } from "lucide-react";
 import ChainSelect from "../blocks/chain-select";
 import TokenSelect from "../blocks/token-select";
 import { SimulationPreview } from "../shared/simulation-preview";
+import { UserAsset } from "@avail-project/nexus/core";
 
 interface BridgeFormProps {
   isTestnet: boolean;

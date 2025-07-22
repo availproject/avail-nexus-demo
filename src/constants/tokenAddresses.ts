@@ -1,4 +1,7 @@
-import { SUPPORTED_TOKENS, SUPPORTED_CHAINS_IDS } from "@avail-project/nexus";
+import {
+  SUPPORTED_TOKENS,
+  SUPPORTED_CHAINS_IDS,
+} from "@avail-project/nexus/core";
 
 type TokenAddressMap = {
   [key in SUPPORTED_TOKENS]?: string;

@@ -5,7 +5,7 @@ import {
   NexusSDK,
   OnAllowanceHookData,
   OnIntentHookData,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus/core";
 import React, {
   createContext,
   useContext,
@@ -62,10 +62,13 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
 
         const sdk = new NexusSDK({
           network: isTestnet ? "testnet" : "mainnet",
+          debug: true,
         });
 
         await sdk.initialize(provider);
         setNexusSdk(sdk);
+
+        console.log("Supported chains", sdk.utils.getSupportedChains());
         setIsInitialized(true);
 
         sdk.setOnAllowanceHook(async (data: OnAllowanceHookData) => {
@@ -95,7 +98,6 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
 
   const cleanupSDK = useCallback(() => {
     if (nexusSdk) {
-      nexusSdk.removeAllCaEventListeners();
       nexusSdk.deinit();
       setNexusSdk(undefined);
       setIsInitialized(false);

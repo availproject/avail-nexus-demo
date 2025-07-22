@@ -5,15 +5,17 @@ import {
   SUPPORTED_TOKENS,
   SimulationResult,
   SUPPORTED_CHAINS_IDS,
-} from "@avail-project/nexus";
+  TOKEN_METADATA,
+  TOKEN_CONTRACT_ADDRESSES,
+} from "@avail-project/nexus/core";
 import type {
   AllowanceResponse,
   BridgeAndExecuteParams,
   BridgeAndExecuteResult,
   BridgeAndExecuteSimulationResult,
   ExecuteSimulation,
-} from "@avail-project/nexus";
-import type { Abi } from "viem";
+} from "@avail-project/nexus/core";
+import { parseUnits, type Abi } from "viem";
 import { getTemplateById } from "@/constants/contractTemplates";
 import { useBridgeExecuteStore } from "@/store/bridgeExecuteStore";
 import { getTokenAddress, getTokenDecimals } from "@/constants/tokenAddresses";
@@ -111,7 +113,6 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
       );
 
       // Build function arguments based on template type
-      let functionArgs: unknown[];
       let ethValue: string | undefined;
       const contractAbi = template.abi as Abi;
       const functionName = template.functionName;
@@ -120,24 +121,23 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
         throw new Error(
           `Direct ETH deposits to AAVE are not supported. Please use USDC instead.`
         );
-      } else {
-        const assetAddress = getTokenAddress(token, chainId);
-        if (!assetAddress) {
-          throw new Error(`Token ${token} not supported on chain ${chainId}`);
-        }
-        functionArgs = [
-          assetAddress, // asset
-          amountInSmallestUnit.toString(), // amount with correct decimals
-          address, // onBehalfOf (user's wallet address)
-          0, // referralCode
-        ];
       }
 
       return {
         contractAddress,
         contractAbi: contractAbi,
         functionName: functionName,
-        functionParams: functionArgs,
+        buildFunctionParams: (
+          token: SUPPORTED_TOKENS,
+          amount: string,
+          chainId: SUPPORTED_CHAINS_IDS,
+          user: `0x${string}`
+        ) => {
+          const decimals = TOKEN_METADATA[token].decimals;
+          const amountWei = parseUnits(amount, decimals);
+          const tokenAddr = TOKEN_CONTRACT_ADDRESSES[token][chainId];
+          return { functionParams: [tokenAddr, amountWei, user, 0] };
+        },
         value: ethValue,
         tokenApproval: {
           token: token,

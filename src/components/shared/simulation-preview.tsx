@@ -11,7 +11,7 @@ import {
 import { Loader2, TrendingUp, ArrowRight, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { CHAIN_METADATA, SimulationResult } from "@avail-project/nexus";
+import { CHAIN_METADATA, SimulationResult } from "@avail-project/nexus/core";
 import { Separator } from "../ui/separator";
 import { ScrollArea } from "../ui/scroll-area";
 
@@ -307,17 +307,6 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
                 Cost Breakdown
               </h4>
               <div className="space-y-2 font-bold">
-                {/* Network Gas */}
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">
-                    Network Gas
-                  </span>
-                  <span className="text-sm">
-                    {formatCost(intent.fees.caGas ?? "0")}{" "}
-                    {intent.token?.symbol}
-                  </span>
-                </div>
-
                 {/* Solver Fee (if applicable) */}
                 {intent.fees.solver && parseFloat(intent.fees.solver) > 0 && (
                   <div className="flex justify-between items-center">

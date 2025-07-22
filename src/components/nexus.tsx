@@ -15,8 +15,9 @@ import NexusBridgeAndExecute from "./nexus-bridge-execute";
 import { cn } from "@/lib/utils";
 
 const Nexus = ({ isTestnet }: { isTestnet: boolean }) => {
+  console.log("isTestnet", isTestnet);
   return (
-    <Card className="bg-accent-foreground !shadow-[var(--ck-modal-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] border-none mx-auto w-[95%] max-w-lg">
+    <Card className="bg-accent-foreground !shadow-[var(--ck-modal-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] border-none mx-auto w-[95%] max-w-xl">
       <CardHeader className="flex flex-col w-full items-center">
         <CardTitle className="text-xl">Nexus</CardTitle>
         <CardDescription className="text-center">
@@ -39,28 +40,30 @@ const Nexus = ({ isTestnet }: { isTestnet: boolean }) => {
             >
               <TabsTrigger
                 value="unified-balance"
-                className="data-[state=active]:border-secondary/50 "
+                className="data-[state=active]:border-secondary/50 px-2"
               >
                 Unified Balance
               </TabsTrigger>
               <TabsTrigger
                 value="bridge"
-                className="data-[state=active]:border-secondary/50 "
+                className="data-[state=active]:border-secondary/50 px-2"
               >
                 Bridge
               </TabsTrigger>
               <TabsTrigger
                 value="transfer"
-                className=" data-[state=active]:border-secondary/50 "
+                className=" data-[state=active]:border-secondary/50 px-2"
               >
                 Transfer
               </TabsTrigger>
-              <TabsTrigger
-                value="bridge-execute"
-                className=" data-[state=active]:border-secondary/50 "
-              >
-                Bridge & Execute
-              </TabsTrigger>
+              {!isTestnet && (
+                <TabsTrigger
+                  value="bridge-execute"
+                  className=" data-[state=active]:border-secondary/50 px-2"
+                >
+                  Bridge & Execute
+                </TabsTrigger>
+              )}
             </TabsList>
             <TabsContent value="unified-balance">
               <UnifiedBalance />

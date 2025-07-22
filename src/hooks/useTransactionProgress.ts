@@ -1,5 +1,4 @@
 import { useEffect, useCallback, useState } from "react";
-import { NEXUS_EVENTS, ProgressStep } from "@avail-project/nexus";
 import { useBridgeStore, bridgeSelectors } from "@/store/bridgeStore";
 import { useNexus } from "@/provider/NexusProvider";
 
@@ -7,6 +6,7 @@ import { formatStepName } from "@/lib/bridge/formatters";
 import { toast } from "sonner";
 import { StepCompletionEventData, TransactionType } from "@/types/transaction";
 import { useSDKTransactionHistory } from "./useSDKTransactionHistory";
+import { NEXUS_EVENTS, ProgressStep } from "@avail-project/nexus/core";
 
 interface TransactionProgressOptions {
   transactionType?: TransactionType;
@@ -51,6 +51,7 @@ export const useTransactionProgress = (
    */
   const handleStepComplete = useCallback(
     (completedStepData: StepCompletionEventData) => {
+      console.log("completedStep", completedStepData);
       const { typeID, data } = completedStepData;
 
       // Find and update the completed step
@@ -61,6 +62,30 @@ export const useTransactionProgress = (
       updateStepCompletion(typeID);
       // Handle different step types
       switch (typeID) {
+        case "TC":
+          if (data) {
+            toast.success(
+              `${formatStepName(
+                transactionType
+              )} transaction completed successfully!`,
+              {
+                duration: 5000,
+                action:
+                  data?.explorerURL && data?.explorerURL?.length > 0
+                    ? {
+                        label: "View in Explorer",
+                        onClick: () => window.open(data?.explorerURL, "_blank"),
+                      }
+                    : undefined,
+              }
+            );
+            // Reset progress after a delay
+            setTimeout(() => {
+              resetProgress();
+            }, 2000);
+          }
+          break;
+
         case "IF": // Intent Fulfilled
           fetchTransactions();
 
@@ -93,8 +118,8 @@ export const useTransactionProgress = (
               `${transactionType} transaction submitted successfully!`
             );
           }
-          break;
 
+          break;
         default: // Regular step completion
           toast.success(`${formatStepName(completedStep.type)} completed!`);
           break;
@@ -134,12 +159,8 @@ export const useTransactionProgress = (
    * Subscribe to SDK events
    */
   useEffect(() => {
-    if (!nexusSdk?.nexusAdapter?.caEvents) return;
-
-    const { caEvents } = nexusSdk.nexusAdapter;
-
     // Add event listeners
-    caEvents.on(
+    nexusSdk?.nexusEvents.on(
       transactionType === "bridge-execute"
         ? NEXUS_EVENTS.BRIDGE_EXECUTE_EXPECTED_STEPS
         : NEXUS_EVENTS.EXPECTED_STEPS,
@@ -147,7 +168,7 @@ export const useTransactionProgress = (
         setProgressSteps(steps.map((step) => ({ ...step, done: false })));
       }
     );
-    caEvents.on(
+    nexusSdk?.nexusEvents.on(
       transactionType === "bridge-execute"
         ? NEXUS_EVENTS.BRIDGE_EXECUTE_COMPLETED_STEPS
         : NEXUS_EVENTS.STEP_COMPLETE,
@@ -155,13 +176,13 @@ export const useTransactionProgress = (
     );
 
     return () => {
-      caEvents.off(
+      nexusSdk?.nexusEvents.off(
         transactionType === "bridge-execute"
           ? NEXUS_EVENTS.BRIDGE_EXECUTE_EXPECTED_STEPS
           : NEXUS_EVENTS.EXPECTED_STEPS,
         setProgressSteps
       );
-      caEvents.off(
+      nexusSdk?.nexusEvents.off(
         transactionType === "bridge-execute"
           ? NEXUS_EVENTS.BRIDGE_EXECUTE_COMPLETED_STEPS
           : NEXUS_EVENTS.STEP_COMPLETE,
@@ -172,7 +193,7 @@ export const useTransactionProgress = (
     setProgressSteps,
     handleStepComplete,
     handleTransactionError,
-    nexusSdk?.nexusAdapter,
+    nexusSdk?.nexusEvents,
     transactionType,
   ]);
 

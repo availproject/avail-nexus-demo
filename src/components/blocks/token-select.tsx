@@ -11,7 +11,7 @@ import {
   SUPPORTED_TOKENS,
   TESTNET_TOKEN_METADATA,
   TOKEN_METADATA,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus/core";
 
 const TokenSelect = ({
   selectedToken,

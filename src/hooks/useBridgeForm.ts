@@ -4,7 +4,7 @@ import {
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
   UserAsset,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus/core";
 import { validateAmountInput } from "@/lib/bridge/formatters";
 import { useBridgeValidation } from "./useBridgeValidation";
 import { toast } from "sonner";

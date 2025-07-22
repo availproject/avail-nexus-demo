@@ -7,7 +7,7 @@ import {
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
   UserAsset,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus/core";
 import { BridgeFormData, ComponentStep } from "@/types/bridge";
 
 /**
