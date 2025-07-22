@@ -107,11 +107,6 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
 
       const contractAddress = template.contractAddress;
 
-      // Use correct decimals for each token
-      const amountInSmallestUnit = BigInt(
-        parseFloat(amount) * 10 ** getTokenDecimals(token)
-      );
-
       // Build function arguments based on template type
       let ethValue: string | undefined;
       const contractAbi = template.abi as Abi;
