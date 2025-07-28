@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   title: "Nexus Upgrade",
   description:
     "Allow users to seamlessly move tokens into your dApp, no bridging, and no confusion. Connect your wallet to experience the Nexus Effect.",
-  metadataBase: new URL("https://acme.com"),
+  metadataBase: new URL("https://avail-nexus-demo-five.vercel.app/"),
   icons: {
     icon: [
       { url: "/favicon.svg", sizes: "16x16", type: "image/svg" },
