@@ -18,11 +18,13 @@ const TokenSelect = ({
   selectedChain,
   handleTokenSelect,
   isTestnet = false,
+  disabled = false,
 }: {
   selectedToken?: SUPPORTED_TOKENS;
   selectedChain: string;
   handleTokenSelect: (token: SUPPORTED_TOKENS) => void;
   isTestnet?: boolean;
+  disabled?: boolean;
 }) => {
   const tokenData = isTestnet ? TESTNET_TOKEN_METADATA : TOKEN_METADATA;
   const selectedTokenData = Object.entries(tokenData)?.find(([, token]) => {
@@ -31,9 +33,14 @@ const TokenSelect = ({
   return (
     <Select
       value={selectedToken}
-      onValueChange={(value) => handleTokenSelect(value as SUPPORTED_TOKENS)}
+      onValueChange={(value) =>
+        !disabled && handleTokenSelect(value as SUPPORTED_TOKENS)
+      }
     >
-      <SelectTrigger className="w-full !shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)] border-none">
+      <SelectTrigger
+        disabled={disabled}
+        className="w-full !shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)] border-none"
+      >
         <SelectValue placeholder="Select a token">
           {selectedChain && selectedTokenData && (
             <div className="flex items-center gap-2">

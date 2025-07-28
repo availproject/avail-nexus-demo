@@ -20,26 +20,33 @@ const ChainSelect = ({
   handleSelect,
   chainLabel = "Destination Chain",
   isTestnet = false,
+  disabled = false,
 }: {
   selectedChain: SUPPORTED_CHAINS_IDS;
   handleSelect: (chainId: SUPPORTED_CHAINS_IDS) => void;
   chainLabel?: string;
   isTestnet?: boolean;
+  disabled?: boolean;
 }) => {
   const chains = isTestnet ? TESTNET_CHAINS : MAINNET_CHAINS;
   const chainData = CHAIN_METADATA;
   return (
     <Select
       value={selectedChain?.toString() ?? ""}
-      onValueChange={(value) =>
-        handleSelect(parseInt(value) as SUPPORTED_CHAINS_IDS)
-      }
+      onValueChange={(value) => {
+        if (!disabled) {
+          handleSelect(parseInt(value) as SUPPORTED_CHAINS_IDS);
+        }
+      }}
     >
       <div className="flex flex-col items-start gap-y-1">
         {chainLabel && (
           <Label className="text-sm font-semibold">{chainLabel}</Label>
         )}
-        <SelectTrigger className="w-full !shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)] border-none !focus-visible:none outline-none">
+        <SelectTrigger
+          disabled={disabled}
+          className="w-full !shadow-[var(--ck-connectbutton-box-shadow)] rounded-[var(--ck-connectbutton-border-radius)] border-none !focus-visible:none outline-none"
+        >
           <SelectValue>
             {!!selectedChain && (
               <div className="flex items-center gap-2">

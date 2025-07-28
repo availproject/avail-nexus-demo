@@ -14,17 +14,15 @@ import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 
 interface TemplateSelectorProps {
-  templates: ContractTemplate[];
   selectedTemplate: ContractTemplate | null;
-  onSelect: (template: ContractTemplate) => void;
   className?: string;
+  disabled?: boolean;
 }
 
 const TemplateSelector: React.FC<TemplateSelectorProps> = ({
-  templates,
   selectedTemplate,
-  onSelect,
   className,
+  disabled = false,
 }) => {
   const getRiskColor = (risk: string) => {
     switch (risk) {
@@ -52,7 +50,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
     }
   };
 
-  if (templates.length === 0) {
+  if (!selectedTemplate) {
     return (
       <div className={cn("text-center py-8", className)}>
         <p className="text-muted-foreground">
@@ -66,72 +64,64 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
   }
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn("space-y-4 select-none", className)}>
       <div className="grid grid-cols-1 gap-3">
-        {templates.map((template) => (
-          <Card
-            key={template.id}
-            className={cn(
-              "cursor-pointer transition-all duration-200 bg-secondary/20 gap-y-0 border-none",
-              selectedTemplate?.id === template.id
-                ? "!shadow-[var(--ck-connectbutton-balance-connectbutton-box-shadow)]"
-                : "hover:shadow-sm"
-            )}
-            onClick={() => onSelect(template)}
-          >
-            <CardHeader className="pb-0">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <CardTitle className="text-lg flex flex-col gap-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex gap-2">
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              "text-xs",
-                              getCategoryColor(template.category)
-                            )}
-                          >
-                            {template.category}
-                          </Badge>
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              "text-xs",
-                              getRiskColor(template.riskLevel)
-                            )}
-                          >
-                            {template.riskLevel} risk
-                          </Badge>
-                        </div>
+        <Card
+          className={cn(
+            "cursor-pointer transition-all duration-200 bg-secondary/20 gap-y-0 border-none !shadow-[var(--ck-connectbutton-balance-connectbutton-box-shadow)]",
+            disabled && "pointer-events-none cursor-not-allowed"
+          )}
+        >
+          <CardHeader className="pb-0">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div>
+                  <CardTitle className="text-lg flex flex-col gap-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-2">
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "text-xs",
+                            getCategoryColor(selectedTemplate.category)
+                          )}
+                        >
+                          {selectedTemplate.category}
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "text-xs",
+                            getRiskColor(selectedTemplate.riskLevel)
+                          )}
+                        >
+                          {selectedTemplate.riskLevel} risk
+                        </Badge>
                       </div>
-                      {template.name}
-                    </CardTitle>
-                    <CardDescription className="text-sm">
-                      {template.description}
-                    </CardDescription>
-                  </div>
+                    </div>
+                    {selectedTemplate.name}
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    {selectedTemplate.description}
+                  </CardDescription>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-sm text-muted-foreground mt-2">
-                {template.expectedOutcome}
-              </p>
-              {selectedTemplate?.id === template.id && (
-                <div className="mt-3 pt-3 border-t">
-                  <Button
-                    size="sm"
-                    className="w-full rounded-full bg-accent/10 text-primary shadow-2xl border border-border hover:bg-accent/20"
-                  >
-                    Selected ✓
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-sm text-muted-foreground mt-2">
+              {selectedTemplate.expectedOutcome}
+            </p>
+            <div className="mt-3 pt-3 border-t">
+              <Button
+                size="sm"
+                className="w-full rounded-full bg-background/10 text-primary shadow-2xl border border-border hover:bg-accent/20"
+              >
+                Selected ✓
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

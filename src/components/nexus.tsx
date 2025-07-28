@@ -17,11 +17,12 @@ import { cn } from "@/lib/utils";
 const Nexus = ({ isTestnet }: { isTestnet: boolean }) => {
   console.log("isTestnet", isTestnet);
   return (
-    <Card className="bg-accent-foreground !shadow-[var(--ck-modal-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] border-none mx-auto w-[95%] max-w-xl">
+    <Card className="bg-foreground !shadow-[var(--ck-modal-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] border-none mx-auto w-[95%] max-w-xl">
       <CardHeader className="flex flex-col w-full items-center">
-        <CardTitle className="text-xl">Nexus</CardTitle>
+        <CardTitle className="text-xl">Nexus Upgrade</CardTitle>
         <CardDescription className="text-center">
-          Cross-chain transactions made easy.
+          Allow users to seamlessly move tokens into your dApp, no bridging, and
+          no confusion. Connect your wallet to experience the Nexus Effect.
         </CardDescription>
         {isTestnet && (
           <CardDescription className="text-xs text-center">

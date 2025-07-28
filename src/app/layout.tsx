@@ -16,8 +16,62 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nexus SDK Demo",
-  description: "Nexus SDK Demo",
+  title: "Nexus Upgrade",
+  description:
+    "Allow users to seamlessly move tokens into your dApp, no bridging, and no confusion. Connect your wallet to experience the Nexus Effect.",
+  metadataBase: new URL("https://acme.com"),
+  icons: {
+    icon: [
+      { url: "/favicon.svg", sizes: "16x16", type: "image/svg" },
+      { url: "/favicon.svg", sizes: "32x32", type: "image/svg" },
+      { url: "/favicon.svg", sizes: "96x96", type: "image/svg" },
+      { url: "/favicon.svg", sizes: "any" },
+    ],
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    images: [
+      {
+        url: "/headless-meta.jpg",
+        width: 1200,
+        height: 628,
+        alt: "Nexus",
+        type: "image/jpeg",
+      },
+      {
+        url: "/headless-meta.jpg",
+        width: 1080,
+        height: 1080,
+        alt: "Nexus upgrade",
+        type: "image/jpeg",
+      },
+      {
+        url: "/headless-meta.jpg",
+        width: 1080,
+        height: 1350,
+        alt: "Nexus upgrade",
+        type: "image/jpeg",
+      },
+      {
+        url: "/headless-meta.jpg",
+        width: 398,
+        height: 208,
+        alt: "Nexus upgrade",
+        type: "image/jpeg",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    creator: "@availproject",
+    images: [
+      {
+        url: "/headless-meta.jpg",
+        alt: "Nexus",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({

@@ -11,7 +11,7 @@ const NexusContentWrapper = ({ children }: { children: React.ReactNode }) => {
         <>{children}</>
       ) : (
         <div className="w-full flex items-center justify-center">
-          <ConnectWallet connectCopy="Connect to enable one click actions" />
+          <ConnectWallet connectCopy="Connect to experience the Nexus effect" />
         </div>
       )}
     </>

@@ -6,7 +6,10 @@ import {
   bridgeExecuteSelectors,
 } from "@/store/bridgeExecuteStore";
 import { useNexus } from "@/provider/NexusProvider";
-import { getTemplatesForChain } from "@/constants/contractTemplates";
+import {
+  CONTRACT_TEMPLATES,
+  getTemplatesForChain,
+} from "@/constants/contractTemplates";
 import { ScrollArea } from "./ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
@@ -32,6 +35,11 @@ import { useTransactionProgress } from "@/hooks/useTransactionProgress";
 import { SimulationPreview } from "./shared/simulation-preview";
 import IntentModal from "./nexus-modals/intent-modal";
 import AllowanceModal from "./nexus-modals/allowance-modal";
+import {
+  CHAIN_METADATA,
+  SUPPORTED_CHAINS,
+  TOKEN_METADATA,
+} from "@avail-project/nexus/core";
 
 const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
   const {
@@ -43,24 +51,13 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
   } = useNexus();
 
   // Store selectors
-  const selectedChain = useBridgeExecuteStore(
-    bridgeExecuteSelectors.selectedChain
-  );
-  const selectedToken = useBridgeExecuteStore(
-    bridgeExecuteSelectors.selectedToken
-  );
+  const selectedChain = SUPPORTED_CHAINS.BASE;
+  const selectedToken = TOKEN_METADATA["USDC"]?.symbol;
   const bridgeAmount = useBridgeExecuteStore(
     bridgeExecuteSelectors.bridgeAmount
   );
-  const selectedTemplate = useBridgeExecuteStore(
-    bridgeExecuteSelectors.selectedTemplate
-  );
-  const templateParams = useBridgeExecuteStore(
-    bridgeExecuteSelectors.templateParams
-  );
-  const showAdvanced = useBridgeExecuteStore(
-    bridgeExecuteSelectors.showAdvanced
-  );
+  const selectedTemplate = CONTRACT_TEMPLATES[0];
+
   const availableBalance = useBridgeExecuteStore(
     bridgeExecuteSelectors.availableBalance
   );
@@ -71,29 +68,22 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
     bridgeExecuteSelectors.progressSteps
   );
 
-  // Store actions
+  const setBridgeAmount = useBridgeExecuteStore(
+    (state) => state.setBridgeAmount
+  );
+  const setAvailableBalance = useBridgeExecuteStore(
+    (state) => state.setAvailableBalance
+  );
+  const setLoading = useBridgeExecuteStore((state) => state.setLoading);
   const setSelectedChain = useBridgeExecuteStore(
     (state) => state.setSelectedChain
   );
   const setSelectedToken = useBridgeExecuteStore(
     (state) => state.setSelectedToken
   );
-  const setBridgeAmount = useBridgeExecuteStore(
-    (state) => state.setBridgeAmount
-  );
   const setSelectedTemplate = useBridgeExecuteStore(
     (state) => state.setSelectedTemplate
   );
-  const setTemplateParam = useBridgeExecuteStore(
-    (state) => state.setTemplateParam
-  );
-  const setShowAdvanced = useBridgeExecuteStore(
-    (state) => state.setShowAdvanced
-  );
-  const setAvailableBalance = useBridgeExecuteStore(
-    (state) => state.setAvailableBalance
-  );
-  const setLoading = useBridgeExecuteStore((state) => state.setLoading);
 
   // Bridge and execute hook
   const {
@@ -123,28 +113,6 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
       selectedChain: selectedChain.toString(),
     },
   });
-
-  // Get available templates based on selected chain and token
-  const availableTemplates = useMemo(() => {
-    if (!selectedChain) return [];
-
-    let templates = getTemplatesForChain(selectedChain);
-    console.log("Templates for chain:", selectedChain, templates);
-
-    if (selectedToken) {
-      console.log("Filtering templates for token:", selectedToken);
-      templates = templates.filter((template) => {
-        const includes = template.supportedTokens.includes(selectedToken);
-        console.log(
-          `Template ${template.name} supports token ${selectedToken}:`,
-          includes
-        );
-        return includes;
-      });
-    }
-
-    return templates;
-  }, [selectedChain, selectedToken]);
 
   // Get selected token balance
   const selectedTokenBalance = useMemo(() => {
@@ -249,25 +217,16 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
     }
   }, [availableBalance.length, isLoading, fetchAvailableBalance]);
 
-  // Clear template when chain/token changes and it's no longer compatible
+  // Set hardcoded values in store on mount
   useEffect(() => {
-    if (
-      selectedTemplate &&
-      !availableTemplates.some((t) => t.id === selectedTemplate.id)
-    ) {
-      setSelectedTemplate(null);
-    }
-  }, [selectedTemplate, availableTemplates, setSelectedTemplate]);
+    setSelectedChain(SUPPORTED_CHAINS.BASE);
+    setSelectedToken("USDC");
+    setSelectedTemplate(CONTRACT_TEMPLATES[0]);
+  }, [setSelectedChain, setSelectedToken, setSelectedTemplate]);
 
   // Auto-trigger simulation when bridge execute parameters change
   useEffect(() => {
-    if (
-      selectedToken &&
-      bridgeAmount &&
-      selectedTemplate &&
-      selectedChain &&
-      parseFloat(bridgeAmount) > 0
-    ) {
+    if (bridgeAmount && parseFloat(bridgeAmount) > 0) {
       // Debounce the simulation to avoid too many calls
       const timer = setTimeout(() => {
         simulateBridgeAndExecute();
@@ -275,13 +234,7 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
 
       return () => clearTimeout(timer);
     }
-  }, [
-    selectedToken,
-    bridgeAmount,
-    selectedTemplate,
-    selectedChain,
-    simulateBridgeAndExecute,
-  ]);
+  }, [bridgeAmount]);
 
   if (!nexusSdk || isTestnet) return null;
 
@@ -295,18 +248,20 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
           <CardContent className="space-y-4">
             {/* Chain Selection */}
             <ChainSelect
-              selectedChain={selectedChain}
-              handleSelect={setSelectedChain}
+              selectedChain={8453}
+              handleSelect={() => {}}
+              disabled={true}
               chainLabel="Destination Chain"
               isTestnet={isTestnet}
             />
 
             {/* Token Selection */}
             <TokenSelect
-              selectedToken={selectedToken}
+              selectedToken={"USDC"}
               selectedChain={selectedChain.toString()}
-              handleTokenSelect={setSelectedToken}
+              handleTokenSelect={() => {}}
               isTestnet={isTestnet}
+              disabled={true}
             />
 
             {/* Amount Input */}
@@ -343,65 +298,24 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
           </CardContent>
         </Card>
 
-        {/* Protocol Selection and Template Inputs */}
-        {selectedToken && availableTemplates.length > 0 && (
-          <Card className="border-none py-4 !shadow-[var(--ck-connectbutton-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] bg-accent-foreground gap-y-1">
-            <CardContent className="space-y-4">
-              <TemplateSelector
-                templates={availableTemplates}
-                selectedTemplate={selectedTemplate}
-                onSelect={setSelectedTemplate}
-              />
+        <TemplateSelector selectedTemplate={selectedTemplate} disabled={true} />
 
-              {selectedTemplate && (
-                <TemplateInputs
-                  template={selectedTemplate}
-                  values={templateParams}
-                  onChange={setTemplateParam}
-                  showAdvanced={showAdvanced}
-                  onToggleAdvanced={() => setShowAdvanced(!showAdvanced)}
-                />
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Show fallback when token is selected but no templates available */}
-        {selectedToken && availableTemplates.length === 0 && (
-          <Card className="border-none py-0 !shadow-[var(--ck-connectbutton-balance-connectbutton-box-shadow)] !rounded-full bg-destructive/30">
-            <CardContent className="px-1">
-              <div className="text-center py-2">
-                <p className="text-muted-foreground font-semibold text-[0.8rem]">
-                  No protocols available for the selected chain and token
-                  combination.
-                </p>
+        {/* Simulation Loading */}
+        {bridgeAmount && parseFloat(bridgeAmount) > 0 && isSimulating && (
+          <Card className="w-full border-none py-4 !shadow-[var(--ck-connectbutton-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] bg-accent-foreground">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-center space-x-3">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                <span className="text-sm font-medium">
+                  Simulating bridge & execute transaction...
+                </span>
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* Simulation Loading */}
-        {selectedToken &&
-          bridgeAmount &&
-          selectedTemplate &&
-          parseFloat(bridgeAmount) > 0 &&
-          isSimulating && (
-            <Card className="w-full border-none py-4 !shadow-[var(--ck-connectbutton-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)] bg-accent-foreground">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-center space-x-3">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
-                  <span className="text-sm font-medium">
-                    Simulating bridge & execute transaction...
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
         {/* Simulation Results */}
-        {selectedToken &&
-          bridgeAmount &&
-          selectedTemplate &&
+        {bridgeAmount &&
           multiStepResult &&
           parseFloat(bridgeAmount) > 0 &&
           !isSimulating && (

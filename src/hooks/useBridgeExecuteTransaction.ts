@@ -259,18 +259,24 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
 
       console.log("Bridge and execute completed:", result);
       reset();
-      toast.success(`Bridge and Execute completed successfully!`, {
-        duration: 5000,
-        action:
-          result?.executeExplorerUrl && result?.executeExplorerUrl?.length > 0
-            ? {
-                label: "View in Explorer",
-                onClick: () =>
-                  window.open(result?.executeExplorerUrl, "_blank"),
-              }
-            : undefined,
-      });
-      return { success: true };
+      if (result.success) {
+        toast.success(`Bridge and Execute completed successfully!`, {
+          duration: 5000,
+          action:
+            result?.executeExplorerUrl && result?.executeExplorerUrl?.length > 0
+              ? {
+                  label: "View in Explorer",
+                  onClick: () =>
+                    window.open(result?.executeExplorerUrl, "_blank"),
+                }
+              : undefined,
+        });
+      } else {
+        setError(result?.error ?? "Unknown error");
+        toast.error(result?.error ?? "Unknown error");
+      }
+
+      return { success: result.success };
     } catch (err) {
       const parsedError = parseBridgeExecuteError(err);
       setError(parsedError.message);

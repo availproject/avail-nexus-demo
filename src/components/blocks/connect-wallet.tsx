@@ -12,7 +12,7 @@ const ConnectWallet = ({
     <ConnectKitButton.Custom>
       {({ isConnected, show, address, truncatedAddress }) => (
         <div className="flex items-center gap-x-2">
-          <Button variant="connectkit" onClick={show}>
+          <Button variant="connectkit" onClick={show} className="text-black">
             {isConnected && <Avatar size={20} address={address} />}
             {isConnected ? truncatedAddress : connectCopy}
           </Button>
