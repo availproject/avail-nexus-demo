@@ -6,10 +6,7 @@ import {
   bridgeExecuteSelectors,
 } from "@/store/bridgeExecuteStore";
 import { useNexus } from "@/provider/NexusProvider";
-import {
-  CONTRACT_TEMPLATES,
-  getTemplatesForChain,
-} from "@/constants/contractTemplates";
+import { CONTRACT_TEMPLATES } from "@/constants/contractTemplates";
 import { ScrollArea } from "./ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
@@ -29,17 +26,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import ChainSelect from "./blocks/chain-select";
 import TokenSelect from "./blocks/token-select";
 import TemplateSelector from "./bridge-execute/TemplateSelector";
-import TemplateInputs from "./bridge-execute/TemplateInputs";
 import { useBridgeExecuteTransaction } from "@/hooks/useBridgeExecuteTransaction";
 import { useTransactionProgress } from "@/hooks/useTransactionProgress";
 import { SimulationPreview } from "./shared/simulation-preview";
 import IntentModal from "./nexus-modals/intent-modal";
 import AllowanceModal from "./nexus-modals/allowance-modal";
-import {
-  CHAIN_METADATA,
-  SUPPORTED_CHAINS,
-  TOKEN_METADATA,
-} from "@avail-project/nexus/core";
+import { SUPPORTED_CHAINS, TOKEN_METADATA } from "@avail-project/nexus/core";
 
 const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
   const {

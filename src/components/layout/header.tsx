@@ -1,7 +1,6 @@
 import React from "react";
 import ConnectWallet from "../blocks/connect-wallet";
 import Link from "next/link";
-import Image from "next/image";
 
 const Header = () => {
   return (
