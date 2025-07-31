@@ -11,7 +11,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@avail-project/nexus": "0.1.1-dev.12",
+    "@avail-project/nexus": "0.1.2",
     "@radix-ui/react-accordion": "^1.2.10",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-label": "^2.1.6",
