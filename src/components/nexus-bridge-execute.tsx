@@ -31,7 +31,7 @@ import { useTransactionProgress } from "@/hooks/useTransactionProgress";
 import { SimulationPreview } from "./shared/simulation-preview";
 import IntentModal from "./nexus-modals/intent-modal";
 import AllowanceModal from "./nexus-modals/allowance-modal";
-import { SUPPORTED_CHAINS, TOKEN_METADATA } from "@avail-project/nexus/core";
+import { SUPPORTED_CHAINS, TOKEN_METADATA } from "@avail-project/nexus";
 
 const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
   const {

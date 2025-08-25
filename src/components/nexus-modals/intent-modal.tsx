@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { ArrowRight, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CHAIN_METADATA, OnIntentHookData } from "@avail-project/nexus/core";
+import { CHAIN_METADATA, OnIntentHookData } from "@avail-project/nexus";
 import { useBridgeStore } from "@/store/bridgeStore";
 import { toast } from "sonner";
 

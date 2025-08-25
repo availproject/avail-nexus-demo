@@ -2,7 +2,7 @@ import {
   SUPPORTED_CHAINS,
   ProgressStep,
   UserAsset,
-} from "@avail-project/nexus/core";
+} from "@avail-project/nexus";
 
 export type SupportedChainId =
   (typeof SUPPORTED_CHAINS)[keyof typeof SUPPORTED_CHAINS];

@@ -11,7 +11,7 @@ import Image from "next/image";
 import { Separator } from "./ui/separator";
 import { DollarSign, Loader2 } from "lucide-react";
 import { Label } from "./ui/label";
-import { CHAIN_METADATA, UserAsset } from "@avail-project/nexus/core";
+import { CHAIN_METADATA, UserAsset } from "@avail-project/nexus";
 import { ScrollArea } from "./ui/scroll-area";
 
 const UnifiedBalance = () => {

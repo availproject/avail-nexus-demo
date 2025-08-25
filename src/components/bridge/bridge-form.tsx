@@ -11,7 +11,7 @@ import { Infinity } from "lucide-react";
 import ChainSelect from "../blocks/chain-select";
 import TokenSelect from "../blocks/token-select";
 import { SimulationPreview } from "../shared/simulation-preview";
-import { UserAsset } from "@avail-project/nexus/core";
+import { UserAsset } from "@avail-project/nexus";
 
 interface BridgeFormProps {
   isTestnet: boolean;

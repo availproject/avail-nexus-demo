@@ -6,7 +6,7 @@ import { formatStepName } from "@/lib/bridge/formatters";
 import { toast } from "sonner";
 import { StepCompletionEventData, TransactionType } from "@/types/transaction";
 import { useSDKTransactionHistory } from "./useSDKTransactionHistory";
-import { NEXUS_EVENTS, ProgressStep } from "@avail-project/nexus/core";
+import { NEXUS_EVENTS, ProgressStep } from "@avail-project/nexus";
 
 interface TransactionProgressOptions {
   transactionType?: TransactionType;

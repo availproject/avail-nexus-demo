@@ -7,14 +7,14 @@ import {
   SUPPORTED_CHAINS_IDS,
   TOKEN_METADATA,
   TOKEN_CONTRACT_ADDRESSES,
-} from "@avail-project/nexus/core";
+} from "@avail-project/nexus";
 import type {
   AllowanceResponse,
   BridgeAndExecuteParams,
   BridgeAndExecuteResult,
   BridgeAndExecuteSimulationResult,
   ExecuteSimulation,
-} from "@avail-project/nexus/core";
+} from "@avail-project/nexus";
 import { parseUnits, type Abi } from "viem";
 import { getTemplateById } from "@/constants/contractTemplates";
 import { useBridgeExecuteStore } from "@/store/bridgeExecuteStore";

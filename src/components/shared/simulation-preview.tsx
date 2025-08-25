@@ -11,7 +11,7 @@ import {
 import { Loader2, TrendingUp, ArrowRight, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { CHAIN_METADATA, SimulationResult } from "@avail-project/nexus/core";
+import { CHAIN_METADATA, SimulationResult } from "@avail-project/nexus";
 import { Separator } from "../ui/separator";
 import { ScrollArea } from "../ui/scroll-area";
 

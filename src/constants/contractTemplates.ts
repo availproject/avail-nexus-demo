@@ -3,7 +3,7 @@ import {
   SUPPORTED_CHAINS,
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
-} from "@avail-project/nexus/core";
+} from "@avail-project/nexus";
 
 // Import only the needed ABI
 import AAVE_ABI from "./abis/aave.json";

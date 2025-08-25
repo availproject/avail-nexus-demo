@@ -9,7 +9,7 @@ import {
   SUPPORTED_CHAINS,
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
-} from "@avail-project/nexus/core";
+} from "@avail-project/nexus";
 import ChainSelect from "./blocks/chain-select";
 import TokenSelect from "./blocks/token-select";
 import { useTransactionProgress } from "@/hooks/useTransactionProgress";
