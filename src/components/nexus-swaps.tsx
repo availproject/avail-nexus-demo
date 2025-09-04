@@ -39,15 +39,16 @@ const NexusSwaps = ({ isTestnet }: { isTestnet: boolean }) => {
           setSwapIntent({ allow, deny, intent, refresh });
         },
       };
-      const amount = parseUnits("0.01", 6);
+      const amount = parseUnits("0.5", 6);
       const payload = {
-        fromAmount: amount,
-        // toAmount: amount,
-        fromChainID: SUPPORTED_CHAINS.OPTIMISM,
-        fromTokenAddress:
-          TOKEN_CONTRACT_ADDRESSES["USDT"][SUPPORTED_CHAINS.OPTIMISM],
-        toChainID: SUPPORTED_CHAINS.BASE,
-        toTokenAddress: TOKEN_CONTRACT_ADDRESSES["USDC"][SUPPORTED_CHAINS.BASE],
+        // fromAmount: amount,
+        toAmount: amount,
+        // fromChainID: SUPPORTED_CHAINS.OPTIMISM,
+        // fromTokenAddress:
+        //   TOKEN_CONTRACT_ADDRESSES["USDC"][SUPPORTED_CHAINS.OPTIMISM],
+        toChainID: SUPPORTED_CHAINS.ARBITRUM,
+        toTokenAddress:
+          TOKEN_CONTRACT_ADDRESSES["USDT"][SUPPORTED_CHAINS.ARBITRUM],
       };
       console.log("Payload", payload);
       console.log("Amount", amount);
