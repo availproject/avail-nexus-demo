@@ -13,6 +13,7 @@ import NexusTransfer from "./nexus-transfer";
 import NexusBridge from "./bridge/nexus-bridge";
 import NexusBridgeAndExecute from "./nexus-bridge-execute";
 import { cn } from "@/lib/utils";
+import NexusSwaps from "./nexus-swaps";
 
 const Nexus = ({ isTestnet }: { isTestnet: boolean }) => {
   console.log("isTestnet", isTestnet);
@@ -36,7 +37,7 @@ const Nexus = ({ isTestnet }: { isTestnet: boolean }) => {
             <TabsList
               className={cn(
                 "grid w-full  shadow-[var(--ck-primary-button-box-shadow)]",
-                isTestnet ? "grid-cols-3" : "grid-cols-4"
+                isTestnet ? "grid-cols-3" : "grid-cols-5"
               )}
             >
               <TabsTrigger
@@ -57,6 +58,12 @@ const Nexus = ({ isTestnet }: { isTestnet: boolean }) => {
               >
                 Transfer
               </TabsTrigger>
+              <TabsTrigger
+                value="swaps"
+                className=" data-[state=active]:border-secondary/50 px-2"
+              >
+                Swaps
+              </TabsTrigger>
               {!isTestnet && (
                 <TabsTrigger
                   value="bridge-execute"
@@ -74,6 +81,9 @@ const Nexus = ({ isTestnet }: { isTestnet: boolean }) => {
             </TabsContent>
             <TabsContent value="transfer">
               <NexusTransfer isTestnet={isTestnet} />
+            </TabsContent>
+            <TabsContent value="swaps">
+              <NexusSwaps isTestnet={isTestnet} />
             </TabsContent>
             <TabsContent value="bridge-execute">
               <NexusBridgeAndExecute isTestnet={isTestnet} />
