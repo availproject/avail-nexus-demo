@@ -58,10 +58,10 @@ const IntentModal: React.FC<IntentModalProps> = ({
     toast.info("Transaction denied");
   };
 
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
     toast.info("Refreshing transaction details");
-    refresh();
+    await refresh([]);
     setIsRefreshing(false);
   }, [refresh]);
 
@@ -265,7 +265,7 @@ const IntentModal: React.FC<IntentModalProps> = ({
               disabled={isRefreshing}
               className={cn(
                 "font-semibold w-1/2",
-                isRefreshing && "bg-gray-500 cursor-not-allowed"
+                isRefreshing && "bg-gray-500 cursor-not-allowed",
               )}
             >
               {isRefreshing ? "Refreshing..." : "Allow"}

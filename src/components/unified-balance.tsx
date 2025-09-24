@@ -12,7 +12,6 @@ import { Separator } from "./ui/separator";
 import { DollarSign, Loader2 } from "lucide-react";
 import { Label } from "./ui/label";
 import { CHAIN_METADATA, UserAsset } from "@avail-project/nexus";
-import { ScrollArea } from "./ui/scroll-area";
 
 const UnifiedBalance = () => {
   const { nexusSdk, isInitialized } = useNexus();
@@ -27,12 +26,21 @@ const UnifiedBalance = () => {
       setIsLoading(true);
       setError(null);
       const unifiedBalance = await nexusSdk.getUnifiedBalances();
+      const swapBalances = await nexusSdk?.getSwapBalances();
+      const unifiedTokenSymbols = unifiedBalance.map((bal) => bal.symbol);
+      swapBalances.assets.forEach((asset) => {
+        const assetSymbol = asset?.symbol;
+        if (!unifiedTokenSymbols.includes(assetSymbol)) {
+          unifiedBalance.push(asset);
+        }
+      });
       console.log("unifiedBalance", unifiedBalance);
+      console.log("swapBalances", swapBalances);
       setBalance(unifiedBalance);
     } catch (error: unknown) {
       console.error("Unable to fetch balance", error);
       setError(
-        error instanceof Error ? error.message : "Failed to fetch balance"
+        error instanceof Error ? error.message : "Failed to fetch balance",
       );
     } finally {
       setIsLoading(false);
@@ -65,7 +73,7 @@ const UnifiedBalance = () => {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto py-4 flex flex-col gap-y-2 items-center">
+    <div className="w-full max-w-2xl mx-auto py-4 flex flex-col gap-y-2 items-center overflow-y-scroll max-h-[472px]">
       <div className="flex items-ceter justify-start w-full">
         <Label className="font-semibold text-muted-foreground">
           Total Balance:
@@ -78,83 +86,79 @@ const UnifiedBalance = () => {
             .toFixed(2)}
         </Label>
       </div>
-      <ScrollArea className="w-full max-h-[476px]">
-        <Accordion type="single" collapsible className="w-full space-y-4">
-          {balance
-            ?.filter((token) => parseFloat(token.balance) > 0)
-            .map((token) => (
-              <AccordionItem
-                key={token.symbol}
-                value={token.symbol}
-                removeLastBorder={true}
-                className="px-4 !shadow-[var(--ck-connectbutton-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)]"
-              >
-                <AccordionTrigger className="hover:no-underline cursor-pointer">
-                  <div className="flex items-center justify-between w-full pr-4">
-                    <div className="flex items-center gap-3">
-                      <div className="relative h-8 w-8">
-                        {token.icon && (
-                          <Image
-                            src={token.icon}
-                            alt={token.symbol}
-                            fill
-                            className="rounded-full"
-                          />
-                        )}
-                      </div>
-                      <div className="text-left">
-                        <h3 className="font-semibold">{token.symbol}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          ${token.balanceInFiat.toFixed(2)}
-                        </p>
-                      </div>
+      <Accordion type="single" collapsible className="w-full space-y-4">
+        {balance
+          ?.filter((token) => parseFloat(token.balance) > 0)
+          .map((token) => (
+            <AccordionItem
+              key={token.symbol}
+              value={token.symbol}
+              removeLastBorder={true}
+              className="px-4 !shadow-[var(--ck-connectbutton-box-shadow)] !rounded-[var(--ck-connectbutton-border-radius)]"
+            >
+              <AccordionTrigger className="hover:no-underline cursor-pointer">
+                <div className="flex items-center justify-between w-full pr-4">
+                  <div className="flex items-center gap-3">
+                    <div className="relative h-8 w-8">
+                      {token.icon && (
+                        <Image
+                          src={token.icon}
+                          alt={token.symbol}
+                          fill
+                          className="rounded-full"
+                        />
+                      )}
                     </div>
-                    <p className="text-lg font-medium">
-                      {formatBalance(token.balance, 6)}
-                    </p>
+                    <div className="text-left">
+                      <h3 className="font-semibold">{token.symbol}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        ${token.balanceInFiat.toFixed(2)}
+                      </p>
+                    </div>
                   </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-3 py-2">
-                    {token.breakdown
-                      .filter((chain) => parseFloat(chain.balance) > 0)
-                      .map((chain, index, filteredChains) => (
-                        <React.Fragment key={chain.chain.id}>
-                          <div className="flex items-center justify-between px-2 py-1 rounded-md">
-                            <div className="flex items-center gap-2">
-                              <div className="relative h-6 w-6">
-                                <Image
-                                  src={CHAIN_METADATA[chain?.chain?.id]?.logo}
-                                  alt={chain.chain.name}
-                                  sizes="100%"
-                                  fill
-                                  className="rounded-full"
-                                />
-                              </div>
-                              <span className="text-sm">
-                                {chain.chain.name}
-                              </span>
+                  <p className="text-lg font-medium">
+                    {formatBalance(token.balance, 6)}
+                  </p>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-3 py-2">
+                  {token.breakdown
+                    .filter((chain) => parseFloat(chain.balance) > 0)
+                    .map((chain, index, filteredChains) => (
+                      <React.Fragment key={chain.chain.id}>
+                        <div className="flex items-center justify-between px-2 py-1 rounded-md">
+                          <div className="flex items-center gap-2">
+                            <div className="relative h-6 w-6">
+                              <Image
+                                src={CHAIN_METADATA[chain?.chain?.id]?.logo}
+                                alt={chain.chain.name}
+                                sizes="100%"
+                                fill
+                                className="rounded-full"
+                              />
                             </div>
-                            <div className="text-right">
-                              <p className="text-sm font-medium">
-                                {formatBalance(chain.balance, chain.decimals)}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                ${chain.balanceInFiat.toFixed(2)}
-                              </p>
-                            </div>
+                            <span className="text-sm">{chain.chain.name}</span>
                           </div>
-                          {index < filteredChains.length - 1 && (
-                            <Separator className="my-2" />
-                          )}
-                        </React.Fragment>
-                      ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-        </Accordion>
-      </ScrollArea>
+                          <div className="text-right">
+                            <p className="text-sm font-medium">
+                              {formatBalance(chain.balance, chain.decimals)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              ${chain.balanceInFiat.toFixed(2)}
+                            </p>
+                          </div>
+                        </div>
+                        {index < filteredChains.length - 1 && (
+                          <Separator className="my-2" />
+                        )}
+                      </React.Fragment>
+                    ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+      </Accordion>
     </div>
   );
 };

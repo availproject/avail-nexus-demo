@@ -1,60 +1,51 @@
 "use client";
 import { useNexus } from "@/provider/NexusProvider";
 import {
+  ExactInSwapInput,
   SUPPORTED_CHAINS,
   SwapIntent,
-  SwapOptionalParams,
+  SwapIntentHook,
   TOKEN_CONTRACT_ADDRESSES,
 } from "@avail-project/nexus";
+
 import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { parseUnits } from "viem";
 
-interface SwapIntentHook {
-  allow: () => void;
-  deny: () => void;
-  intent: SwapIntent;
-  refresh: () => Promise<SwapIntent>;
-}
-
 const NexusSwaps = ({ isTestnet }: { isTestnet: boolean }) => {
   const { nexusSdk } = useNexus();
-  const [swapIntent, setSwapIntent] = useState<SwapIntentHook | null>(null);
+  const [swapIntent, setSwapIntent] = useState<{
+    allow: () => void;
+    deny: () => void;
+    intent: SwapIntent;
+    refresh: () => Promise<SwapIntent>;
+  } | null>(null);
 
   const startSwap = async () => {
     try {
-      const options: Omit<SwapOptionalParams, "emit"> = {
-        swapIntenHook: async ({
-          allow,
-          deny,
-          intent,
-          refresh,
-        }: {
+      const amount = parseUnits("0.1", 6);
+
+      const payload: ExactInSwapInput = {
+        from: [
+          {
+            chainId: SUPPORTED_CHAINS.OPTIMISM,
+            amount,
+            tokenAddress:
+              TOKEN_CONTRACT_ADDRESSES["USDC"][SUPPORTED_CHAINS.OPTIMISM],
+          },
+        ],
+        toChainId: SUPPORTED_CHAINS.BASE,
+        toTokenAddress: "0x98d0baa52b2D063E780DE12F615f963Fe8537553",
+      };
+      console.log("Payload", payload);
+      console.log("Amount", amount);
+      const result = await nexusSdk?.swapWithExactIn(payload, {
+        swapIntentHook: async (data: {
           allow: () => void;
           deny: () => void;
           intent: SwapIntent;
           refresh: () => Promise<SwapIntent>;
         }) => {
-          console.log("Swap intent hook", intent);
-          setSwapIntent({ allow, deny, intent, refresh });
-        },
-      };
-      const amount = parseUnits("0.5", 6);
-      const payload = {
-        // fromAmount: amount,
-        toAmount: amount,
-        // fromChainID: SUPPORTED_CHAINS.OPTIMISM,
-        // fromTokenAddress:
-        //   TOKEN_CONTRACT_ADDRESSES["USDC"][SUPPORTED_CHAINS.OPTIMISM],
-        toChainID: SUPPORTED_CHAINS.ARBITRUM,
-        toTokenAddress:
-          TOKEN_CONTRACT_ADDRESSES["USDT"][SUPPORTED_CHAINS.ARBITRUM],
-      };
-      console.log("Payload", payload);
-      console.log("Amount", amount);
-      console.log("Options", { ...options });
-      const result = await nexusSdk?.swap(payload, {
-        swapIntenHook: async (data: SwapIntentHook) => {
           console.log("Swap intent hook", data);
           setSwapIntent(data);
         },

@@ -126,7 +126,7 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
       setIntentModal,
       cleanupSDK,
     }),
-    [nexusSdk, isInitialized, allowanceModal, intentModal, cleanupSDK]
+    [nexusSdk, isInitialized, allowanceModal, intentModal, cleanupSDK],
   );
 
   return (
