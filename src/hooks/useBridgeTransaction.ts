@@ -82,8 +82,8 @@ export const useBridgeTransaction = () => {
         amount: bridgeAmount,
       });
 
-      if (result?.error) {
-        setError(result.error as string);
+      if (!result?.success) {
+        setError(result.error);
       }
 
       if (result.success) {
