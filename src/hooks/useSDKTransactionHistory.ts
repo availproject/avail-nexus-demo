@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect } from "react";
 import { useNexus } from "@/provider/NexusProvider";
-import { RequestForFunds } from "@avail-project/nexus";
+import { RequestForFunds } from "@avail-project/nexus-core";
 
 /**
  * Hook for managing transaction history using SDK's getMyIntents()
@@ -31,13 +31,13 @@ export const useSDKTransactionHistory = () => {
       } catch (err) {
         console.error("Failed to fetch transaction history:", err);
         setError(
-          err instanceof Error ? err.message : "Failed to fetch transactions"
+          err instanceof Error ? err.message : "Failed to fetch transactions",
         );
       } finally {
         setLoading(false);
       }
     },
-    [nexusSdk]
+    [nexusSdk],
   );
 
   /**
@@ -71,7 +71,7 @@ export const useSDKTransactionHistory = () => {
     (status: "pending" | "completed" | "failed") => {
       return transactions.filter((tx) => getTransactionStatus(tx) === status);
     },
-    [transactions, getTransactionStatus]
+    [transactions, getTransactionStatus],
   );
 
   /**
@@ -97,10 +97,10 @@ export const useSDKTransactionHistory = () => {
       return transactions.filter(
         (tx) =>
           tx.id.toString().includes(query) ||
-          tx.destinationChainID.toString().includes(query)
+          tx.destinationChainID.toString().includes(query),
       );
     },
-    [transactions]
+    [transactions],
   );
 
   /**

@@ -11,7 +11,7 @@ import {
 import { Loader2, TrendingUp, ArrowRight, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { CHAIN_METADATA, SimulationResult } from "@avail-project/nexus";
+import { CHAIN_METADATA, SimulationResult } from "@avail-project/nexus-core";
 import { Separator } from "../ui/separator";
 import { ScrollArea } from "../ui/scroll-area";
 
@@ -47,7 +47,7 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
       <Card
         className={cn(
           "border-none !shadow-[var(--ck-tertiary-box-shadow)] !rounded-[var(--ck-tertiary-border-radius)] bg-destructive/30",
-          className
+          className,
         )}
       >
         <CardContent className="p-4">
@@ -64,7 +64,7 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
       <Card
         className={cn(
           "border-none !shadow-[var(--ck-tertiary-box-shadow)] !rounded-[var(--ck-tertiary-border-radius)] bg-accent/10",
-          className
+          className,
         )}
       >
         <CardContent className="p-4 rounded-none">
@@ -88,7 +88,7 @@ export const SimulationPreview: React.FC<SimulationPreviewProps> = ({
     <Card
       className={cn(
         "border-none !shadow-[var(--ck-tertiary-box-shadow)] !rounded-[var(--ck-tertiary-border-radius)] bg-accent/10 py-2",
-        className
+        className,
       )}
     >
       <CardContent className="px-4 py-2 space-y-3">

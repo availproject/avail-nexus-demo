@@ -16,7 +16,7 @@ import {
   AllowanceHookSource,
   CHAIN_METADATA,
   OnAllowanceHookData,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus-core";
 import { useBridgeStore } from "@/store/bridgeStore";
 import { toast } from "sonner";
 import { useNexus } from "@/provider/NexusProvider";
@@ -168,7 +168,7 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
                 <span className="font-bold">
                   {nexusSdk?.utils.formatBalance(
                     source.allowance.current,
-                    source.token.decimals
+                    source.token.decimals,
                   )}
                 </span>
               </div>
@@ -177,7 +177,7 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
                 <span className="font-bold">
                   {nexusSdk?.utils.formatBalance(
                     source.allowance.minimum,
-                    source.token.decimals
+                    source.token.decimals,
                   )}
                 </span>
               </div>
@@ -195,7 +195,7 @@ const AllowanceModal: React.FC<AllowanceModalProps> = ({
                     Minimum (
                     {nexusSdk?.utils.formatBalance(
                       source.allowance.minimum,
-                      source.token.decimals
+                      source.token.decimals,
                     )}
                     )
                   </Label>

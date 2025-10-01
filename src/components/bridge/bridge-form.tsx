@@ -11,7 +11,7 @@ import { Infinity } from "lucide-react";
 import ChainSelect from "../blocks/chain-select";
 import TokenSelect from "../blocks/token-select";
 import { SimulationPreview } from "../shared/simulation-preview";
-import { UserAsset } from "@avail-project/nexus";
+import { UserAsset } from "@avail-project/nexus-core";
 
 interface BridgeFormProps {
   isTestnet: boolean;
@@ -88,7 +88,7 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
               disabled={!selectedToken || isSubmitting}
               className={cn(
                 "border-none focus-visible:ring-0 focus-visible:ring-offset-0",
-                validation.errorMessage ? "border-red-500" : ""
+                validation.errorMessage ? "border-red-500" : "",
               )}
             />
           </div>
@@ -146,7 +146,9 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
         className="w-full font-semibold"
         disabled={!submissionState.ready || isSubmitting}
       >
-        {isSubmitting ? "Processing..." : submissionState.reason ?? "Continue"}
+        {isSubmitting
+          ? "Processing..."
+          : (submissionState.reason ?? "Continue")}
       </Button>
     </form>
   );

@@ -5,7 +5,7 @@ import {
   NexusSDK,
   OnAllowanceHookData,
   OnIntentHookData,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus-core";
 import React, {
   createContext,
   useContext,
@@ -126,7 +126,7 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
       setIntentModal,
       cleanupSDK,
     }),
-    [nexusSdk, isInitialized, allowanceModal, intentModal, cleanupSDK]
+    [nexusSdk, isInitialized, allowanceModal, intentModal, cleanupSDK],
   );
 
   return (

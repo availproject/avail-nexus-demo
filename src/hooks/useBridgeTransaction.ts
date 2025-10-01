@@ -7,7 +7,7 @@ import {
   logBridgeError,
 } from "@/lib/bridge/errorHandling";
 import { toast } from "sonner";
-import { SimulationResult } from "@avail-project/nexus";
+import { SimulationResult } from "@avail-project/nexus-core";
 import { useTransactionProgress } from "./useTransactionProgress";
 import { useSDKTransactionHistory } from "./useSDKTransactionHistory";
 
@@ -45,7 +45,7 @@ export const useBridgeTransaction = () => {
   const setSimulation = useBridgeStore((state) => state.setSimulation);
   const setSimulating = useBridgeStore((state) => state.setSimulating);
   const setSimulationError = useBridgeStore(
-    (state) => state.setSimulationError
+    (state) => state.setSimulationError,
   );
   const clearSimulation = useBridgeStore((state) => state.clearSimulation);
 
@@ -224,7 +224,7 @@ export const useBridgeTransaction = () => {
     } catch (error) {
       console.error(error);
       setSimulationError(
-        error instanceof Error ? error.message : "Simulation failed"
+        error instanceof Error ? error.message : "Simulation failed",
       );
       clearSimulation();
     } finally {

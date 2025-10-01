@@ -11,7 +11,7 @@ import Image from "next/image";
 import { Separator } from "./ui/separator";
 import { DollarSign, Loader2 } from "lucide-react";
 import { Label } from "./ui/label";
-import { CHAIN_METADATA, UserAsset } from "@avail-project/nexus";
+import { CHAIN_METADATA, UserAsset } from "@avail-project/nexus-core";
 import { ScrollArea } from "./ui/scroll-area";
 
 const UnifiedBalance = () => {
@@ -32,7 +32,7 @@ const UnifiedBalance = () => {
     } catch (error: unknown) {
       console.error("Unable to fetch balance", error);
       setError(
-        error instanceof Error ? error.message : "Failed to fetch balance"
+        error instanceof Error ? error.message : "Failed to fetch balance",
       );
     } finally {
       setIsLoading(false);
@@ -78,7 +78,7 @@ const UnifiedBalance = () => {
             .toFixed(2)}
         </Label>
       </div>
-      <ScrollArea className="w-full max-h-[476px]">
+      <div className="w-full max-h-[350px] overflow-y-scroll overflow-x-hidden">
         <Accordion type="single" collapsible className="w-full space-y-4">
           {balance
             ?.filter((token) => parseFloat(token.balance) > 0)
@@ -154,7 +154,7 @@ const UnifiedBalance = () => {
               </AccordionItem>
             ))}
         </Accordion>
-      </ScrollArea>
+      </div>
     </div>
   );
 };

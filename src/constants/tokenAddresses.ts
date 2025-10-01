@@ -1,4 +1,7 @@
-import { SUPPORTED_TOKENS, SUPPORTED_CHAINS_IDS } from "@avail-project/nexus";
+import {
+  SUPPORTED_TOKENS,
+  SUPPORTED_CHAINS_IDS,
+} from "@avail-project/nexus-core";
 
 type TokenAddressMap = {
   [key in SUPPORTED_TOKENS]?: string;
@@ -32,7 +35,7 @@ export const protocolContracts: ProtocolContracts = {
 
 export const getTokenAddress = (
   token: SUPPORTED_TOKENS,
-  chainId: SUPPORTED_CHAINS_IDS
+  chainId: SUPPORTED_CHAINS_IDS,
 ): string | undefined => {
   if (token === "ETH") {
     return undefined;
