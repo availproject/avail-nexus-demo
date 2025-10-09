@@ -6,7 +6,7 @@ import {
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
   SimulationResult,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus-core";
 
 interface ErrorWithCode extends Error {
   code?: number;
@@ -96,7 +96,7 @@ export const useTransferTransaction = () => {
         // Special handling for allowance rejection errors
         if (isAllowanceRejectionError(error)) {
           console.log(
-            "Allowance rejection detected in transfer transaction, resetting progress"
+            "Allowance rejection detected in transfer transaction, resetting progress",
           );
 
           // Show specific toast for allowance rejection
@@ -117,7 +117,7 @@ export const useTransferTransaction = () => {
         return { success: false, error: errorMessage };
       }
     },
-    [nexusSdk, resetProgress]
+    [nexusSdk, resetProgress],
   );
 
   /**
@@ -158,14 +158,14 @@ export const useTransferTransaction = () => {
       } catch (error) {
         console.error("Transfer simulation failed:", error);
         setSimulationError(
-          error instanceof Error ? error.message : "Simulation failed"
+          error instanceof Error ? error.message : "Simulation failed",
         );
         setSimulation(null);
       } finally {
         setIsSimulating(false);
       }
     },
-    [nexusSdk]
+    [nexusSdk],
   );
 
   /**
@@ -183,7 +183,7 @@ export const useTransferTransaction = () => {
         runTransferSimulation(transferParams);
       }, 500); // 500ms debounce
     },
-    [runTransferSimulation]
+    [runTransferSimulation],
   );
 
   // Clean up timeout on unmount

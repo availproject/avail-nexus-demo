@@ -5,7 +5,7 @@ import {
   NexusSDK,
   OnAllowanceHookData,
   OnIntentHookData,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus-core";
 import React, {
   createContext,
   useContext,

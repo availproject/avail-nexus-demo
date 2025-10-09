@@ -11,7 +11,7 @@ import Image from "next/image";
 import { Separator } from "./ui/separator";
 import { DollarSign, Loader2 } from "lucide-react";
 import { Label } from "./ui/label";
-import { CHAIN_METADATA, UserAsset } from "@avail-project/nexus";
+import { CHAIN_METADATA, UserAsset } from "@avail-project/nexus-core";
 
 const UnifiedBalance = () => {
   const { nexusSdk, isInitialized } = useNexus();
@@ -26,16 +26,7 @@ const UnifiedBalance = () => {
       setIsLoading(true);
       setError(null);
       const unifiedBalance = await nexusSdk.getUnifiedBalances();
-      const swapBalances = await nexusSdk?.getSwapBalances();
-      const unifiedTokenSymbols = unifiedBalance.map((bal) => bal.symbol);
-      swapBalances.assets.forEach((asset) => {
-        const assetSymbol = asset?.symbol;
-        if (!unifiedTokenSymbols.includes(assetSymbol)) {
-          unifiedBalance.push(asset);
-        }
-      });
       console.log("unifiedBalance", unifiedBalance);
-      console.log("swapBalances", swapBalances);
       setBalance(unifiedBalance);
     } catch (error: unknown) {
       console.error("Unable to fetch balance", error);

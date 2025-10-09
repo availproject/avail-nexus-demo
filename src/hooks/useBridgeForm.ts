@@ -4,7 +4,7 @@ import {
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
   UserAsset,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus-core";
 import { validateAmountInput } from "@/lib/bridge/formatters";
 import { useBridgeValidation } from "./useBridgeValidation";
 import { toast } from "sonner";
@@ -35,7 +35,7 @@ export const useBridgeForm = (availableBalance: UserAsset[]) => {
   const validation = useBridgeValidation(
     selectedToken,
     bridgeAmount,
-    availableBalance
+    availableBalance,
   );
 
   /**
@@ -49,7 +49,7 @@ export const useBridgeForm = (availableBalance: UserAsset[]) => {
         setError(null);
       }
     },
-    [setSelectedChain, error, setError]
+    [setSelectedChain, error, setError],
   );
 
   /**
@@ -63,7 +63,7 @@ export const useBridgeForm = (availableBalance: UserAsset[]) => {
         setError(null);
       }
     },
-    [setSelectedToken, error, setError]
+    [setSelectedToken, error, setError],
   );
 
   /**
@@ -91,7 +91,7 @@ export const useBridgeForm = (availableBalance: UserAsset[]) => {
         }
       }
     },
-    [setBridgeAmount, error, setError]
+    [setBridgeAmount, error, setError],
   );
 
   /**
@@ -145,7 +145,7 @@ export const useBridgeForm = (availableBalance: UserAsset[]) => {
       const tokenBalance = availableBalance.find((t) => t.symbol === token);
       return tokenBalance && parseFloat(tokenBalance.balance) > 0;
     },
-    [availableBalance]
+    [availableBalance],
   );
 
   /**
@@ -156,7 +156,7 @@ export const useBridgeForm = (availableBalance: UserAsset[]) => {
       const tokenBalance = availableBalance.find((t) => t.symbol === token);
       return tokenBalance?.balance ?? "0";
     },
-    [availableBalance]
+    [availableBalance],
   );
 
   /**

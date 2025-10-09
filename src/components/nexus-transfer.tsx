@@ -9,7 +9,7 @@ import {
   SUPPORTED_CHAINS,
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus-core";
 import ChainSelect from "./blocks/chain-select";
 import TokenSelect from "./blocks/token-select";
 import { useTransactionProgress } from "@/hooks/useTransactionProgress";
@@ -97,7 +97,7 @@ const NexusTransfer = ({ isTestnet }: { isTestnet: boolean }) => {
   };
 
   const handleRecipientAddressChange = (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setState({ ...state, recipientAddress: e.target.value as `0x${string}` });
   };

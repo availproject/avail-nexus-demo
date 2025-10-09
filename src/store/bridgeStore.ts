@@ -7,7 +7,7 @@ import {
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
   UserAsset,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus-core";
 import { BridgeFormData, ComponentStep } from "@/types/bridge";
 
 /**
@@ -162,7 +162,7 @@ export const useBridgeStore = create<BridgeStore>()(
       updateStepCompletion: (typeID) =>
         set((state) => {
           const stepIndex = state.progressSteps.findIndex(
-            (step: ComponentStep) => step.typeID === typeID
+            (step: ComponentStep) => step.typeID === typeID,
           );
           if (stepIndex !== -1 && !state.progressSteps[stepIndex].done) {
             state.progressSteps[stepIndex].done = true;
@@ -210,7 +210,7 @@ export const useBridgeStore = create<BridgeStore>()(
       }),
       merge: (
         persistedState: unknown,
-        currentState: BridgeStore
+        currentState: BridgeStore,
       ): BridgeStore => ({
         ...currentState,
         ...(persistedState as Partial<BridgeStore>),
@@ -224,8 +224,8 @@ export const useBridgeStore = create<BridgeStore>()(
         isSimulating: false,
         simulationError: null,
       }),
-    }
-  )
+    },
+  ),
 );
 
 // Memoized selector for completed steps count to prevent infinite loops
@@ -245,7 +245,7 @@ const getCompletedStepsCount = (progressSteps: ComponentStep[]): number => {
     currentHash !== lastProgressStepsHash
   ) {
     cachedCompletedStepsCount = progressSteps.filter(
-      (step) => step.done
+      (step) => step.done,
     ).length;
     lastProgressStepsLength = progressSteps.length;
     lastProgressStepsHash = currentHash;

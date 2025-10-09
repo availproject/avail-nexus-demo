@@ -6,7 +6,7 @@ import {
   SwapIntent,
   SwapIntentHook,
   TOKEN_CONTRACT_ADDRESSES,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus-core";
 
 import React, { useState } from "react";
 import { Button } from "./ui/button";
@@ -28,14 +28,15 @@ const NexusSwaps = ({ isTestnet }: { isTestnet: boolean }) => {
       const payload: ExactInSwapInput = {
         from: [
           {
-            chainId: SUPPORTED_CHAINS.OPTIMISM,
+            chainId: SUPPORTED_CHAINS.ARBITRUM,
             amount,
             tokenAddress:
-              TOKEN_CONTRACT_ADDRESSES["USDC"][SUPPORTED_CHAINS.OPTIMISM],
+              TOKEN_CONTRACT_ADDRESSES["USDC"][SUPPORTED_CHAINS.ARBITRUM],
           },
         ],
-        toChainId: SUPPORTED_CHAINS.BASE,
-        toTokenAddress: "0x98d0baa52b2D063E780DE12F615f963Fe8537553",
+        toChainId: SUPPORTED_CHAINS.BNB,
+        toTokenAddress: "0x0000000000000000000000000000000000000000",
+        // toTokenAddress: TOKEN_CONTRACT_ADDRESSES["USDC"][SUPPORTED_CHAINS.BNB],
       };
       console.log("Payload", payload);
       console.log("Amount", amount);

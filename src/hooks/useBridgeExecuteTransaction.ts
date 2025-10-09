@@ -7,14 +7,14 @@ import {
   SUPPORTED_CHAINS_IDS,
   TOKEN_METADATA,
   TOKEN_CONTRACT_ADDRESSES,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus-core";
 import type {
   AllowanceResponse,
   BridgeAndExecuteParams,
   BridgeAndExecuteResult,
   BridgeAndExecuteSimulationResult,
   ExecuteSimulation,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus-core";
 import { parseUnits, type Abi } from "viem";
 import { getTemplateById } from "@/constants/contractTemplates";
 import { useBridgeExecuteStore } from "@/store/bridgeExecuteStore";
@@ -81,7 +81,7 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
     (
       token: SUPPORTED_TOKENS,
       amount: string,
-      chainId: SUPPORTED_CHAINS_IDS
+      chainId: SUPPORTED_CHAINS_IDS,
     ) => {
       if (!selectedTemplate) {
         throw new Error("No template selected");
@@ -97,11 +97,11 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
       }
 
       const supportedChain = template.supportedChains.find(
-        (chain: SUPPORTED_CHAINS_IDS) => chain === chainId
+        (chain: SUPPORTED_CHAINS_IDS) => chain === chainId,
       );
       if (!supportedChain) {
         throw new Error(
-          `Template ${selectedTemplate.id} not supported on chain ${chainId}`
+          `Template ${selectedTemplate.id} not supported on chain ${chainId}`,
         );
       }
 
@@ -114,7 +114,7 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
 
       if (token === "ETH") {
         throw new Error(
-          `Direct ETH deposits to AAVE are not supported. Please use USDC instead.`
+          `Direct ETH deposits to AAVE are not supported. Please use USDC instead.`,
         );
       }
 
@@ -126,7 +126,7 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
           token: SUPPORTED_TOKENS,
           amount: string,
           chainId: SUPPORTED_CHAINS_IDS,
-          user: `0x${string}`
+          user: `0x${string}`,
         ) => {
           const decimals = TOKEN_METADATA[token].decimals;
           const amountWei = parseUnits(amount, decimals);
@@ -141,7 +141,7 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
         },
       };
     },
-    [selectedTemplate, address]
+    [selectedTemplate, address],
   );
 
   const simulateBridgeAndExecute = useCallback(async () => {
@@ -166,7 +166,7 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
       const executeParams = buildExecuteParams(
         selectedToken,
         bridgeAmount,
-        selectedChain
+        selectedChain,
       );
 
       const params: BridgeAndExecuteParams = {
@@ -241,7 +241,7 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
       const executeParams = buildExecuteParams(
         selectedToken,
         bridgeAmount,
-        selectedChain
+        selectedChain,
       );
 
       const params: BridgeAndExecuteParams = {
@@ -253,9 +253,8 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
         receiptTimeout: 300000,
       };
       console.log("executeBridgeAndExecute params", params);
-      const result: BridgeAndExecuteResult = await nexusSdk.bridgeAndExecute(
-        params
-      );
+      const result: BridgeAndExecuteResult =
+        await nexusSdk.bridgeAndExecute(params);
 
       console.log("Bridge and execute completed:", result);
       reset();
@@ -343,7 +342,7 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
 
         const allowanceFormatted = nexusSdk.utils.formatTokenAmount(
           allowanceAmount,
-          selectedToken
+          selectedToken,
         );
         setCurrentAllowance(allowanceFormatted);
       } else {
@@ -387,14 +386,14 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
         // Convert amount to BigInt with correct decimals
         const decimals = getTokenDecimals(selectedToken);
         const amountBigInt = BigInt(
-          parseFloat(destinationAmount) * 10 ** decimals
+          parseFloat(destinationAmount) * 10 ** decimals,
         );
 
         // Enhanced SDK call with better error handling
         await nexusSdk.setAllowance(
           selectedChain,
           [selectedToken],
-          amountBigInt
+          amountBigInt,
         );
 
         // Check allowance again after setting
@@ -425,7 +424,7 @@ export function useBridgeExecuteTransaction(): UseBridgeExecuteTransactionReturn
       checkCurrentAllowance,
       simulateBridgeAndExecute,
       parseBridgeExecuteError,
-    ]
+    ],
   );
 
   // Check allowance when token/template changes

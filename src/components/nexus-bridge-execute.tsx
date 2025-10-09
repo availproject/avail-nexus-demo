@@ -31,7 +31,7 @@ import { useTransactionProgress } from "@/hooks/useTransactionProgress";
 import { SimulationPreview } from "./shared/simulation-preview";
 import IntentModal from "./nexus-modals/intent-modal";
 import AllowanceModal from "./nexus-modals/allowance-modal";
-import { SUPPORTED_CHAINS, TOKEN_METADATA } from "@avail-project/nexus";
+import { SUPPORTED_CHAINS, TOKEN_METADATA } from "@avail-project/nexus-core";
 
 const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
   const {
@@ -46,35 +46,35 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
   const selectedChain = SUPPORTED_CHAINS.BASE;
   const selectedToken = TOKEN_METADATA["USDC"]?.symbol;
   const bridgeAmount = useBridgeExecuteStore(
-    bridgeExecuteSelectors.bridgeAmount
+    bridgeExecuteSelectors.bridgeAmount,
   );
   const selectedTemplate = CONTRACT_TEMPLATES[0];
 
   const availableBalance = useBridgeExecuteStore(
-    bridgeExecuteSelectors.availableBalance
+    bridgeExecuteSelectors.availableBalance,
   );
   const isLoading = useBridgeExecuteStore(bridgeExecuteSelectors.isLoading);
   const error = useBridgeExecuteStore(bridgeExecuteSelectors.error);
   const canSubmit = useBridgeExecuteStore(bridgeExecuteSelectors.canSubmit);
   const progressSteps = useBridgeExecuteStore(
-    bridgeExecuteSelectors.progressSteps
+    bridgeExecuteSelectors.progressSteps,
   );
 
   const setBridgeAmount = useBridgeExecuteStore(
-    (state) => state.setBridgeAmount
+    (state) => state.setBridgeAmount,
   );
   const setAvailableBalance = useBridgeExecuteStore(
-    (state) => state.setAvailableBalance
+    (state) => state.setAvailableBalance,
   );
   const setLoading = useBridgeExecuteStore((state) => state.setLoading);
   const setSelectedChain = useBridgeExecuteStore(
-    (state) => state.setSelectedChain
+    (state) => state.setSelectedChain,
   );
   const setSelectedToken = useBridgeExecuteStore(
-    (state) => state.setSelectedToken
+    (state) => state.setSelectedToken,
   );
   const setSelectedTemplate = useBridgeExecuteStore(
-    (state) => state.setSelectedTemplate
+    (state) => state.setSelectedTemplate,
   );
 
   // Bridge and execute hook
@@ -110,7 +110,7 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
   const selectedTokenBalance = useMemo(() => {
     if (!selectedToken || !availableBalance.length) return "0";
     const tokenBalance = availableBalance.find(
-      (token) => token.symbol === selectedToken
+      (token) => token.symbol === selectedToken,
     );
     return tokenBalance?.balance || "0";
   }, [selectedToken, availableBalance]);
@@ -154,7 +154,7 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setBridgeAmount(e.target.value);
     },
-    [setBridgeAmount]
+    [setBridgeAmount],
   );
 
   // Set max amount
@@ -356,7 +356,7 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
                           <span className="font-medium">
                             {parseFloat(
                               multiStepResult.totalEstimatedCost?.breakdown
-                                .execute ?? "0"
+                                .execute ?? "0",
                             ).toFixed(6)}{" "}
                             {selectedToken}
                           </span>
@@ -366,7 +366,8 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
                             <span>Total</span>
                             <span>
                               {parseFloat(
-                                multiStepResult.totalEstimatedCost?.total ?? "0"
+                                multiStepResult.totalEstimatedCost?.total ??
+                                  "0",
                               ).toFixed(6)}{" "}
                               {selectedToken}
                             </span>
@@ -436,7 +437,8 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
                                 "intent" in step.simulation && (
                                   <div className="text-xs">
                                     <div>
-                                      Cost: {step.simulation.intent.fees.total}{" "}
+                                      Cost:{" "}
+                                      {step.simulation.intent.fees.total}{" "}
                                     </div>
                                     <div className="text-green-600">
                                       ✓ Ready
@@ -451,7 +453,7 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
                                     <div>
                                       Cost:{" "}
                                       {parseFloat(
-                                        step.simulation.gasUsed
+                                        step.simulation.gasUsed,
                                       ).toFixed(6)}
                                     </div>
                                     <div
@@ -584,12 +586,12 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
           {isExecuting
             ? "Processing..."
             : !selectedTemplate
-            ? "Select a Protocol"
-            : !selectedToken
-            ? "Select Token"
-            : !bridgeAmount || parseFloat(bridgeAmount) <= 0
-            ? "Enter Amount"
-            : "Bridge & Execute"}
+              ? "Select a Protocol"
+              : !selectedToken
+                ? "Select Token"
+                : !bridgeAmount || parseFloat(bridgeAmount) <= 0
+                  ? "Enter Amount"
+                  : "Bridge & Execute"}
         </Button>
       </div>
 
@@ -693,7 +695,7 @@ const NexusBridgeAndExecute = ({ isTestnet }: { isTestnet: boolean }) => {
                           multiStepResult?.bridgeSimulation?.intent?.destination
                             ?.amount ||
                             bridgeAmount ||
-                            "0"
+                            "0",
                         )))
                 }
                 className="flex-1"

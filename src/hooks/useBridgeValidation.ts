@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 import { validateAmountInput } from "@/lib/bridge/formatters";
-import { SUPPORTED_TOKENS, UserAsset } from "@avail-project/nexus";
+import { SUPPORTED_TOKENS, UserAsset } from "@avail-project/nexus-core";
 import { BridgeValidationResult } from "@/types/bridge";
 
 export const useBridgeValidation = (
   selectedToken: SUPPORTED_TOKENS | undefined,
   bridgeAmount: string,
-  availableBalance: UserAsset[]
+  availableBalance: UserAsset[],
 ) => {
   const isValidAmountFormat = useMemo(() => {
     return validateAmountInput(bridgeAmount);
@@ -138,7 +138,7 @@ export const useBridgeValidation = (
       isPositiveAmount,
       isWithinBalance,
       isNotDustAmount,
-    ]
+    ],
   );
 
   const maxAmount = useMemo(() => {

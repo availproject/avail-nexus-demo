@@ -8,7 +8,7 @@ import {
   SUPPORTED_TOKENS,
   UserAsset,
   SimulationResult,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus-core";
 import { BridgeExecuteState, ContractTemplate } from "@/types/bridge-execute";
 import { ComponentStep } from "@/types/bridge";
 
@@ -189,7 +189,7 @@ export const useBridgeExecuteStore = create<BridgeExecuteStore>()(
       updateStepCompletion: (typeID) =>
         set((state) => {
           const stepIndex = state.progressSteps.findIndex(
-            (step: ComponentStep) => step.typeID === typeID
+            (step: ComponentStep) => step.typeID === typeID,
           );
           if (stepIndex !== -1 && !state.progressSteps[stepIndex].done) {
             state.progressSteps[stepIndex].done = true;
@@ -231,7 +231,7 @@ export const useBridgeExecuteStore = create<BridgeExecuteStore>()(
       }),
       merge: (
         persistedState: unknown,
-        currentState: BridgeExecuteStore
+        currentState: BridgeExecuteStore,
       ): BridgeExecuteStore => ({
         ...currentState,
         ...(persistedState as Partial<BridgeExecuteStore>),
@@ -250,8 +250,8 @@ export const useBridgeExecuteStore = create<BridgeExecuteStore>()(
         selectedTemplate: null,
         templateParams: {},
       }),
-    }
-  )
+    },
+  ),
 );
 
 // Helper function to count completed steps

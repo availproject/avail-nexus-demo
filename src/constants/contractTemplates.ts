@@ -3,7 +3,7 @@ import {
   SUPPORTED_CHAINS,
   SUPPORTED_CHAINS_IDS,
   SUPPORTED_TOKENS,
-} from "@avail-project/nexus";
+} from "@avail-project/nexus-core";
 
 // Import only the needed ABI
 import AAVE_ABI from "./abis/aave.json";
@@ -46,19 +46,19 @@ export const CONTRACT_TEMPLATES: ContractTemplate[] = [
 
 // Helper function to get templates by chain
 export const getTemplatesForChain = (
-  chainId: SUPPORTED_CHAINS_IDS
+  chainId: SUPPORTED_CHAINS_IDS,
 ): ContractTemplate[] => {
   return CONTRACT_TEMPLATES.filter((template) =>
-    template.supportedChains.includes(chainId)
+    template.supportedChains.includes(chainId),
   );
 };
 
 // Helper function to get templates by token
 export const getTemplatesForToken = (
-  token: SUPPORTED_TOKENS
+  token: SUPPORTED_TOKENS,
 ): ContractTemplate[] => {
   return CONTRACT_TEMPLATES.filter((template) =>
-    template.supportedTokens.includes(token)
+    template.supportedTokens.includes(token),
   );
 };
 
