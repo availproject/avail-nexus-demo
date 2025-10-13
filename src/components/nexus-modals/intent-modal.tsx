@@ -111,7 +111,7 @@ const IntentModal: React.FC<IntentModalProps> = ({
                         }}
                       />
                       <div className="flex items-center gap-x-2">
-                        <div className="text-foreground font-bold text-center text-sm">
+                        <div className="text-card-foreground font-bold text-center text-sm">
                           {source.amount} {intent.token?.symbol}
                         </div>
                       </div>
@@ -160,7 +160,7 @@ const IntentModal: React.FC<IntentModalProps> = ({
                         e.currentTarget.style.display = "none";
                       }}
                     />
-                    <div className="text-foreground font-bold text-center text-sm">
+                    <div className="text-card-foreground font-bold text-center text-sm">
                       {intent.destination.amount} {intent.token?.symbol}
                     </div>
                   </>
@@ -179,7 +179,7 @@ const IntentModal: React.FC<IntentModalProps> = ({
                     <span className="text-sm text-muted-foreground">
                       Network Gas
                     </span>
-                    <span className="text-sm">
+                    <span className="text-sm text-muted-foreground">
                       {formatCost(intent.fees.caGas ?? "0")}{" "}
                       {intent.token?.symbol}
                     </span>
@@ -190,7 +190,7 @@ const IntentModal: React.FC<IntentModalProps> = ({
                       <span className="text-sm text-muted-foreground">
                         Solver Fee
                       </span>
-                      <span className="text-sm">
+                      <span className="text-sm text-muted-foreground">
                         {formatCost(intent.fees.solver)} {intent.token?.symbol}
                       </span>
                     </div>
@@ -202,7 +202,7 @@ const IntentModal: React.FC<IntentModalProps> = ({
                         <span className="text-sm text-muted-foreground">
                           Protocol Fee
                         </span>
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-medium text-muted-foreground">
                           {formatCost(intent.fees.protocol)}{" "}
                           {intent.token?.symbol}
                         </span>
@@ -215,7 +215,7 @@ const IntentModal: React.FC<IntentModalProps> = ({
                         <span className="text-sm text-muted-foreground">
                           Additional Gas
                         </span>
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-medium text-muted-foreground">
                           {formatCost(intent.fees.gasSupplied)}{" "}
                           {intent.token?.symbol}
                         </span>
@@ -223,10 +223,10 @@ const IntentModal: React.FC<IntentModalProps> = ({
                     )}
 
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-semibold">
+                    <span className="text-sm font-semibold text-muted-foreground">
                       Total Gas Cost
                     </span>
-                    <span className="text-sm font-bold">
+                    <span className="text-sm font-bold text-muted-foreground">
                       {formatCost(intent.fees.total ?? "0")}{" "}
                       {intent.token?.symbol}
                     </span>
@@ -255,7 +255,7 @@ const IntentModal: React.FC<IntentModalProps> = ({
             <Button
               variant="connectkit"
               onClick={handleDeny}
-              className="bg-destructive/50 font-semibold w-1/2"
+              className="bg-destructive/50 font-semibold w-1/2 text-muted-foreground"
             >
               Deny
             </Button>
@@ -264,7 +264,7 @@ const IntentModal: React.FC<IntentModalProps> = ({
               onClick={handleAllow}
               disabled={isRefreshing}
               className={cn(
-                "font-semibold w-1/2",
+                "font-semibold w-1/2 text-muted-foreground",
                 isRefreshing && "bg-gray-500 cursor-not-allowed",
               )}
             >
