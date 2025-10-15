@@ -84,7 +84,7 @@ export const TransactionHistory: React.FC = () => {
                     {renderStatusBadge(getTransactionStatus(tx))}
                     {tx.id && (
                       <Link
-                        href={`https://explorer.arcana.network/intent/${tx.id}`}
+                        href={`https://explorer.nexus.availproject.org/${tx.id}`}
                         target="_blank"
                         className="hover:bg-transparent hover:text-secondary cursor-pointer flex items-center gap-x-2 text-sm font-semibold"
                       >
