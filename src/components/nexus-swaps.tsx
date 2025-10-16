@@ -2,6 +2,7 @@
 import { useNexus } from "@/provider/NexusProvider";
 import {
   ExactInSwapInput,
+  ExactOutSwapInput,
   SUPPORTED_CHAINS,
   SwapIntent,
   SwapIntentHook,
@@ -38,8 +39,26 @@ const NexusSwaps = ({ isTestnet }: { isTestnet: boolean }) => {
         toTokenAddress: "0x0000000000000000000000000000000000000000",
         // toTokenAddress: TOKEN_CONTRACT_ADDRESSES["USDC"][SUPPORTED_CHAINS.BNB],
       };
+
+      // const swapWithExactOutInput: ExactOutSwapInput = {
+      //   toChainId: 137, // Polygon Mainnet
+      //   toTokenAddress:
+      //     "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174" as `0x${string}`,
+      //   toAmount: BigInt(10000), // bigint
+      // };
       console.log("Payload", payload);
       console.log("Amount", amount);
+      // const result = await nexusSdk?.swapWithExactOut(swapWithExactOutInput, {
+      //   swapIntentHook: async (data: {
+      //     allow: () => void;
+      //     deny: () => void;
+      //     intent: SwapIntent;
+      //     refresh: () => Promise<SwapIntent>;
+      //   }) => {
+      //     console.log("Swap intent hook", data);
+      //     setSwapIntent(data);
+      //   },
+      // });
       const result = await nexusSdk?.swapWithExactIn(payload, {
         swapIntentHook: async (data: {
           allow: () => void;
