@@ -88,7 +88,7 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
               disabled={!selectedToken || isSubmitting}
               className={cn(
                 "border-none focus-visible:ring-0 focus-visible:ring-offset-0",
-                validation.errorMessage ? "border-red-500" : "",
+                validation.errorMessage ? "border-red-500" : ""
               )}
             />
           </div>
@@ -97,7 +97,7 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
               {selectedToken}
             </div>
           )}
-          {selectedToken && parseFloat(selectedTokenBalance) > 0 && (
+          {selectedToken && Number.parseFloat(selectedTokenBalance) > 0 && (
             <Button
               variant="ghost"
               size="sm"
@@ -129,7 +129,7 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
       </div>
 
       {/* Simulation Preview */}
-      {selectedToken && bridgeAmount && parseFloat(bridgeAmount) > 0 && (
+      {selectedToken && bridgeAmount && Number.parseFloat(bridgeAmount) > 0 && (
         <SimulationPreview
           simulation={simulation}
           isSimulating={isSimulating}
@@ -146,9 +146,7 @@ export const BridgeForm: React.FC<BridgeFormProps> = ({
         className="w-full font-semibold"
         disabled={!submissionState.ready || isSubmitting}
       >
-        {isSubmitting
-          ? "Processing..."
-          : (submissionState.reason ?? "Continue")}
+        {isSubmitting ? "Processing..." : submissionState.reason ?? "Continue"}
       </Button>
     </form>
   );

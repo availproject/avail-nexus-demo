@@ -53,7 +53,7 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
       try {
         // Get the EIP-1193 provider from the connector
         // For ConnectKit/wagmi, we need to get the provider from the connector
-        const isTestnet = process.env.NEXT_PUBLIC_ENABLE_TESTNET === "true";
+        // const isTestnet = process.env.NEXT_PUBLIC_ENABLE_TESTNET === "true";
         const provider = (await connector.getProvider()) as EthereumProvider;
 
         if (!provider) {
@@ -61,7 +61,7 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
         }
 
         const sdk = new NexusSDK({
-          network: isTestnet ? "testnet" : "mainnet",
+          network: "devnet",
           debug: true,
         });
 
@@ -126,7 +126,7 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
       setIntentModal,
       cleanupSDK,
     }),
-    [nexusSdk, isInitialized, allowanceModal, intentModal, cleanupSDK],
+    [nexusSdk, isInitialized, allowanceModal, intentModal, cleanupSDK]
   );
 
   return (

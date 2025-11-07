@@ -56,7 +56,7 @@ const NexusBridge: React.FC<{ isTestnet: boolean }> = ({ isTestnet }) => {
   const handleBridgeSubmit = useCallback(async () => {
     const result = await executeBridge();
 
-    if (result.success) {
+    if (result) {
       await fetchAvailableBalance();
     }
   }, [executeBridge, fetchAvailableBalance]);

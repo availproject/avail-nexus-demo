@@ -1,6 +1,8 @@
 import { useCallback, useState, useEffect, useRef } from "react";
 import { useNexus } from "@/provider/NexusProvider";
 import { useTransactionProgress } from "./useTransactionProgress";
+import { createOnEvent } from "@/hooks/useNexusProgressEvents";
+import { useNexusErrorHandler } from "@/hooks/useNexusErrorHandler";
 import { toast } from "sonner";
 import {
   SUPPORTED_CHAINS_IDS,
@@ -41,9 +43,8 @@ export const useTransferTransaction = () => {
   const [simulationError, setSimulationError] = useState<string | null>(null);
 
   // Hooks
-  const { resetProgress } = useTransactionProgress({
-    transactionType: "transfer",
-  });
+  const { resetProgress } = useTransactionProgress();
+  const { handleError } = useNexusErrorHandler();
 
   /**
    * Execute transfer transaction with full flow
@@ -60,12 +61,15 @@ export const useTransferTransaction = () => {
       }
 
       try {
-        const transferTxn = await nexusSdk.transfer({
-          token,
-          amount,
-          chainId,
-          recipient,
-        });
+        const transferTxn = await nexusSdk.bridgeAndTransfer(
+          {
+            token,
+            amount,
+            chainId,
+            recipient,
+          },
+          { onEvent: createOnEvent("transfer") }
+        );
         resetProgress();
 
         return transferTxn;
@@ -96,7 +100,7 @@ export const useTransferTransaction = () => {
         // Special handling for allowance rejection errors
         if (isAllowanceRejectionError(error)) {
           console.log(
-            "Allowance rejection detected in transfer transaction, resetting progress",
+            "Allowance rejection detected in transfer transaction, resetting progress"
           );
 
           // Show specific toast for allowance rejection
@@ -114,10 +118,12 @@ export const useTransferTransaction = () => {
           duration: 4000,
         });
 
+        handleError(error, "Transfer transaction execution");
+
         return { success: false, error: errorMessage };
       }
     },
-    [nexusSdk, resetProgress],
+    [nexusSdk, resetProgress]
   );
 
   /**
@@ -144,28 +150,29 @@ export const useTransferTransaction = () => {
         setSimulationError(null);
 
         // Try to simulate transfer using SDK if available
-        const result: SimulationResult | null =
-          await nexusSdk.simulateTransfer?.({
-            token,
-            amount,
-            chainId,
-            recipient,
-          });
+        const simResult = await nexusSdk.simulateTransfer?.({
+          token,
+          amount,
+          chainId,
+          recipient,
+        });
 
-        console.log("transfer sim", result);
+        console.log("transfer sim", simResult);
 
-        setSimulation(result);
+        // Use only the bridgeSimulation portion for the preview component
+        setSimulation(simResult?.bridgeSimulation ?? null);
       } catch (error) {
         console.error("Transfer simulation failed:", error);
         setSimulationError(
-          error instanceof Error ? error.message : "Simulation failed",
+          error instanceof Error ? error.message : "Simulation failed"
         );
         setSimulation(null);
+        handleError(error, "Transfer simulation");
       } finally {
         setIsSimulating(false);
       }
     },
-    [nexusSdk],
+    [nexusSdk]
   );
 
   /**
@@ -183,7 +190,7 @@ export const useTransferTransaction = () => {
         runTransferSimulation(transferParams);
       }, 500); // 500ms debounce
     },
-    [runTransferSimulation],
+    [runTransferSimulation]
   );
 
   // Clean up timeout on unmount

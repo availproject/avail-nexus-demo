@@ -50,15 +50,7 @@ const NexusTransfer = ({ isTestnet }: { isTestnet: boolean }) => {
     triggerTransferSimulation,
   } = useTransferTransaction();
 
-  useTransactionProgress({
-    transactionType: "transfer",
-    formData: {
-      selectedToken: state.selectedToken,
-      amount: state.amount,
-      selectedChain: state.selectedChain.toString(),
-      recipientAddress: state.recipientAddress,
-    },
-  });
+  useTransactionProgress();
 
   // Trigger simulation when transfer parameters change
   useEffect(() => {
@@ -97,7 +89,7 @@ const NexusTransfer = ({ isTestnet }: { isTestnet: boolean }) => {
   };
 
   const handleRecipientAddressChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setState({ ...state, recipientAddress: e.target.value as `0x${string}` });
   };
@@ -125,7 +117,7 @@ const NexusTransfer = ({ isTestnet }: { isTestnet: boolean }) => {
 
       console.log("result", result);
 
-      if (result.success) {
+      if (result) {
         // Clear form on successful transfer
         setState({
           ...state,

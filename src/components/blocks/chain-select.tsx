@@ -35,7 +35,7 @@ const ChainSelect = ({
       value={selectedChain?.toString() ?? ""}
       onValueChange={(value) => {
         if (!disabled) {
-          handleSelect(parseInt(value) as SUPPORTED_CHAINS_IDS);
+          handleSelect(Number.parseInt(value) as SUPPORTED_CHAINS_IDS);
         }
       }}
     >

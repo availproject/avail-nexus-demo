@@ -9,7 +9,9 @@ import {
 import { toast } from "sonner";
 import { SimulationResult } from "@avail-project/nexus-core";
 import { useTransactionProgress } from "./useTransactionProgress";
+import { createOnEvent } from "@/hooks/useNexusProgressEvents";
 import { useSDKTransactionHistory } from "./useSDKTransactionHistory";
+import { useNexusErrorHandler } from "@/hooks/useNexusErrorHandler";
 
 interface ErrorWithCode extends Error {
   code?: number;
@@ -45,13 +47,14 @@ export const useBridgeTransaction = () => {
   const setSimulation = useBridgeStore((state) => state.setSimulation);
   const setSimulating = useBridgeStore((state) => state.setSimulating);
   const setSimulationError = useBridgeStore(
-    (state) => state.setSimulationError,
+    (state) => state.setSimulationError
   );
   const clearSimulation = useBridgeStore((state) => state.clearSimulation);
 
   // Hooks
   const { resetProgress } = useTransactionProgress();
   const { refetch } = useSDKTransactionHistory();
+  const { handleError } = useNexusErrorHandler();
 
   /**
    * Execute bridge transaction with full flow
@@ -76,17 +79,20 @@ export const useBridgeTransaction = () => {
         amount: bridgeAmount,
       });
 
-      const result = await nexusSdk.bridge({
-        chainId: selectedChain,
-        token: selectedToken,
-        amount: bridgeAmount,
-      });
+      const result = await nexusSdk.bridge(
+        {
+          chainId: selectedChain,
+          token: selectedToken,
+          amount: bridgeAmount,
+        },
+        { onEvent: createOnEvent("bridge") }
+      );
 
-      if (!result?.success) {
-        setError(result.error);
+      if (!result) {
+        setError("Unknown error");
       }
 
-      if (result.success) {
+      if (result) {
         toast.success("Bridge transaction completed successfully!", {
           description: `${bridgeAmount} ${selectedToken} bridged successfully`,
           duration: 5000,
@@ -148,6 +154,8 @@ export const useBridgeTransaction = () => {
         duration: 6000,
       });
 
+      handleError(error, "Bridge transaction execution");
+
       return { success: false, error: userFriendlyMessage };
     } finally {
       setBridging(false);
@@ -191,7 +199,7 @@ export const useBridgeTransaction = () => {
       !selectedToken ||
       !bridgeAmount ||
       !nexusSdk ||
-      parseFloat(bridgeAmount) <= 0
+      Number.parseFloat(bridgeAmount) <= 0
     ) {
       clearSimulation();
       return;
@@ -224,7 +232,7 @@ export const useBridgeTransaction = () => {
     } catch (error) {
       console.error(error);
       setSimulationError(
-        error instanceof Error ? error.message : "Simulation failed",
+        error instanceof Error ? error.message : "Simulation failed"
       );
       clearSimulation();
     } finally {

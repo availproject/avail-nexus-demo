@@ -1,12 +1,14 @@
-import {
-  SUPPORTED_CHAINS,
-  ProgressStep,
-  UserAsset,
-} from "@avail-project/nexus-core";
+import { SUPPORTED_CHAINS, UserAsset } from "@avail-project/nexus-core";
 
 export type SupportedChainId =
   (typeof SUPPORTED_CHAINS)[keyof typeof SUPPORTED_CHAINS];
 export type SupportedToken = "ETH" | "USDC" | "USDT";
+
+export type ProgressStep = {
+  type: string;
+  typeID: string;
+  data?: unknown;
+};
 
 export interface ComponentStep extends ProgressStep {
   done: boolean;
