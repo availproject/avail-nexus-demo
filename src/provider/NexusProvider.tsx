@@ -17,7 +17,7 @@ import React, {
   SetStateAction,
   Dispatch,
 } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useWalletClient } from "wagmi";
 
 interface NexusContextType {
   nexusSdk: NexusSDK | undefined;
@@ -45,16 +45,19 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
   const [allowanceModal, setAllowanceModal] =
     useState<OnAllowanceHookData | null>(null);
   const [intentModal, setIntentModal] = useState<OnIntentHookData | null>(null);
-
-  const { connector } = useAccount();
+  const { data: walletClient } = useWalletClient();
 
   const initializeSDK = useCallback(async () => {
-    if (isConnected && !nexusSdk && connector) {
+    if (isConnected && !nexusSdk && walletClient) {
       try {
         // Get the EIP-1193 provider from the connector
         // For ConnectKit/wagmi, we need to get the provider from the connector
         const isTestnet = process.env.NEXT_PUBLIC_ENABLE_TESTNET === "true";
-        const provider = (await connector.getProvider()) as EthereumProvider;
+        const provider =
+          walletClient &&
+          ({
+            request: (args: unknown) => walletClient.request(args as any),
+          } as unknown as EthereumProvider);
 
         if (!provider) {
           throw new Error("No EIP-1193 provider available");
@@ -94,7 +97,7 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
         setIsInitialized(false);
       }
     }
-  }, [isConnected, nexusSdk, connector]);
+  }, [isConnected, nexusSdk, walletClient]);
 
   const cleanupSDK = useCallback(() => {
     if (nexusSdk) {
@@ -126,7 +129,7 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
       setIntentModal,
       cleanupSDK,
     }),
-    [nexusSdk, isInitialized, allowanceModal, intentModal, cleanupSDK],
+    [nexusSdk, isInitialized, allowanceModal, intentModal, cleanupSDK]
   );
 
   return (
