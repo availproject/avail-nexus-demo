@@ -17,7 +17,7 @@ import React, {
   SetStateAction,
   Dispatch,
 } from "react";
-import { useAccount, useWalletClient } from "wagmi";
+import { useWalletClient } from "wagmi";
 
 interface NexusContextType {
   nexusSdk: NexusSDK | undefined;
@@ -56,6 +56,7 @@ export const NexusProvider: React.FC<NexusProviderProps> = ({
         const provider =
           walletClient &&
           ({
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             request: (args: unknown) => walletClient.request(args as any),
           } as unknown as EthereumProvider);
 
